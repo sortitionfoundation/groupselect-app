@@ -10,6 +10,7 @@ To run this software (after downloading/cloning it), you have to run the followi
 ```
 python -m venv venv
 source venv/bin/activate
+pip install -Ur src/requirements.txt
 fbs run
 ```
 To build it you will have to set up a a Docker VM as is described [here](https://build-system.fman.io/manual/), and then run `fbs freeze` followed by `fbs release`.
