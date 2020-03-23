@@ -70,7 +70,7 @@ class TAAppDataManager:
         for entry in app_data.peopledata_vals:
             writer.writerow(entry)
 
-    def exportAllocationToCSV(self, file_handle, a):
+    def export_allocation_to_csv(self, file_handle, a):
         allocation = self.ctx.app_data.results[a]
         writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         header = ['Seat/Table']
@@ -82,14 +82,14 @@ class TAAppDataManager:
         for s in range(numMaxSeats):
             row = []
             for t in range (numTables):
-                if s < len(allocation[t]): row.append(self.get_print_labels(allocation[t][s][0]))
-                else: row.append("(empty)")
+                if s < len(allocation[t]): row.append(self.get_print_labels(allocation[t][s]))
+                else: row.append("(empty seat)")
             writer.writerow(row)
         writer.writerow((numTables+1)*["--------"])
         writer.writerow(["Total: {}".format(len(table)) for table in allocation])
-        cats = dict(self.get_fields_cluster_dict(), **self.get_fields_diverse_dict())
+        cats = {**self.get_fields_cluster_dict(), **self.get_fields_diverse_dict()}
         for cat_key, cat_val_terms in cats.items():
             writer.writerow((numTables+1)*["--------"])
-            writer.writerow((numTables+1)*["{}:".format(cat_key)])
+            writer.writerow((numTables+1)*["{}:".format(self.ctx.app_data.peopledata_keys[cat_key])])
             for cat_val_term in cat_val_terms:
                 writer.writerow(["{} {}".format(self.get_occurences(a, t, cat_key, cat_val_term), cat_val_term) for t in range(numTables)])

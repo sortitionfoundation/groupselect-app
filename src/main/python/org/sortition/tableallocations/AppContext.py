@@ -4,7 +4,6 @@ from org.sortition.tableallocations.gui.mainwin.TAMainWindow import TAMainWindow
 from org.sortition.tableallocations.data.TAAppData import TAAppData
 from org.sortition.tableallocations.data.TAAppDataManager import TAAppDataManager
 from org.sortition.tableallocations.data.TAFileSaveManager import TAFileSaveManager
-from org.sortition.tableallocations.data.TADataExportManager import TADataExportManager
 from org.sortition.tableallocations.allocator.TAAllocationsManager import TAAllocationsManager
 
 class AppContext(ApplicationContext):
@@ -19,7 +18,6 @@ class AppContext(ApplicationContext):
         self.app_data_manager = TAAppDataManager(self)
         self.ta_manager = TAAllocationsManager(self)
         self.filesave_manager = TAFileSaveManager(self)
-        self.dataexport_manager = TADataExportManager(self)
 
         self.filesave_manager.close()
 

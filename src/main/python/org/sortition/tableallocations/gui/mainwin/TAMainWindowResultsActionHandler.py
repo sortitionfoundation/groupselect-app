@@ -1,6 +1,6 @@
 import sys, os.path
 
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QInputDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QInputDialog, QErrorMessage
 
 class TAMainWindowResultsActionHandler:
     def __init__(self, ctx, window):
@@ -15,7 +15,8 @@ class TAMainWindowResultsActionHandler:
             fname += '.csv'
         try:
             with open(fname, 'w') as handle:
-                self.ctx.app_data.exportAllocationToCSV(handle, 0)
+                a = self.ctx.window.tabs.tab_results.tabs.currentIndex()
+                self.ctx.app_data_manager.export_allocation_to_csv(handle, a)
                 handle.close()
         except Exception as e:
             error_dialog = QErrorMessage()
@@ -33,7 +34,7 @@ class TAMainWindowResultsActionHandler:
             fbasename += '.csv'
 
         files = []
-        for a in range(len(self.ctx.app_data.output)):
+        for a in range(len(self.ctx.app_data.results)):
             fname = fbasename.replace('#', str(a+1))
             files.append((a, fname))
 
@@ -45,7 +46,7 @@ class TAMainWindowResultsActionHandler:
         try:
             for a, fname in files:
                 with open(fname, 'w') as handle:
-                    self.ctx.app_data.exportAllocationToCSV(handle, 0)
+                    self.ctx.app_data_manager.export_allocation_to_csv(handle, a)
                     handle.close()
         except Exception as e:
             error_dialog = QErrorMessage()
