@@ -162,4 +162,4 @@ class TAMainWindow(QMainWindow):
 
     def show_about_dialog(self):
         about_html = open(self.ctx.get_resource("about.html")).read()
-        TAHelpDialog.show(about_html, self.win)
+        TAHelpDialog.show(about_html, self)
