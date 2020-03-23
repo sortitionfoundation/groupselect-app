@@ -234,7 +234,7 @@ class TAGenerateTab(QWidget):
             return
 
         progress_bar.close()
-        QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f}.".format(self.ctx.ta_manager.links))
+        QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.ta_manager.links, 100*self.ctx.ta_manager.links_rel))
 
         self.ctx.set_unsaved()
         self.ctx.window.tabs.results_updated()

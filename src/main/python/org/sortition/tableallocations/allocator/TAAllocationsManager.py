@@ -57,20 +57,27 @@ class TAAllocationsManager:
         for n in range(nattempts):
             allocation_group = random.sample(allocations, nallocations)
             allocation_group_links = 0
+            allocation_group_links_max = 0
 
-            for pid, person in enumerate(peopledata_vals_used):
+            for pid in range(app_data.m_data):
                 links = []
                 for allc in allocation_group:
                     for t in range(tables):
-                        if pid in allc[t]: links.extend(allc[t])
-                allocation_group_links += len(set(links))-1
+                        if pid in allc[t]:
+                            new_links = allc[t][:]
+                            new_links.remove(pid)
+                            links.extend(new_links)
+                            allocation_group_links_max += len(allc[t])-1
+                allocation_group_links += len(list(set(links)))
 
-            allocation_groups.append([allocation_group_links, allocation_group])
+            allocation_groups.append([allocation_group_links, allocation_group_links_max, allocation_group])
 
         allcmax = max(allocation_groups, key=lambda x: x[0])
-        allocation_group_outcome = allcmax[1]
+        allocation_group_outcome = allcmax[2]
         allocation_group_links_pp = allcmax[0]/app_data.m_data
+        allocation_group_links_pp_max = allcmax[1]/app_data.m_data
 
         self.ctx.app_data.results = allocation_group_outcome
 
         self.links = allocation_group_links_pp
+        self.links_rel = allocation_group_links_pp/allocation_group_links_pp_max
