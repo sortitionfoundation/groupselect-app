@@ -137,7 +137,6 @@ class TAGenerateTab(QWidget):
             new_item = QListWidgetItem()
             new_item.setData(Qt.UserRole, j)
             new_item.setText(self.ctx.app_data.peopledata_keys[j])
-            #new_item.installEventFilter(self)
             self.order_cluster.addItem(new_item)
 
         self.order_diverse.clear()
@@ -145,7 +144,6 @@ class TAGenerateTab(QWidget):
             new_item = QListWidgetItem()
             new_item.setData(Qt.UserRole, j)
             new_item.setText(self.ctx.app_data.peopledata_keys[j])
-            #new_item.installEventFilter(self)
             self.order_diverse.addItem(new_item)
 
         self._order_lists_being_updated = False
@@ -217,27 +215,27 @@ class TAGenerateTab(QWidget):
         self.ctx.set_unsaved()
 
     def buttonclicked_run_allocation(self):
+        attempts = self.ctx.app_data.settings['nattempts']
+        progress_bar = QProgressDialog("Generating table allocations...", "", 0, attempts, self.ctx.window)
+        progress_bar.setWindowTitle("Generating...")
+        progress_bar.setWindowModality(Qt.WindowModal)
+        progress_bar.setAutoClose(False)
+        progress_bar.setMinimumDuration(0)
+        progress_bar.setCancelButton(None)
+
+        progress_bar.show()
+        progress_bar.setValue(0)
+
         try:
-            attempts = self.ctx.app_data.settings['nattempts']
-            progress_bar = QProgressDialog("Generating table allocations...", "", 0, attempts, self.ctx.window)
-            progress_bar.setWindowTitle("Generating...")
-            progress_bar.setWindowModality(Qt.WindowModal)
-            progress_bar.setAutoClose(False)
-            progress_bar.setMinimumDuration(0)
-            progress_bar.setCancelButton(None)
-
-            progress_bar.show()
-            progress_bar.setValue(0)
-
             self.ctx.ta_manager.run(progress_bar)
-
-            progress_bar.close()
         except Exception as e:
+            progress_bar.close()
             QMessageBox.critical(self, "Error", "An error occured during allocation: {}".format(str(e)))
             return
-        self.ctx.set_unsaved()
 
+        progress_bar.close()
         QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f}.".format(self.ctx.ta_manager.links))
 
+        self.ctx.set_unsaved()
         self.ctx.window.tabs.results_updated()
         self.ctx.window.results_menu.setEnabled(True)
