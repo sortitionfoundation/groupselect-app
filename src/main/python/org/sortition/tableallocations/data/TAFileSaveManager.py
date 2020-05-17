@@ -1,6 +1,6 @@
-from org.sortition.tableallocations.data.TAAppData import TAAppData
-
 import jsonpickle
+
+from org.sortition.tableallocations.data.TAAppData import TAAppData
 
 class TAFileSaveManager:
     def __init__(self, ctx):

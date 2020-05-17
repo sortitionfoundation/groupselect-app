@@ -1,9 +1,4 @@
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView)
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
-
-import pickle
-import traceback
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
 from org.sortition.tableallocations.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
 from org.sortition.tableallocations.gui.maintabs.fields.TAFieldsTab import TAFieldsTab

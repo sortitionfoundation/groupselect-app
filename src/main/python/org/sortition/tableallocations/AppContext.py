@@ -1,7 +1,6 @@
 from fbs_runtime.application_context.PyQt5 import ApplicationContext, cached_property
 
 from org.sortition.tableallocations.gui.mainwin.TAMainWindow import TAMainWindow
-from org.sortition.tableallocations.data.TAAppData import TAAppData
 from org.sortition.tableallocations.data.TAAppDataManager import TAAppDataManager
 from org.sortition.tableallocations.data.TAFileSaveManager import TAFileSaveManager
 from org.sortition.tableallocations.allocator.TAAllocationsManager import TAAllocationsManager

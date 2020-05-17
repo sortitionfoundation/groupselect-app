@@ -1,5 +1,6 @@
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject, QEvent
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView, QStackedLayout, QCheckBox, QListWidgetItem, QHeaderView, QProgressDialog)
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit, \
+                            QListWidget, QGroupBox, QGridLayout, QFormLayout, QListWidgetItem, QProgressDialog
 from PyQt5.QtGui import QIntValidator
 
 from org.sortition.tableallocations.gui.maintabs.generate.TAManualDialog import TAManualDialog

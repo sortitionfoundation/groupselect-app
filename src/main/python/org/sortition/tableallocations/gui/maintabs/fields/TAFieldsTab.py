@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView, QStackedLayout, QCheckBox, QListWidgetItem, QHeaderView)
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QTableWidget, QLabel, QTableWidgetItem, QListWidget, QComboBox, QGroupBox, \
+                            QGridLayout, QStackedLayout, QListWidgetItem, QHeaderView
 
 class TAFieldsTab(QWidget):
     def __init__(self, ctx):
@@ -82,12 +82,16 @@ class TAFieldsTab(QWidget):
                     self.ctx.app_data.fields[j]['terms'].pop(k)
 
     def update_fields_list(self):
+        self._field_list_being_updated = True
+        
         self.fields_list.clear()
         for j, cat in enumerate(self.ctx.app_data.peopledata_keys):
             new_item = QListWidgetItem()
             new_item.setData(Qt.UserRole, j)
             new_item.setText(cat)
             self.fields_list.addItem(new_item)
+
+        self._field_list_being_updated = False
 
     def update_mode_box(self, j):
         index = self.mode_box.findData(self.ctx.app_data.fields[j]['mode'])
@@ -111,6 +115,7 @@ class TAFieldsTab(QWidget):
         self.terms_layout.setCurrentIndex(1 if status else 0)
 
     def userchanged_field_list(self):
+        if self._field_list_being_updated: return
         j = self.get_current_field_index()
         self.init_field(j)
 

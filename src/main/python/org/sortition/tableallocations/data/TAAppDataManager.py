@@ -1,4 +1,4 @@
-import typing, csv
+import csv
 
 class TAAppDataManager:
     def __init__(self, ctx):
@@ -44,13 +44,21 @@ class TAAppDataManager:
         return {j:list(set([t_used for t_found, t_used in self.ctx.app_data.fields[j]['terms']])) for j in self.ctx.app_data.order_diverse}
 
     def load_details(self, i, j):
-        return next(t_used for t_found, t_used in self.ctx.app_data.fields[j]['terms'] if t_found == self.ctx.app_data.peopledata_vals[i][j])
+        try:
+            r = next(t_used for t_found, t_used in self.ctx.app_data.fields[j]['terms'] if t_found == self.ctx.app_data.peopledata_vals[i][j])
+        except StopIteration:
+            raise Exception(f"There was an issue finding the terms used in field \'{self.ctx.app_data.peopledata_keys[j]}\'. Please go back to the fields tab and make sure all fields are correctly defined.")
+        if r == "": return "(empty term)"
+        return r
 
     def get_occurences(self, a, t, j, t_used):
         return sum(1 for i in self.ctx.app_data.results[a][t] if self.load_details(i, j) == t_used)
 
     def peopledata_is_empty(self):
         return not any(self.ctx.app_data.peopledata_vals[i][j] for j in range(self.ctx.app_data.n_data) for i in range(self.ctx.app_data.m_data))
+
+    def cols_not_ignored(self, cols):
+        return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
 
     def import_raw_from_csv(self, file_handle):
         app_data = self.ctx.app_data
@@ -80,16 +88,98 @@ class TAAppDataManager:
             header.append(str(t+1))
         writer.writerow(header)
         for s in range(numMaxSeats):
-            row = []
+            row = [str(s+1)]
             for t in range (numTables):
                 if s < len(allocation[t]): row.append(self.get_print_labels(allocation[t][s]))
                 else: row.append("(empty seat)")
             writer.writerow(row)
-        writer.writerow((numTables+1)*["--------"])
-        writer.writerow(["Total: {}".format(len(table)) for table in allocation])
+        writer.writerow([''] + numTables*["--------"])
+        writer.writerow([''] + ["Total: {}".format(len(table)) for table in allocation])
         cats = {**self.get_fields_cluster_dict(), **self.get_fields_diverse_dict()}
         for cat_key, cat_val_terms in cats.items():
-            writer.writerow((numTables+1)*["--------"])
-            writer.writerow((numTables+1)*["{}:".format(self.ctx.app_data.peopledata_keys[cat_key])])
-            for cat_val_term in cat_val_terms:
-                writer.writerow(["{} {}".format(self.get_occurences(a, t, cat_key, cat_val_term), cat_val_term) for t in range(numTables)])
+            writer.writerow([''] + numTables*["--------"])
+            writer.writerow([''] + numTables*["{}:".format(self.ctx.app_data.peopledata_keys[cat_key])])
+            for cat_index, cat_val_term in enumerate(cat_val_terms):
+                writer.writerow([str(cat_index+1)] + ["{} {}".format(self.get_occurences(a, t, cat_key, cat_val_term), cat_val_term) for t in range(numTables)])
+
+    def insert_rows(self, beforeRow, number):
+        self.ctx.app_data.m_data += number
+
+        for n in range(number):
+            self.ctx.app_data.peopledata_vals.insert(beforeRow, ['' for j in range(self.ctx.app_data.n_data)])
+
+        for manual in self.ctx.app_data.manuals:
+            pid = manual[0]
+            if(pid >= beforeRow):
+                manual[0] = pid + number
+
+        self.ctx.app_data.results = []
+
+    def insert_cols(self, beforeCol, number):
+        self.ctx.app_data.n_data += number
+
+        for n in range(number):
+            self.ctx.app_data.peopledata_keys.insert(beforeCol+n, f"New column {n+1}" if number>1 else "New column")
+
+            for person in self.ctx.app_data.peopledata_vals:
+                person.insert(beforeCol+n, "")
+
+        new_fields = {}
+        for j in self.ctx.app_data.fields:
+            j_new = j+number if j >= beforeCol else j
+            new_fields[j_new] = self.ctx.app_data.fields[j]
+        self.ctx.app_data.fields = new_fields
+
+        for k in range(len(self.ctx.app_data.order_cluster)):
+            j = self.ctx.app_data.order_cluster[k]
+            if(j >= beforeCol): self.ctx.app_data.order_cluster[k] = j + number
+
+        for k in range(len(self.ctx.app_data.order_diverse)):
+            j = self.ctx.app_data.order_diverse[k]
+            if(j >= beforeCol): self.ctx.app_data.order_diverse[k] = j + number
+
+    def delete_rows(self, rows):
+        self.ctx.app_data.m_data -= len(rows)
+
+        self.ctx.app_data.peopledata_vals = [vals for i, vals in enumerate(self.ctx.app_data.peopledata_vals) if i not in rows]
+
+        self.ctx.app_data.manuals = [manual for manual in self.ctx.app_data.manuals if manual[0] not in rows]
+
+        for manual in self.ctx.app_data.manuals:
+            pid = manual[0]
+            decrement = sum(1 for row in rows if pid > row)
+            manual[0] = pid - decrement
+
+        self.ctx.app_data.results = []
+
+    def delete_cols(self, cols, must_discard_results=False):
+        self.ctx.app_data.n_data -= len(cols)
+
+        self.ctx.app_data.peopledata_keys = [key for j, key in enumerate(self.ctx.app_data.peopledata_keys) if j not in cols]
+
+        for pid in range(self.ctx.app_data.m_data):
+            entry = self.ctx.app_data.peopledata_vals[pid]
+            new_entry = [val for j, val in enumerate(entry) if j not in cols]
+            self.ctx.app_data.peopledata_vals[pid] = new_entry
+
+        new_fields = {}
+        for j in self.ctx.app_data.fields:
+            if j in cols: continue
+            decrement = sum(1 for j2 in cols if j > j2)
+            new_fields[j-decrement] = self.ctx.app_data.fields[j]
+        self.ctx.app_data.fields = new_fields
+
+        self.ctx.app_data.order_cluster = [j for j in self.ctx.app_data.order_cluster if j not in cols]
+        for k in range(len(self.ctx.app_data.order_cluster)):
+            j = self.ctx.app_data.order_cluster[k]
+            decrement = sum(1 for j2 in cols if j > j2)
+            self.ctx.app_data.order_cluster[k] = j - decrement
+
+        self.ctx.app_data.order_diverse = [j for j in self.ctx.app_data.order_diverse if j not in cols]
+        for k in range(len(self.ctx.app_data.order_diverse)):
+            j = self.ctx.app_data.order_diverse[k]
+            decrement = sum(1 for j2 in cols if j > j2)
+            self.ctx.app_data.order_diverse[k] = j - decrement
+
+        if must_discard_results:
+            self.ctx.app_data.results = []

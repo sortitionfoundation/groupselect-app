@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView, QStackedLayout, QCheckBox, QListWidgetItem)
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QLabel, QInputDialog, QLineEdit, QTableWidgetItem, \
+                            QStackedLayout
 
 class TAPeopleDataTab(QWidget):
     def __init__(self, ctx):
@@ -62,6 +62,9 @@ class TAPeopleDataTab(QWidget):
         self.table_widget.setColumnCount(n_data)
 
         self.table_being_updated = True
+        self.table_widget.clear()
+        self.table_widget.setRowCount(m_data);
+        self.table_widget.setColumnCount(n_data);
         for i in range(m_data):
             for j in range(n_data):
                 self.table_widget.setItem(i, j, QTableWidgetItem(self.ctx.app_data.peopledata_vals[i][j]))

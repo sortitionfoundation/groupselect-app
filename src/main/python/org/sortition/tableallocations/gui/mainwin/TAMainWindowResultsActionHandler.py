@@ -1,4 +1,4 @@
-import sys, os.path
+import os.path
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QInputDialog, QErrorMessage
 
@@ -26,6 +26,7 @@ class TAMainWindowResultsActionHandler:
         if not self.ctx.app_data.results: return
         dname = str(QFileDialog.getExistingDirectory(self.win, "Select Directory"))
         if not dname: return
+        if not dname.endswith('/'): dname += '/'
         fbasename_tmp = os.path.basename(self.ctx.filesave_manager.get_fname()).rstrip('.taf') if self.ctx.filesave_manager.isset_fname() else 'New File'
         fbasename_tmp += ' Results #.csv'
         fbasename, ok = QInputDialog.getText(self.win, 'Enter File Base Name', 'Please enter the CSV file base name for export below.', text=fbasename_tmp)
@@ -35,7 +36,7 @@ class TAMainWindowResultsActionHandler:
 
         files = []
         for a in range(len(self.ctx.app_data.results)):
-            fname = fbasename.replace('#', str(a+1))
+            fname = dname+fbasename.replace('#', str(a+1))
             files.append((a, fname))
 
         if any(os.path.isfile(fname) for a, fname in files):

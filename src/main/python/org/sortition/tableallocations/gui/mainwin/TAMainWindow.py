@@ -1,8 +1,6 @@
 import os.path
 
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject, QFile, QIODevice
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView)
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QStyleFactory
 
 from org.sortition.tableallocations.gui.mainwin.TAHelpDialog import TAHelpDialog
 from org.sortition.tableallocations.gui.mainwin.TAMainWindowFileActionHandler import TAMainWindowFileActionHandler
@@ -98,6 +96,34 @@ class TAMainWindow(QMainWindow):
         action_item.setShortcut("Ctrl+X")
         action_item.setStatusTip('Export your edited raw data to a file.')
         action_item.triggered.connect(self.data_action_handler.export_raw)
+        self.data_menu.addAction(action_item)
+
+        self.data_menu.addSeparator();
+
+        # Insert rows
+        action_item = QAction('Insert rows...', self)
+        action_item.setStatusTip('Insert new rows into the people\'s data table.')
+        action_item.triggered.connect(self.data_action_handler.insert_rows)
+        self.data_menu.addAction(action_item)
+
+        # Insert cols
+        action_item = QAction('Insert columns...', self)
+        action_item.setStatusTip('Insert new columns into the people\'s data table.')
+        action_item.triggered.connect(self.data_action_handler.insert_cols)
+        self.data_menu.addAction(action_item)
+
+        self.data_menu.addSeparator();
+
+        # Insert rows
+        action_item = QAction('Delete selected rows', self)
+        action_item.setStatusTip('Delete rows currently selected in the people\'s data table.')
+        action_item.triggered.connect(self.data_action_handler.delete_rows)
+        self.data_menu.addAction(action_item)
+
+        # Insert rows
+        action_item = QAction('Delete selected cols', self)
+        action_item.setStatusTip('Delete columns currently selected in the people\'s data table.')
+        action_item.triggered.connect(self.data_action_handler.delete_cols)
         self.data_menu.addAction(action_item)
 
         # results menu

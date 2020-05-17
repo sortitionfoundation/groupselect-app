@@ -1,5 +1,4 @@
 import PyQt5.QtWidgets as QtWidgets, PyQt5.QtCore as QtCore
-from PyQt5.QtCore import Qt
 
 class TAListMove(QtWidgets.QListWidget):
     trigger = QtCore.pyqtSignal()

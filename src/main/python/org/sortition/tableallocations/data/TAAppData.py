@@ -1,5 +1,3 @@
-import typing, csv
-
 class TAAppData:
     def __init__(self):
         self.m_data = 0

@@ -1,4 +1,4 @@
-import sys, os.path
+import sys
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 

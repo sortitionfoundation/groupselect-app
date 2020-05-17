@@ -1,7 +1,4 @@
-import copy, math
-from itertools import permutations
-from random import sample
-from collections import Counter
+import copy
 
 ### class for all the allocations stuff
 class TAAllocator:
