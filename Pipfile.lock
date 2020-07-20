@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "909f9e320d7ac7603654162195c3558e7de55e460082fd9def812a8420c261c0"
+            "sha256": "0f4bc5e3e8ba4d5aed40e1941a498b5c647ca9dcbf1c571509da42db963f6706"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -25,10 +25,10 @@
         },
         "fbs": {
             "hashes": [
-                "sha256:071eaa080e384019ddb08fba6a048e3689b7e1ca2db31680c50ccddb347527df"
+                "sha256:b903b585db6b7f394dc9834595c17dd2f4486bdea353b20659a615565181a6db"
             ],
             "index": "pypi",
-            "version": "==0.8.7"
+            "version": "==0.8.8"
         },
         "future": {
             "hashes": [
@@ -68,7 +68,6 @@
             "hashes": [
                 "sha256:a5a6e04a66abfcf8761e89a2ebad937919c6be33a7b8963e1a961b55cb35986b"
             ],
-            "index": "pypi",
             "version": "==3.4"
         },
         "pyqt5": {
