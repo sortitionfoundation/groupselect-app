@@ -121,7 +121,7 @@ class TAMainWindow(QMainWindow):
         self.data_menu.addAction(action_item)
 
         # Insert rows
-        action_item = QAction('Delete selected cols', self)
+        action_item = QAction('Delete selected columns', self)
         action_item.setStatusTip('Delete columns currently selected in the people\'s data table.')
         action_item.triggered.connect(self.data_action_handler.delete_cols)
         self.data_menu.addAction(action_item)
