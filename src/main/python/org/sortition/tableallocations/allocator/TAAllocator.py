@@ -11,11 +11,11 @@ class TAAllocator:
         self.cats_cluster = self._get_fields_order(cats_cluster)
         self.cats_diverse = self._get_fields_order(cats_diverse)
 
-        self.manuals = []
+        self.manual_pids = []
         self.template = [[None for s in range(self.seats)] for r in range(self.tables)]
 
     def set_manually(self, manuals):
-        self.manuals = manuals
+        self.manual_pids = [m[0] for m in manuals]
         for pid, t in manuals:
             ss = min(s for s in range(self.seats) if not self.template[t][s])
             self.template[t][ss] = [pid, self.people[pid]]
@@ -28,7 +28,7 @@ class TAAllocator:
         self._pids_ordered = self._order_people_iteratively(pids_shuffled, [cat_key for cat_key in {**self.cats_cluster, **self.cats_diverse}])
 
         for pid in self._pids_ordered:
-            if pid in self.manuals: continue
+            if pid in self.manual_pids: continue
             pdetails = self.people[pid]
             self._allocate_person(pid, pdetails)
             self.already_allocated.append(pid)
