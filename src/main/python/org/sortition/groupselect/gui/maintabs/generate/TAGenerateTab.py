@@ -92,7 +92,7 @@ class TAGenerateTab(QWidget):
 
         run_settings3_layout = QGridLayout()
 
-        run_button = QPushButton("Generate Table Allocations!")
+        run_button = QPushButton("Generate Groups!")
         run_button.clicked.connect(self.buttonclicked_run_allocation)
 
         run_settings3_layout_widget = QWidget()

@@ -37,14 +37,14 @@ class TAMainWindow(QMainWindow):
         # new
         action_item = QAction('New File', self)
         action_item.setShortcut("Ctrl+N")
-        action_item.setStatusTip('Create a new Table-Allocations File.')
+        action_item.setStatusTip('Create a new GroupSelect file.')
         action_item.triggered.connect(self.file_action_handler.new_action_call)
         file_menu.addAction(action_item)
 
         # open
         action_item = QAction('Open File...', self)
         action_item.setShortcut("Ctrl+O")
-        action_item.setStatusTip('Open an existing table allocations file.')
+        action_item.setStatusTip('Open an existing GroupSelect file.')
         action_item.triggered.connect(self.file_action_handler.open_action_call)
         file_menu.addAction(action_item)
 
@@ -53,14 +53,14 @@ class TAMainWindow(QMainWindow):
         # save
         action_item = QAction('Save', self)
         action_item.setShortcut("Ctrl+S")
-        action_item.setStatusTip('Save changes to table allocations file.')
+        action_item.setStatusTip('Save changes to GroupSelect file.')
         action_item.triggered.connect(self.file_action_handler.save_action_call)
         file_menu.addAction(action_item)
 
         # save
         action_item = QAction('Save As...', self)
         action_item.setShortcut("Ctrl+Shift+S")
-        action_item.setStatusTip('Save changes to table allocations file and specify target file.')
+        action_item.setStatusTip('Save changes to GroupSelect file and specify target file.')
         action_item.triggered.connect(self.file_action_handler.save_as_action_call)
         file_menu.addAction(action_item)
 
@@ -69,7 +69,7 @@ class TAMainWindow(QMainWindow):
         # close
         action_item = QAction('Close File', self)
         action_item.setShortcut("Ctrl+W")
-        action_item.setStatusTip('Close opened table allocations file.')
+        action_item.setStatusTip('Close opened GroupSelect file.')
         action_item.triggered.connect(self.file_action_handler.close_action_call)
         file_menu.addAction(action_item)
 
@@ -168,9 +168,9 @@ class TAMainWindow(QMainWindow):
                 fname_win_title = "Unsaved File"
                 if self.ctx.is_unsaved():
                     fname_win_title += '*'
-            new_title = '{} — Table Allocations Manager'.format(fname_win_title)
+            new_title = '{} — GroupSelect'.format(fname_win_title)
         else:
-            new_title = 'Table-Allocations Manager'
+            new_title = 'GroupSelect'
         self.setWindowTitle(new_title)
 
     def window_file_opened(self):
