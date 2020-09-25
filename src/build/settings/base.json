@@ -4,5 +4,6 @@
     "main_module": "src/main/python/main.py",
     "version": "1.0.0",
     "gpg_key": "772974B665B89ED0E40BF5A143DA2FD5D35C18B4",
-    "gpg_name": "Sortition Foundation"
+    "gpg_name": "Sortition Foundation",
+    "hidden_imports": ["jsonpickle"]
 }
