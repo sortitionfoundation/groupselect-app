@@ -1,9 +1,8 @@
 {
-    "app_name": "Table-Allocations-Manager",
+    "app_name": "GroupSelect",
     "author": "Sortition Foundation",
     "main_module": "src/main/python/main.py",
     "version": "1.0.0",
-    "gpg_key": "69BEDCD832B3363FB75A28038722F11D560E61F1",
-    "gpg_name": "Sortition Foundation",
-    "hidden_imports": ["jsonpickle"]
+    "gpg_key": "772974B665B89ED0E40BF5A143DA2FD5D35C18B4",
+    "gpg_name": "Sortition Foundation"
 }
