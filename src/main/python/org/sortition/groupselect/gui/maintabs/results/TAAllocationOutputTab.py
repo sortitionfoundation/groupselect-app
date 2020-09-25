@@ -2,7 +2,7 @@ from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView, QListWidgetItem, QSizePolicy)
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
-from org.sortition.tableallocations.gui.maintabs.results.TAListDragAndDrop import TAListDragAndDrop
+from org.sortition.groupselect.gui.maintabs.results.TAListDragAndDrop import TAListDragAndDrop
 
 class TAAllocationOutputTab(QScrollArea):
     def __init__(self, ctx, a):

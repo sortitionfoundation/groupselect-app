@@ -1,6 +1,6 @@
 import random
 
-from org.sortition.tableallocations.allocator.TAAllocator import TAAllocator
+from org.sortition.groupselect.allocator.TAAllocator import TAAllocator
 
 class TAAllocationsManager:
     def __init__(self, ctx):

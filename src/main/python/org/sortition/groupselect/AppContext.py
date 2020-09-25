@@ -1,9 +1,9 @@
 from fbs_runtime.application_context.PyQt5 import ApplicationContext, cached_property
 
-from org.sortition.tableallocations.gui.mainwin.TAMainWindow import TAMainWindow
-from org.sortition.tableallocations.data.TAAppDataManager import TAAppDataManager
-from org.sortition.tableallocations.data.TAFileSaveManager import TAFileSaveManager
-from org.sortition.tableallocations.allocator.TAAllocationsManager import TAAllocationsManager
+from org.sortition.groupselect.gui.mainwin.TAMainWindow import TAMainWindow
+from org.sortition.groupselect.data.TAAppDataManager import TAAppDataManager
+from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
+from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocationsManager
 
 class AppContext(ApplicationContext):
     def __init__(self, *args, **kwargs):

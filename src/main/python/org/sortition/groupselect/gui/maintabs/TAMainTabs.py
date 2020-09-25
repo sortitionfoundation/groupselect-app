@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
-from org.sortition.tableallocations.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
-from org.sortition.tableallocations.gui.maintabs.fields.TAFieldsTab import TAFieldsTab
-from org.sortition.tableallocations.gui.maintabs.generate.TAGenerateTab import TAGenerateTab
-from org.sortition.tableallocations.gui.maintabs.results.TAOutputTab import TAOutputTab
+from org.sortition.groupselect.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
+from org.sortition.groupselect.gui.maintabs.fields.TAFieldsTab import TAFieldsTab
+from org.sortition.groupselect.gui.maintabs.generate.TAGenerateTab import TAGenerateTab
+from org.sortition.groupselect.gui.maintabs.results.TAOutputTab import TAOutputTab
 
 class TAMainTabs(QWidget):
     editted = False

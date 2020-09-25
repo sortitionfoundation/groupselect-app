@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from org.sortition.tableallocations.AppContext import AppContext
+from org.sortition.groupselect.AppContext import AppContext
 
 if __name__ == '__main__':
     appctxt = AppContext()

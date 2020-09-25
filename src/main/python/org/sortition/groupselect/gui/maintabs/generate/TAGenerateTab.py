@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLab
                             QListWidget, QGroupBox, QGridLayout, QFormLayout, QListWidgetItem, QProgressDialog
 from PyQt5.QtGui import QIntValidator
 
-from org.sortition.tableallocations.gui.maintabs.generate.TAManualDialog import TAManualDialog
-from org.sortition.tableallocations.gui.maintabs.generate.TAListMove import TAListMove
-from org.sortition.tableallocations.gui.maintabs.generate.TAAdvancedSettingsDialog import TAAdvancedSettingsDialog
+from org.sortition.groupselect.gui.maintabs.generate.TAManualDialog import TAManualDialog
+from org.sortition.groupselect.gui.maintabs.generate.TAListMove import TAListMove
+from org.sortition.groupselect.gui.maintabs.generate.TAAdvancedSettingsDialog import TAAdvancedSettingsDialog
 
 class TAGenerateTab(QWidget):
     def __init__(self, ctx):

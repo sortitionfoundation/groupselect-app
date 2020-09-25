@@ -2,11 +2,11 @@ import os.path
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QStyleFactory
 
-from org.sortition.tableallocations.gui.mainwin.TAHelpDialog import TAHelpDialog
-from org.sortition.tableallocations.gui.mainwin.TAMainWindowFileActionHandler import TAMainWindowFileActionHandler
-from org.sortition.tableallocations.gui.mainwin.TAMainWindowDataActionHandler import TAMainWindowDataActionHandler
-from org.sortition.tableallocations.gui.mainwin.TAMainWindowResultsActionHandler import TAMainWindowResultsActionHandler
-from org.sortition.tableallocations.gui.maintabs.TAMainTabs import TAMainTabs
+from org.sortition.groupselect.gui.mainwin.TAHelpDialog import TAHelpDialog
+from org.sortition.groupselect.gui.mainwin.TAMainWindowFileActionHandler import TAMainWindowFileActionHandler
+from org.sortition.groupselect.gui.mainwin.TAMainWindowDataActionHandler import TAMainWindowDataActionHandler
+from org.sortition.groupselect.gui.mainwin.TAMainWindowResultsActionHandler import TAMainWindowResultsActionHandler
+from org.sortition.groupselect.gui.maintabs.TAMainTabs import TAMainTabs
 
 class TAMainWindow(QMainWindow):
     def __init__(self, ctx, parent=None):

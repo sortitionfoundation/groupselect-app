@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
-from org.sortition.tableallocations.gui.mainwin.TAInsertRowsColsDialog import TAInsertRowsColsDialog
+from org.sortition.groupselect.gui.mainwin.TAInsertRowsColsDialog import TAInsertRowsColsDialog
 
 class TAMainWindowDataActionHandler:
     def __init__(self, ctx, window):
