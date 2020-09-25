@@ -1,3 +1,6 @@
+/src/sign/
+/src/build/settings/secret.json
+
 # Created by https://www.gitignore.io/api/qt,venv,python
 # Edit at https://www.gitignore.io/?templates=qt,venv,python
 
