@@ -8,7 +8,9 @@ verify_ssl = true
 [packages]
 jsonpickle = "==1.4.1"
 fbs = "*"
-pyqt5 = "==5.9.2"
+pyqt5 = "==5.15.0"
+PyInstaller = "==4.0"
+setuptools = "==49.2.0"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
