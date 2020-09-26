@@ -1,37 +1,35 @@
-# Table-Allocations Manager
+# GroupSelect App by Sortition Foundation
 
-The Sortition Foundation Table-Allocations Manager is an open-source software tool to allocate participants of a Citizens' Assembly (or any similar Deliberative Democracy event) to tables or split them up into smaller groups.
+The GroupSelect App by Sortition Foundation is an open-source tool that allows an easy division of a large group of participants of a citizens' assembly, and any other type of deliberative democracy event into smaller groups. Typically these small groups are tables of 6-8 people, but these could be any type of subgroup. The software allows for diversification across any number of fields, as well as "clustering" based on fields, manual group allocations, and easy post-creation editing of the groups.
 
-##### How to build this software
-This software is based on [QT5](https://doc.qt.io/qt-5/whatsnew59.html) and [PyQt5](https://pypi.org/project/PyQt5/), and can be built using [fbs](https://build-system.fman.io/manual/).
+This software is based on [QT5](https://doc.qt.io/qt-5/whatsnew59.html) and [PyQt5](https://pypi.org/project/PyQt5/), and can be built using [fbs](https://build-system.fman.io/manual/). Dependencies are managed via pipenv.
 
-To be able to run this software (after downloading and extracting the archive or cloning the repository), you have to execute the following commands (tested on Linux and Mac):
+To be able to run this software (after downloading and extracting the archive or cloning the repository), you have to execute the following commands to run it or create a software package.
+
+### How to Run This Software
+You need to install all dependencies via `pipenv`, and then run the app using `fbs`.
 
 ```
-python -m venv venv
-source venv/bin/activate
-pip install -Ur src/requirements.txt
+pipenv install
 fbs run
 ```
-This will only allow you to run the software once. If you would like to produce this into an installable software package (a Debian package, a Mac Installer, etc), you will have to follow [these instructions](https://build-system.fman.io/manual/).
+### How to Build This Software
 
-For Linux it will be:
+##### For Linux
+This following will work for Ubuntu. You will have to build a different VM if you want to create an installer for a different distro.
 
 ```
-fbs gengpgkey       # this will generate a signing key
-fbs buildvm ubuntu  # to create a Docker VM for building; you can use `arch` / `fedora` instead of `ubuntu`
-fbs runvm ubuntu    # to run the VM and enter its CLI
-# In the Ubuntu virtual machine:
-fbs freeze
+fbs buildvm ubuntu  # to create a virtual machine
+fbs runvm ubuntu    # to enter the shell of the virtual machine
+# and then inside the VM ...
+fbs freeze          # will create an exectuable
+fbs installer       # will create an installable package
+```
+
+##### For Windows or Mac
+```
 fbs release
 ```
-For a Mac it will be:
 
-```
-fbs release
-```
-
-Documentation on how to run and build on Windows will hopefully follow soon.
-
-##### License
+### License
 This software is licensed under GNU GPL 3.
