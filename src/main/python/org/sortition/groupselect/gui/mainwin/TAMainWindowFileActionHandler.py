@@ -22,7 +22,7 @@ class TAMainWindowFileActionHandler:
 
     def open_action_call(self):
         if self.confirm_discard():
-            fname, scheme = QFileDialog.getOpenFileName(self.win, 'Open Table-Allocations File', None, "Table-Allocations Files (*.taf)")
+            fname, scheme = QFileDialog.getOpenFileName(self.win, 'Open GroupSelect File', None, "GroupSelect Files (*.gsf)")
             if not fname: return
             try: self.ctx.filesave_manager.load_fname(fname)
             except Exception as ex:
@@ -34,10 +34,10 @@ class TAMainWindowFileActionHandler:
 
     def save_action(self, request_fname=True):
         if request_fname or not self.ctx.filesave_manager.isset_fname():
-            fname, scheme = QFileDialog.getSaveFileName(self.win, 'Save Table-Allocations File', None, "Table-Allocations Files (*.taf)")
+            fname, scheme = QFileDialog.getSaveFileName(self.win, 'Save GroupSelect File', None, "GroupSelect Files (*.gsf)")
             if not fname: return
-            if not fname.endswith('.taf'):
-                fname += '.taf'
+            if not fname.endswith('.gsf'):
+                fname += '.gsf'
             self.ctx.filesave_manager.set_fname(fname)
         try:
             self.ctx.filesave_manager.save()

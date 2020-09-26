@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QDateTime, Qt, QTimer, QObject
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QAction, QStyleFactory, QWidget, QPushButton, QTabWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QLabel, QMessageBox, QFileDialog, QInputDialog, QLineEdit, QTableWidgetItem, QErrorMessage, QListWidget, QComboBox, QGroupBox, QGridLayout, QFormLayout, QScrollArea, QAbstractItemView, QStackedLayout, QCheckBox, QListWidgetItem)
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QTabWidget, QHBoxLayout, QLabel, QStackedLayout
 
 from org.sortition.groupselect.gui.maintabs.results.TAAllocationOutputTab import TAAllocationOutputTab
 

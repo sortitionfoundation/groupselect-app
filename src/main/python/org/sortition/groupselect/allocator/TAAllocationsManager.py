@@ -13,7 +13,7 @@ class TAAllocationsManager:
         seats = app_data.settings['seats']
 
         if(tables*seats < len(app_data.peopledata_vals)):
-            raise Exception("Error: Not enough seats", "There's not enough seats in total. Please increase the number of tables or number of seats per table!")
+            raise Exception("Error: Not enough space!", "There's not enough space! Please increase the number of groups or number of people per group!")
 
         seed = app_data.settings['seed']
 
@@ -35,14 +35,14 @@ class TAAllocationsManager:
         order_diverse_dict = self.ctx.app_data_manager.get_fields_diverse_dict()
 
         if not order_diverse_dict:
-            raise Exception("Error: One diversify field required!", "You have to set at least one field that is used to diversify people across tables.")
+            raise Exception("Error: One diversification field required!", "You have to set at least one field that is used to diversify people across groups.")
 
         allocator = TAAllocator(tables, seats, peopledata_vals_used, order_cluster_dict, order_diverse_dict)
 
         manuals = app_data.manuals
 
         if any([len([m[0] for m in manuals if m[1] == t]) > seats for t in range(tables)]):
-            raise Exception("Error: Too many manuals!", "You allocated too many people manually to a table.")
+            raise Exception("Error: Too many manuals!", "You allocated too many people manually to one group.")
         allocator.set_manually(manuals)
 
         allocations = []

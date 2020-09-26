@@ -27,7 +27,7 @@ class TAMainWindowResultsActionHandler:
         dname = str(QFileDialog.getExistingDirectory(self.win, "Select Directory"))
         if not dname: return
         if not dname.endswith('/'): dname += '/'
-        fbasename_tmp = os.path.basename(self.ctx.filesave_manager.get_fname()).rstrip('.taf') if self.ctx.filesave_manager.isset_fname() else 'New File'
+        fbasename_tmp = os.path.basename(self.ctx.filesave_manager.get_fname()).rstrip('.gsf') if self.ctx.filesave_manager.isset_fname() else 'New File'
         fbasename_tmp += ' Results #.csv'
         fbasename, ok = QInputDialog.getText(self.win, 'Enter File Base Name', 'Please enter the CSV file base name for export below.', text=fbasename_tmp)
         if not ok: return

@@ -70,8 +70,8 @@ class TAGenerateTab(QWidget):
         self.tables_field.setValidator( QIntValidator(1, 100, self) );
         self.tables_field.textChanged.connect(self.userchanged_settings_fields)
 
-        run_settings1_layout.addRow(QLabel("Num. of Tables"), self.tables_field)
-        run_settings1_layout.addRow(QLabel("Num. of Seats per Table"), self.seats_field)
+        run_settings1_layout.addRow(QLabel("Num. of Groups"), self.tables_field)
+        run_settings1_layout.addRow(QLabel("Num. of People per Group"), self.seats_field)
 
         run_settings1_layout_widget = QWidget()
         run_settings1_layout_widget.setLayout(run_settings1_layout)
@@ -196,9 +196,9 @@ class TAGenerateTab(QWidget):
     def userchanged_settings_fields(self):
         if self._settings_being_updated: return
         try:
-            self.ctx.app_data.settings['tables'] = int(self.tables_field.text())
-            self.ctx.app_data.settings['seats'] = int(self.seats_field.text())
-            self.ctx.app_data.settings['nallocations'] = int(self.number_field.text())
+            self.ctx.app_data.settings['tables'] = int(self.tables_field.text()) if self.tables_field.text() else 0
+            self.ctx.app_data.settings['seats'] = int(self.seats_field.text()) if self.seats_field.text() else 0
+            self.ctx.app_data.settings['nallocations'] = int(self.number_field.text()) if self.number_field.text() else 0
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
         self.ctx.set_unsaved()

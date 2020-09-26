@@ -14,7 +14,7 @@ class TAManualDialog(QDialog):
             self.cb2.addItem("Table {}".format(t+1), t)
 
         label1 = QLabel("Person:")
-        label2 = QLabel("Table:")
+        label2 = QLabel("Group:")
 
         form = QFormLayout()
         form.addRow(label1, self.cb1)

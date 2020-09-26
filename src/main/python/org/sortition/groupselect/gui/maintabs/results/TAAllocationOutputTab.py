@@ -22,7 +22,7 @@ class TAAllocationOutputTab(QScrollArea):
         self.wgtSubLyts = []
 
         for t, table in enumerate(self.allocation):
-            wgtSub = QGroupBox("Table {}".format(t+1))
+            wgtSub = QGroupBox("Group {}".format(t+1))
             wgtSub.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
             vboxSub = QVBoxLayout(wgtSub)
             self.wgtSubs.append(wgtSub)
