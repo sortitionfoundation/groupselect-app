@@ -81,7 +81,7 @@ class TAAppDataManager:
     def export_allocation_to_csv(self, file_handle, a):
         allocation = self.ctx.app_data.results[a]
         writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        header = ['Seat/Table']
+        header = ['Person/Group']
         numTables = len(allocation)
         numMaxSeats = max(len(table) for table in allocation)
         for t in range(numTables):
@@ -91,7 +91,7 @@ class TAAppDataManager:
             row = [str(s+1)]
             for t in range (numTables):
                 if s < len(allocation[t]): row.append(self.get_print_labels(allocation[t][s]))
-                else: row.append("(empty seat)")
+                else: row.append("(empty)")
             writer.writerow(row)
         writer.writerow([''] + numTables*["--------"])
         writer.writerow([''] + ["Total: {}".format(len(table)) for table in allocation])
