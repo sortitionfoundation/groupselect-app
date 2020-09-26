@@ -3,13 +3,10 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[dev-packages]
-
 [packages]
 jsonpickle = "==1.4.1"
 fbs = "*"
 pyqt5 = "==5.15.0"
-PyInstaller = "==4.0"
 setuptools = "==49.2.0"
 
 [requires]
