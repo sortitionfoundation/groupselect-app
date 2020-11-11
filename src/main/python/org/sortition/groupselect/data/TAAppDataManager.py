@@ -60,9 +60,17 @@ class TAAppDataManager:
     def cols_not_ignored(self, cols):
         return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
 
-    def import_raw_from_csv(self, file_handle):
+    def import_raw_from_csv(self, file_handle, csv_format):
         app_data = self.ctx.app_data
-        csv_reader = csv.reader(file_handle, delimiter=",")
+        if(csv_format == 'auto'):
+            N=10
+            file_content = "".join([next(file_handle) for i in range(N)])
+            ncs = file_content[:4096].count(',')
+            nss = file_content[:4096].count(';')
+            if(ncs < nss): csv_format = 'semicolon'
+            else: csv_format = 'comma'
+            file_handle.seek(0)
+        csv_reader = csv.reader(file_handle, delimiter=(';' if csv_format=='semicolon' else ','))
         app_data.peopledata_keys = list(next(csv_reader))
         app_data.n_data = len(app_data.peopledata_keys)
         entries = []

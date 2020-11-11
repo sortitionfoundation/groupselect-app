@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
+from org.sortition.groupselect.gui.mainwin.TAImportOptionsDialog import TAImportOptionsDialog
 from org.sortition.groupselect.gui.mainwin.TAInsertRowsColsDialog import TAInsertRowsColsDialog
 
 class TAMainWindowDataActionHandler:
@@ -26,9 +27,11 @@ class TAMainWindowDataActionHandler:
         if self.confirm_discard():
             fname, scheme = QFileDialog.getOpenFileName(self.win, 'Import People Data to CSV', None, "Comma-separated Values Files (*.csv)")
             if not fname: return
+            ok, csv_format = TAImportOptionsDialog.get_input(self.win)
+            if not ok: return
             try:
                 with open(fname, 'r') as handle:
-                    self.ctx.app_data_manager.import_raw_from_csv(handle)
+                    self.ctx.app_data_manager.import_raw_from_csv(handle, csv_format)
             except Exception as e:
                 error_dialog = QErrorMessage()
                 error_dialog.showMessage(str(e))
