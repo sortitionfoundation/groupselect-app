@@ -25,6 +25,9 @@ class TAAllocationsManager:
         nallocations = app_data.settings['nallocations']
         nattempts = app_data.settings['nattempts']
 
+        if (nallocations < 1):
+            raise Exception("Error: Wrong allocation number!", "The number of computed allocations must at least be 1!")
+
         peopledata_vals_used = [{} for i in range(app_data.m_data)]
 
         for i in range(app_data.m_data):
