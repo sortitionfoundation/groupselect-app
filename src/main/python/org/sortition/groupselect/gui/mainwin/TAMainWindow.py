@@ -25,8 +25,6 @@ class TAMainWindow(QMainWindow):
         self.tabs = TAMainTabs(self.ctx)
         self.setCentralWidget(self.tabs)
 
-        self.initialise_window()
-
     def createTaskBar(self):
         bar = self.menuBar()
 
@@ -152,16 +150,20 @@ class TAMainWindow(QMainWindow):
         action_item.triggered.connect(self.show_about_dialog)
         help_menu.addAction(action_item)
 
-    def initialise_window(self):
+    def appStart(self):
         self.window_file_closed()
+        self.show()
+
+    def new_action_call(self):
+        if self.confirm_discard(): self.ctx.new_file()
 
     def closeEvent(self, event):
         self.file_action_handler.close_action_call()
 
     def update_window_title(self):
         if self.ctx.get_status():
-            if self.ctx.filesave_manager.isset_fname():
-                fname_win_title = os.path.basename(self.ctx.filesave_manager.get_fname())
+            if self.ctx.fnameIsset():
+                fname_win_title = os.path.basename(self.ctx.filesave_manager.getFname())
                 if self.ctx.is_unsaved():
                     fname_win_title += '*'
             else:
@@ -177,7 +179,7 @@ class TAMainWindow(QMainWindow):
         self.update_window_title()
         self.tabs.file_opened()
         self.data_menu.setEnabled(True)
-        if self.ctx.app_data.results:
+        if self.ctx.hasResults():
             self.results_menu.setEnabled(True)
 
     def window_file_closed(self):
@@ -185,6 +187,9 @@ class TAMainWindow(QMainWindow):
         self.tabs.file_closed()
         self.data_menu.setEnabled(False)
         self.results_menu.setEnabled(False)
+
+    def window_file_saved(self):
+        self.update_window_title()
 
     def show_about_dialog(self):
         about_html = open(self.ctx.get_resource("about.html")).read()

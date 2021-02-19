@@ -1,48 +1,49 @@
 import jsonpickle
 
-from org.sortition.groupselect.data.TAAppData import TAAppData
-
 class TAFileSaveManager:
-    def __init__(self, ctx):
-        self.ctx = ctx
-        self._fname = None
+    def __init__(self):
+        self.__fname = None
 
-    def get_fname(self):
-        return self._fname
+    def getFname(self):
+        return self.__fname
 
-    def set_fname(self, fname):
-        self._fname = fname
+    def __setFname(self, fname):
+        self.__fname = fname
 
-    def unset_fname(self):
-        self._fname = None
+    def unsetFname(self):
+        self.__fname = None
 
-    def isset_fname(self):
-        return True if self._fname else False
+    def issetFname(self):
+        return True if self.__fname else False
 
-    def new(self):
-        self.ctx.app_data = TAAppData()
-        self.ctx.app_data_manager.generate_empty()
-        self.unset_fname()
+    def __load(self):
+        try:
+            with open(self.__fname, 'r') as fhandle:
+                app_data = jsonpickle.decode(fhandle.read())
+        except Exception as ex:
+            return ex, None
 
-    def close(self):
-        self.ctx.app_data = TAAppData()
-        self.unset_fname()
+        app_data.fields = {int(key):value for key,value in app_data.fields.items()}
 
-    def load(self):
-        with open(self._fname, 'r') as fhandle:
-            new_app_data = jsonpickle.decode(fhandle.read())
-        self.ctx.app_data = new_app_data
-        self.ctx.app_data.fields = {int(key):value for key,value in new_app_data.fields.items()}
+        return False, app_data
 
-    def load_fname(self, fname):
-        self.set_fname(fname)
-        self.load()
+    def load_fname(self, __fname):
+        self.__setFname(__fname)
+        return self.__load()
 
-    def save(self):
-        with open(self._fname, 'w') as fhandle:
-            fhandle.write(jsonpickle.encode(self.ctx.app_data))
+    def __save(self, app_data):
+        try:
+            if not self.issetFname():
+                raise Exception("Filename not set.")
 
-    def save_fname(self, fname):
-        self.set_fname(fname)
-        self.save()
+            with open(self.__fname, 'w') as fhandle:
+                fhandle.write(jsonpickle.encode(app_data))
+        except Exception as ex:
+            return ex
+
+        return False
+
+    def save_fname(self, app_data, fname):
+        if fname: self.__setFname(fname)
+        self.__save(app_data)
 

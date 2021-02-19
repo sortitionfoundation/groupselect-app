@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QLabel, QInputDialog, QLineEdit, QTableWidgetItem, \
-                            QStackedLayout
+    QStackedLayout, QTableView
+
 
 class TAPeopleDataTab(QWidget):
     def __init__(self, ctx):
@@ -33,23 +35,34 @@ class TAPeopleDataTab(QWidget):
         return label
 
     def create_data_widget(self):
-        self.table_widget = QTableWidget()
+        self.table_widget = QTableView()
+        self.table_widget.setModel(self.ctx.getPeopleDataModel())
         self.table_widget.horizontalHeader().sectionDoubleClicked.connect(self.update_cat_key)
-        self.table_widget.cellChanged.connect(self.update_data_from_table)
+
+        # TODO: add cell changed trigger
+        #self.table_widget.model().cellChanged.connect(self.ctx.set_unsaved)
 
         return self.table_widget
 
-    def update_cat_key(self, n_tab):
-        old_key = self.table_widget.horizontalHeaderItem(n_tab).text()
-        new_key, ok = QInputDialog.getText(self, 'Change label for column %d' % n_tab, 'New label for column:',                                                        QLineEdit.Normal, old_key)
+    def update_cat_key(self, j):
+        old_key = self.table_widget.model().getCatKey(j)
+        new_key, ok = QInputDialog.getText(self, 'Change label for column %d' % j, 'New label for column:', QLineEdit.Normal, old_key)
         if not ok: return
 
-        self.table_widget.horizontalHeaderItem(n_tab).setText(new_key)
-        self.ctx.app_data.peopledata_keys[n_tab] = new_key
+        #self.table_widget.horizontalHeaderItem(j).setText(new_key)
+        #self.ctx.app_data.peopledata_keys[j] = new_key
+        self.table_widget.model().updateFieldName(j, new_key)
+        self.table_widget.model().headerDataChanged.emit(QtCore.Qt.Horizontal, 0, 2)
         self.ctx.set_unsaved()
-        self.ctx.window.tabs.peopledata_updated()
+        #self.ctx.window.tabs.peopledata_updated()
+
+        print(self.table_widget.model())
+        print(self.ctx.app_data.peopleDataModel)
 
     def update_table_from_data(self):
+        self.table_widget.setModel(self.ctx.app_data.peopleDataModel)
+        return
+
         if not self.ctx.app_data:
             self.table_widget.setRowCount(0)
             self.table_widget.setColumnCount(0)
@@ -71,9 +84,3 @@ class TAPeopleDataTab(QWidget):
         self.table_being_updated = False
 
         self.table_widget.setHorizontalHeaderLabels([cat for cat in self.ctx.app_data.peopledata_keys])
-
-    def update_data_from_table(self, i, j):
-        if self.table_being_updated: return
-        self.ctx.app_data.peopledata_vals[i][j] = self.table_widget.item(i, j).text()
-        self.ctx.set_unsaved()
-        self.ctx.window.tabs.peopledata_updated()

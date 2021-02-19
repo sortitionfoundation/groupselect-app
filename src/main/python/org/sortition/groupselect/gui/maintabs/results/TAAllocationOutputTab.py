@@ -50,8 +50,8 @@ class TAAllocationOutputTab(QScrollArea):
             drag_list = self.drag_lists[t]
             label = self.labels[t]
 
-            order_cluster_dict = self.ctx.app_data_manager.get_fields_cluster_dict()
-            order_diverse_dict = self.ctx.app_data_manager.get_fields_diverse_dict()
+            order_cluster_dict = self.ctx.__dataManager.get_fields_cluster_dict()
+            order_diverse_dict = self.ctx.__dataManager.get_fields_diverse_dict()
             cats = {**order_cluster_dict, **order_diverse_dict}
 
             # set drag_list items
@@ -60,12 +60,12 @@ class TAAllocationOutputTab(QScrollArea):
             for pid in table:
                 newItem = QListWidgetItem()
                 newItem.setData(Qt.UserRole, pid)
-                print_label = self.ctx.app_data_manager.get_print_labels(pid)
+                print_label = self.ctx.__dataManager.get_print_labels(pid)
                 newItem.setText(print_label)
                 tooltip_infos = [print_label]
                 for field_key in cats:
                     field_key_label = self.ctx.app_data.peopledata_keys[field_key]
-                    field_pid_val = self.ctx.app_data_manager.load_details(pid, field_key)
+                    field_pid_val = self.ctx.__dataManager.load_details(pid, field_key)
                     tooltip_infos.append("{}: {}".format(field_key_label, field_pid_val))
                 newItem.setToolTip("\n".join(tooltip_infos))
                 drag_list.insertItem(r, newItem)
@@ -78,7 +78,7 @@ class TAAllocationOutputTab(QScrollArea):
                 label_strings.append("<p>{}:<br/>".format(self.ctx.app_data.peopledata_keys[cat_key]))
                 label_strings_cat = []
                 for cat_val_term in cat_val_terms:
-                    occurences = self.ctx.app_data_manager.get_occurences(self.a, t, cat_key, cat_val_term)
+                    occurences = self.ctx.__dataManager.get_occurences(self.a, t, cat_key, cat_val_term)
                     label_strings_cat.append("{} {}".format(occurences, cat_val_term))
                 label_strings.append("<br/>".join(label_strings_cat))
                 label_strings.append("</p>")

@@ -15,8 +15,8 @@ class TAMainWindowResultsActionHandler:
             fname += '.csv'
         try:
             with open(fname, 'w') as handle:
-                a = self.ctx.window.tabs.tab_results.tabs.currentIndex()
-                self.ctx.app_data_manager.export_allocation_to_csv(handle, a)
+                a = self.ctx.__mainWindow.tabs.tab_results.tabs.currentIndex()
+                self.ctx.__dataManager.export_allocation_to_csv(handle, a)
                 handle.close()
         except Exception as e:
             error_dialog = QErrorMessage()
@@ -27,7 +27,7 @@ class TAMainWindowResultsActionHandler:
         dname = str(QFileDialog.getExistingDirectory(self.win, "Select Directory"))
         if not dname: return
         if not dname.endswith('/'): dname += '/'
-        fbasename_tmp = os.path.basename(self.ctx.filesave_manager.get_fname()).rstrip('.gsf') if self.ctx.filesave_manager.isset_fname() else 'New File'
+        fbasename_tmp = os.path.basename(self.ctx.filesave_manager.getFname()).rstrip('.gsf') if self.ctx.filesave_manager.isset_fname() else 'New File'
         fbasename_tmp += ' Results #.csv'
         fbasename, ok = QInputDialog.getText(self.win, 'Enter File Base Name', 'Please enter the CSV file base name for export below.', text=fbasename_tmp)
         if not ok: return
@@ -47,7 +47,7 @@ class TAMainWindowResultsActionHandler:
         try:
             for a, fname in files:
                 with open(fname, 'w') as handle:
-                    self.ctx.app_data_manager.export_allocation_to_csv(handle, a)
+                    self.ctx.__dataManager.export_allocation_to_csv(handle, a)
                     handle.close()
         except Exception as e:
             error_dialog = QErrorMessage()

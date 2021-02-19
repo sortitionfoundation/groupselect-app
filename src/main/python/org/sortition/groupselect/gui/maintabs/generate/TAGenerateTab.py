@@ -113,18 +113,18 @@ class TAGenerateTab(QWidget):
 
     def init_order_list(self):
         for j in self.ctx.app_data.order_cluster:
-            if j not in self.ctx.app_data_manager.get_fields_with_mode('cluster'):
+            if j not in self.ctx.__dataManager.get_fields_with_mode('cluster'):
                 self.ctx.app_data.order_cluster.remove(j)
 
-        for j in self.ctx.app_data_manager.get_fields_with_mode('cluster'):
+        for j in self.ctx.__dataManager.get_fields_with_mode('cluster'):
             if j not in self.ctx.app_data.order_cluster:
                 self.ctx.app_data.order_cluster.append(j)
 
         for j in self.ctx.app_data.order_diverse:
-            if j not in self.ctx.app_data_manager.get_fields_with_mode('diversify'):
+            if j not in self.ctx.__dataManager.get_fields_with_mode('diversify'):
                 self.ctx.app_data.order_diverse.remove(j)
 
-        for j in self.ctx.app_data_manager.get_fields_with_mode('diversify'):
+        for j in self.ctx.__dataManager.get_fields_with_mode('diversify'):
             if j not in self.ctx.app_data.order_diverse:
                 self.ctx.app_data.order_diverse.append(j)
 
@@ -153,7 +153,7 @@ class TAGenerateTab(QWidget):
         self.order_manual.clear()
 
         for m in self.ctx.app_data.manuals:
-            self.order_manual.addItem("{0}: Table {1}".format(self.ctx.app_data_manager.get_print_labels(m[0]),m[1]+1))
+            self.order_manual.addItem("{0}: Table {1}".format(self.ctx.__dataManager.get_print_labels(m[0]), m[1] + 1))
 
     def update_settings(self):
         self._settings_being_updated = True
@@ -175,7 +175,7 @@ class TAGenerateTab(QWidget):
 
     def buttonclicked_manual_add(self):
         try:
-            people_list = [[i,self.ctx.app_data_manager.get_print_labels(i)] for i in range(len(self.ctx.app_data.peopledata_vals)) if i not in [m[0] for m in self.ctx.app_data.manuals]]
+            people_list = [[i, self.ctx.__dataManager.get_print_labels(i)] for i in range(len(self.ctx.app_data.peopledata_vals)) if i not in [m[0] for m in self.ctx.app_data.manuals]]
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error: {}".format(str(e)))
             return
@@ -217,7 +217,7 @@ class TAGenerateTab(QWidget):
 
     def buttonclicked_run_allocation(self):
         attempts = self.ctx.app_data.settings['nattempts']
-        progress_bar = QProgressDialog("Generating table allocations...", "", 0, attempts, self.ctx.window)
+        progress_bar = QProgressDialog("Generating table allocations...", "", 0, attempts, self.ctx.__mainWindow)
         progress_bar.setWindowTitle("Generating...")
         progress_bar.setWindowModality(Qt.WindowModal)
         progress_bar.setAutoClose(False)
@@ -228,15 +228,15 @@ class TAGenerateTab(QWidget):
         progress_bar.setValue(0)
 
         try:
-            self.ctx.ta_manager.run(progress_bar)
+            self.ctx.allocationsManager.run(progress_bar)
         except Exception as e:
             progress_bar.close()
             QMessageBox.critical(self, "Error", "An error occured during allocation: {}".format(str(e)))
             return
 
         progress_bar.close()
-        QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.ta_manager.links, 100*self.ctx.ta_manager.links_rel))
+        QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.allocationsManager.links, 100 * self.ctx.allocationsManager.links_rel))
 
         self.ctx.set_unsaved()
-        self.ctx.window.tabs.results_updated()
-        self.ctx.window.results_menu.setEnabled(True)
+        self.ctx.__mainWindow.tabs.results_updated()
+        self.ctx.__mainWindow.results_menu.setEnabled(True)

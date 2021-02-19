@@ -9,7 +9,7 @@ class TAMainWindowDataActionHandler:
         self.win = window
 
     def confirm_discard(self):
-        if not self.ctx.app_data_manager.peopledata_is_empty():
+        if not self.ctx.__dataManager.peopledata_is_empty():
             reply = QMessageBox.question(self.win, 'Overwrite Content', "The data import will overwrite all the raw data. Proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes: return True
             else: return False
@@ -31,7 +31,7 @@ class TAMainWindowDataActionHandler:
             if not ok: return
             try:
                 with open(fname, 'r') as handle:
-                    self.ctx.app_data_manager.import_raw_from_csv(handle, csv_format)
+                    self.ctx.__dataManager.import_raw_from_csv(handle, csv_format)
             except Exception as e:
                 error_dialog = QErrorMessage()
                 error_dialog.showMessage(str(e))
@@ -48,7 +48,7 @@ class TAMainWindowDataActionHandler:
             fname += '.csv'
         try:
             with open(fname, 'w') as handle:
-                self.ctx.app_data_manager.export_raw_to_csv(handle)
+                self.ctx.__dataManager.export_raw_to_csv(handle)
                 handle.close()
         except Exception as e:
             error_dialog = QErrorMessage()
@@ -61,7 +61,7 @@ class TAMainWindowDataActionHandler:
         options.append((self.ctx.app_data.m_data, 'end'))
         ok, beforeRow, number = TAInsertRowsColsDialog.get_input(self.win, 'rows', options)
         if not ok: return
-        self.ctx.app_data_manager.insert_rows(beforeRow, number)
+        self.ctx.__dataManager.insert_rows(beforeRow, number)
         self.ctx.set_unsaved()
         self.win.tabs.tab_peopledata.update_table_from_data()
         self.win.tabs.peopledata_updated()
@@ -75,7 +75,7 @@ class TAMainWindowDataActionHandler:
         options.append((self.ctx.app_data.n_data, 'end'))
         ok, beforeCol, number = TAInsertRowsColsDialog.get_input(self.win, 'cols', options)
         if not ok: return
-        self.ctx.app_data_manager.insert_cols(beforeCol, number)
+        self.ctx.__dataManager.insert_cols(beforeCol, number)
         self.ctx.set_unsaved()
         self.win.tabs.tab_peopledata.update_table_from_data()
         self.win.tabs.peopledata_updated()
@@ -89,7 +89,7 @@ class TAMainWindowDataActionHandler:
         selection = self.win.tabs.tab_peopledata.table_widget.selectionModel()
         rows = [index.row() for index in selection.selectedRows()]
         if not rows: return
-        self.ctx.app_data_manager.delete_rows(rows)
+        self.ctx.__dataManager.delete_rows(rows)
         self.ctx.set_unsaved()
         self.win.tabs.tab_peopledata.update_table_from_data()
         self.win.tabs.peopledata_updated()
@@ -102,10 +102,10 @@ class TAMainWindowDataActionHandler:
         selection = self.win.tabs.tab_peopledata.table_widget.selectionModel()
         cols = [index.column() for index in selection.selectedColumns()]
         if not cols: return
-        must_discard_results = self.ctx.app_data_manager.cols_not_ignored(cols)
+        must_discard_results = self.ctx.__dataManager.cols_not_ignored(cols)
         if must_discard_results:
             if not self.confirm_discard_results(): return
-        self.ctx.app_data_manager.delete_cols(cols, must_discard_results)
+        self.ctx.__dataManager.delete_cols(cols, must_discard_results)
         self.ctx.set_unsaved()
         self.win.tabs.tab_peopledata.update_table_from_data()
         self.win.tabs.peopledata_updated()

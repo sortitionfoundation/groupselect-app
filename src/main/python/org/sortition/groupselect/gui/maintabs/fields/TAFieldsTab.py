@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QTableWidget, QLabel, QTableWidgetItem, QListWidget, QComboBox, QGroupBox, \
-                            QGridLayout, QStackedLayout, QListWidgetItem, QHeaderView
+    QGridLayout, QStackedLayout, QListWidgetItem, QHeaderView, QHBoxLayout
+
 
 class TAFieldsTab(QWidget):
     def __init__(self, ctx):
@@ -15,34 +16,15 @@ class TAFieldsTab(QWidget):
         self.fields_list = QListWidget()
         self.fields_list.itemSelectionChanged.connect(self.userchanged_field_list)
 
-        self.mode_group = QGroupBox("Field Mode")
-
-        self.mode_box = QComboBox()
-        self.mode_box.addItem("Ignore", 'ignore')
-        self.mode_box.addItem("Print Label", 'print')
-        self.mode_box.addItem("Cluster", 'cluster')
-        self.mode_box.addItem("Diversify", 'diversify')
-        self.mode_box.currentIndexChanged.connect(self.userchanged_mode_box)
-
-        echoLayout = QGridLayout()
-        echoLayout.addWidget(QLabel("Mode:"), 0, 0)
-        echoLayout.addWidget(self.mode_box, 0, 1)
-        echoLayout.setHorizontalSpacing(50)
-        echoLayout.setColumnStretch(0,1)
-        echoLayout.setColumnStretch(1,1)
-        self.mode_group.setLayout(echoLayout)
-
         self.terms_group = QGroupBox("Field Values")
         self.terms_layout = QStackedLayout()
         self.terms_layout.addWidget(self.create_empty_term_widget())
         self.terms_layout.addWidget(self.create_table_term_widget())
         self.terms_group.setLayout(self.terms_layout)
 
-        layout = QGridLayout()
-        layout.addWidget(self.fields_list, 0, 0, 2, 1)
-        layout.addWidget(self.mode_group, 0, 1, 1, 1)
-        layout.addWidget(self.terms_group, 1, 1)
-        layout.setRowStretch(1,1)
+        layout = QHBoxLayout()
+        layout.addWidget(self.fields_list)
+        layout.addWidget(self.create_table_term_widget())
         self.setLayout(layout)
 
     def create_empty_term_widget(self):
@@ -71,14 +53,14 @@ class TAFieldsTab(QWidget):
     def init_field(self, j):
         if j not in self.ctx.app_data.fields:
             mode = 'ignore'
-            terms = [[t,t] for t in self.ctx.app_data_manager.get_terms(j)]
+            terms = [[t,t] for t in self.ctx.__dataManager.get_terms(j)]
             self.ctx.app_data.fields[j] = {'mode': mode, 'terms': terms}
         else:
-            for t in self.ctx.app_data_manager.get_terms(j):
+            for t in self.ctx.__dataManager.get_terms(j):
                 if not any(a[0] == t for a in self.ctx.app_data.fields[j]['terms']):
                     self.ctx.app_data.fields[j]['terms'].append([t,t])
             for k, term_usage in enumerate(self.ctx.app_data.fields[j]['terms']):
-                if term_usage[0] not in self.ctx.app_data_manager.get_terms(j):
+                if term_usage[0] not in self.ctx.__dataManager.get_terms(j):
                     self.ctx.app_data.fields[j]['terms'].pop(k)
 
     def update_fields_list(self):
@@ -135,7 +117,7 @@ class TAFieldsTab(QWidget):
         mode = self.ctx.app_data.fields[j]['mode']
         self.status_terms_group(True if mode in ['cluster', 'diversify'] else False)
 
-        self.ctx.window.tabs.fields_update()
+        self.ctx.__mainWindow.tabs.fields_update()
 
     def userchanged_table(self, k, l):
         if self._table_being_updated: return

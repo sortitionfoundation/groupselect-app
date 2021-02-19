@@ -32,10 +32,10 @@ class TAAllocationsManager:
 
         for i in range(app_data.m_data):
             for j in app_data.order_cluster+app_data.order_diverse:
-                peopledata_vals_used[i][j] = self.ctx.app_data_manager.load_details(i, j)
+                peopledata_vals_used[i][j] = self.ctx.__dataManager.load_details(i, j)
 
-        order_cluster_dict = self.ctx.app_data_manager.get_fields_cluster_dict()
-        order_diverse_dict = self.ctx.app_data_manager.get_fields_diverse_dict()
+        order_cluster_dict = self.ctx.__dataManager.get_fields_cluster_dict()
+        order_diverse_dict = self.ctx.__dataManager.get_fields_diverse_dict()
 
         if not order_diverse_dict:
             raise Exception("Error: One diversification field required!", "You have to set at least one field that is used to diversify people across groups.")

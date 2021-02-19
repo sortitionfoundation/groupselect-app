@@ -1,14 +1,11 @@
 class TAAppData:
     def __init__(self):
-        self.m_data = 0
-        self.n_data = 0
-
         self.peopledata_keys = []
         self.peopledata_vals = []
 
         self.fields = {}
 
-        self.settings = {}
+        self.settings = {'tables': 6, 'seats': 8, 'nallocations': 3, 'nattempts': 100, 'seed': 1.0}
 
         self.order_cluster = []
         self.order_diverse = []

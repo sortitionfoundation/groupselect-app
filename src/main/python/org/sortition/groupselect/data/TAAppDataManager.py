@@ -1,27 +1,64 @@
+from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocationsManager
+from org.sortition.groupselect.data.TAAppData import TAAppData
+from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
+from org.sortition.groupselect.data.TAPeopleDataModel import TAPeopleDataModel
+
 import csv
 
 class TAAppDataManager:
     def __init__(self, ctx):
         self.ctx = ctx
 
+        self.currentAppData = None
+        self.peopleDataModel = TAPeopleDataModel()
+
+        self.allocationsManager = TAAllocationsManager(self)
+        self.filesave_manager = TAFileSaveManager()
+
+    ### global commands
+    def appStart(self):
+        self.close()
+
+    def new(self):
+        self.generate_new()
+        self.peopleDataModel.updateAppData(self.currentAppData)
+        self.filesave_manager.unsetFname()
+
+    def close(self):
+        self.generate_empty()
+        self.peopleDataModel.updateAppData(self.currentAppData)
+        self.filesave_manager.unsetFname()
+
+    def load_file(self, fname):
+        ex, app_data = self.filesave_manager.load_fname(fname)
+
+        if ex: return ex
+        else:
+            self.currentAppData = app_data
+            self.peopleDataModel.updateAppData(self.currentAppData)
+
+    def save_file(self, fname):
+        ex = self.filesave_manager.save_fname(self.currentAppData, fname)
+
+        if ex: return ex
+
+
+    ### generate or load appdata
     def generate_empty(self):
-        app_data = self.ctx.app_data
+        self.currentAppData = TAAppData()
 
-        app_data.m_data = 20
-        app_data.n_data = 10
+    def generate_new(self):
+        self.currentAppData = TAAppData()
 
-        app_data.peopledata_keys = ["Col {}".format(j+1) for j in range(app_data.n_data)]
-        app_data.peopledata_vals = [['' for j in range(app_data.n_data)] for i in range(app_data.m_data)]
+        m_data = 20
+        n_data = 10
 
-        app_data.fields = {}
+        self.currentAppData.peopledata_keys = ["Col {}".format(j+1) for j in range(n_data)]
+        self.currentAppData.peopledata_vals = [['' for j in range(n_data)] for i in range(m_data)]
 
-        app_data.settings = {'tables': 6, 'seats': 8, 'nallocations': 3, 'nattempts': 100, 'seed': 1.0}
-
-        app_data.order_cluster = []
-        app_data.order_diverse = []
-        app_data.manuals = []
-
-        app_data.results = []
+    ### getters and setters
+    def hasResults(self):
+        return True if self.currentAppData.results else False
 
     def get_terms(self, j):
         return sorted(list(set(self.ctx.app_data.peopledata_vals[i][j] for i in range(self.ctx.app_data.m_data))))
@@ -60,6 +97,7 @@ class TAAppDataManager:
     def cols_not_ignored(self, cols):
         return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
 
+    ### advanced manipulation functions ###
     def import_raw_from_csv(self, file_handle, csv_format):
         app_data = self.ctx.app_data
         if(csv_format == 'auto'):

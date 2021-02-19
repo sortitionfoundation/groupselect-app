@@ -35,8 +35,8 @@ class TAMainTabs(QWidget):
 
     def file_opened(self):
         self.setDisabled(False)
-        self.tab_peopledata.update_table_from_data()
-        self.peopledata_updated()
+        #self.tab_peopledata.update_table_from_data()
+        #self.peopledata_updated()
         self.tab_peopledata.display_table()
         self.tab_generate.update_settings()
         self.tab_results.update_tables_from_data()
@@ -45,9 +45,10 @@ class TAMainTabs(QWidget):
 
     def file_closed(self):
         self.setDisabled(True)
-        self.tab_peopledata.update_table_from_data()
-        self.peopledata_updated()
-        self.tab_peopledata.display_empty()
+        #self.tab_peopledata.update_table_from_data()
+        #self.peopledata_updated()
+        #self.tab_peopledata.display_empty()
+        self.tab_peopledata.display_table()
         self.tabs.setCurrentIndex(0)
 
     def peopledata_updated(self):
