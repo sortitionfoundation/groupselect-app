@@ -2,6 +2,7 @@ class TAAppData:
     def __init__(self):
         self.peopledata_keys = []
         self.peopledata_vals = []
+        self.peopledata_terms = []
 
         self.fields = {}
 

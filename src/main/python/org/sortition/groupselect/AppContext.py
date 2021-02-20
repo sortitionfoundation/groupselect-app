@@ -49,6 +49,12 @@ class AppContext(ApplicationContext):
     def getPeopleDataModel(self):
         return self.__dataManager.peopleDataModel
 
+    def getFieldsListModel(self):
+        return self.__dataManager.fieldsListModel
+
+    def getTermsDataModel(self):
+        return self.__dataManager.termsDataModel
+
     ### global actions
     def new_file(self):
         self.__dataManager.new()

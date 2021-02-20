@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QTableWidget, QLabel, QTableWidgetItem, QListWidget, QComboBox, QGroupBox, \
-    QGridLayout, QStackedLayout, QListWidgetItem, QHeaderView, QHBoxLayout
+    QGridLayout, QStackedLayout, QListWidgetItem, QHeaderView, QHBoxLayout, QListView, QTableView
 
 
 class TAFieldsTab(QWidget):
@@ -13,10 +13,11 @@ class TAFieldsTab(QWidget):
         self.create_ui()
 
     def create_ui(self):
-        self.fields_list = QListWidget()
-        self.fields_list.itemSelectionChanged.connect(self.userchanged_field_list)
+        self.fields_list = QListView()
+        self.fields_list.setModel(self.ctx.getFieldsListModel())
+        self.fields_list.selectionModel().currentChanged.connect(self.fieldlist_select)
 
-        self.terms_group = QGroupBox("Field Values")
+        self.terms_group = QWidget()
         self.terms_layout = QStackedLayout()
         self.terms_layout.addWidget(self.create_empty_term_widget())
         self.terms_layout.addWidget(self.create_table_term_widget())
@@ -24,23 +25,38 @@ class TAFieldsTab(QWidget):
 
         layout = QHBoxLayout()
         layout.addWidget(self.fields_list)
-        layout.addWidget(self.create_table_term_widget())
+        layout.addWidget(self.terms_group)
         self.setLayout(layout)
 
+        self.fieldlist_disable()
+
     def create_empty_term_widget(self):
-        label = QLabel("Only applied for diversify and cluster categories.")
+        label = QLabel("Please select a field to modify the term usage.")
         label.setAlignment(Qt.AlignCenter)
 
         return label
 
     def create_table_term_widget(self):
-        self.terms_table = QTableWidget(0, 2)
-        self.terms_table.setHorizontalHeaderLabels(['Terms Found', 'Terms Usage'])
+        self.terms_table = QTableView()
+        self.terms_table.setModel(self.ctx.getTermsDataModel())
+        #self.terms_table.setHorizontalHeaderLabels(['Terms Found', 'Terms Usage'])
         self.terms_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.terms_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.terms_table.cellChanged.connect(self.userchanged_table)
+        #self.terms_table.cellChanged.connect(self.userchanged_table)
 
         return self.terms_table
+
+    def fieldlist_enable(self):
+        self.terms_group.setDisabled(False)
+        self.terms_layout.setCurrentIndex(1)
+
+    def fieldlist_disable(self):
+        self.terms_group.setDisabled(True)
+        self.terms_layout.setCurrentIndex(0)
+
+    def fieldlist_select(self, current):
+        self.fieldlist_enable()
+        self.terms_table.model().updateKey(current.row())
 
     def display_none(self):
         self.fields_list.clearSelection()
@@ -96,7 +112,7 @@ class TAFieldsTab(QWidget):
         self.terms_group.setDisabled(not status)
         self.terms_layout.setCurrentIndex(1 if status else 0)
 
-    def userchanged_field_list(self):
+    def userchanged_field_list(self, index1, index2):
         if self._field_list_being_updated: return
         j = self.get_current_field_index()
         self.init_field(j)

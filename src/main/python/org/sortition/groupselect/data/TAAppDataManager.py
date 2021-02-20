@@ -1,9 +1,13 @@
 from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocationsManager
 from org.sortition.groupselect.data.TAAppData import TAAppData
 from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
+
 from org.sortition.groupselect.data.TAPeopleDataModel import TAPeopleDataModel
+from org.sortition.groupselect.data.TAFieldsListModel import TAFieldsListModel
+from org.sortition.groupselect.data.TATermsDataModel import TATermsDataModel
 
 import csv
+
 
 class TAAppDataManager:
     def __init__(self, ctx):
@@ -11,9 +15,21 @@ class TAAppDataManager:
 
         self.currentAppData = None
         self.peopleDataModel = TAPeopleDataModel()
+        self.fieldsListModel = TAFieldsListModel()
+        self.termsDataModel = TATermsDataModel(self)
+
+        self.peopleDataModel.dataChanged.connect(self.updatedPeopleData)
 
         self.allocationsManager = TAAllocationsManager(self)
         self.filesave_manager = TAFileSaveManager()
+
+    def updateAppData(self):
+        self.peopleDataModel.updateAppData(self.currentAppData)
+        self.fieldsListModel.updateAppData(self.currentAppData)
+        self.termsDataModel.updateAppData(self.currentAppData)
+
+    def updatedPeopleData(self):
+        self.termsDataModel.updatedPeopleData()
 
     ### global commands
     def appStart(self):
@@ -21,12 +37,12 @@ class TAAppDataManager:
 
     def new(self):
         self.generate_new()
-        self.peopleDataModel.updateAppData(self.currentAppData)
+        self.updateAppData()
         self.filesave_manager.unsetFname()
 
     def close(self):
         self.generate_empty()
-        self.peopleDataModel.updateAppData(self.currentAppData)
+        self.updateAppData()
         self.filesave_manager.unsetFname()
 
     def load_file(self, fname):
@@ -35,7 +51,7 @@ class TAAppDataManager:
         if ex: return ex
         else:
             self.currentAppData = app_data
-            self.peopleDataModel.updateAppData(self.currentAppData)
+            self.updateAppData()
 
     def save_file(self, fname):
         ex = self.filesave_manager.save_fname(self.currentAppData, fname)
@@ -55,13 +71,11 @@ class TAAppDataManager:
 
         self.currentAppData.peopledata_keys = ["Col {}".format(j+1) for j in range(n_data)]
         self.currentAppData.peopledata_vals = [['' for j in range(n_data)] for i in range(m_data)]
+        self.currentAppData.peopledata_terms = [None for j in range(n_data)]
 
     ### getters and setters
     def hasResults(self):
         return True if self.currentAppData.results else False
-
-    def get_terms(self, j):
-        return sorted(list(set(self.ctx.app_data.peopledata_vals[i][j] for i in range(self.ctx.app_data.m_data))))
 
     def get_fields_with_mode(self, mode):
         return [j for j, field in self.ctx.app_data.fields.items() if field['mode'] == mode]
