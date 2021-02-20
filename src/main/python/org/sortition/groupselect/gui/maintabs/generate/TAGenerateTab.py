@@ -239,4 +239,4 @@ class TAGenerateTab(QWidget):
 
         self.ctx.set_unsaved()
         self.ctx.__mainWindow.tabs.results_updated()
-        self.ctx.__mainWindow.results_menu.setEnabled(True)
+        self.ctx.__mainWindow.__results_menu.setEnabled(True)

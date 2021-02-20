@@ -1,9 +1,7 @@
-from fbs_runtime.application_context.PyQt5 import ApplicationContext, cached_property
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
-from org.sortition.groupselect.gui.mainwin.TAMainWindow import TAMainWindow
+from org.sortition.groupselect.gui.TAMainWindow import TAMainWindow
 from org.sortition.groupselect.data.TAAppDataManager import TAAppDataManager
-from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
-from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocationsManager
 
 class AppContext(ApplicationContext):
     def __init__(self, *args, **kwargs):
@@ -33,11 +31,11 @@ class AppContext(ApplicationContext):
 
     def set_unsaved(self):
         self.__changed = True
-        self.__mainWindow.update_window_title()
+        self.__mainWindow.window_file_saved_or_unsaved()
 
     def set_saved(self):
         self.__changed = False
-        self.__mainWindow.update_window_title()
+        self.__mainWindow.window_file_saved_or_unsaved()
 
     def hasResults(self):
         return self.__dataManager.hasResults()

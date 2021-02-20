@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
-from org.sortition.groupselect.gui.mainwin.TAImportOptionsDialog import TAImportOptionsDialog
-from org.sortition.groupselect.gui.mainwin.TAInsertRowsColsDialog import TAInsertRowsColsDialog
+from org.sortition.groupselect.gui.mainmenu.TAImportOptionsDialog import TAImportOptionsDialog
+from org.sortition.groupselect.gui.mainmenu.TAInsertRowsColsDialog import TAInsertRowsColsDialog
 
 class TAMainWindowDataActionHandler:
     def __init__(self, ctx, window):
@@ -67,7 +67,7 @@ class TAMainWindowDataActionHandler:
         self.win.tabs.peopledata_updated()
         self.win.tabs.tab_results.display_empty()
         self.win.tabs.results_updated()
-        self.win.results_menu.setEnabled(False)
+        self.win.__results_menu.setEnabled(False)
 
     def insert_cols(self):
         if not self.ctx.get_status(): return
@@ -81,7 +81,7 @@ class TAMainWindowDataActionHandler:
         self.win.tabs.peopledata_updated()
         self.win.tabs.tab_results.display_empty()
         self.win.tabs.results_updated()
-        self.win.results_menu.setEnabled(False)
+        self.win.__results_menu.setEnabled(False)
 
     def delete_rows(self):
         if not self.ctx.get_status(): return
@@ -95,7 +95,7 @@ class TAMainWindowDataActionHandler:
         self.win.tabs.peopledata_updated()
         self.win.tabs.tab_results.display_empty()
         self.win.tabs.results_updated()
-        self.win.results_menu.setEnabled(False)
+        self.win.__results_menu.setEnabled(False)
 
     def delete_cols(self):
         if not self.ctx.get_status(): return
@@ -111,4 +111,4 @@ class TAMainWindowDataActionHandler:
         self.win.tabs.peopledata_updated()
         if must_discard_results: self.win.tabs.tab_results.display_empty()
         self.win.tabs.results_updated()
-        self.win.results_menu.setEnabled(False)
+        self.win.__results_menu.setEnabled(False)

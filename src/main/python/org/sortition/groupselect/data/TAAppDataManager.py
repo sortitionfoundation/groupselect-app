@@ -2,9 +2,9 @@ from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocatio
 from org.sortition.groupselect.data.TAAppData import TAAppData
 from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
 
-from org.sortition.groupselect.data.TAPeopleDataModel import TAPeopleDataModel
-from org.sortition.groupselect.data.TAFieldsListModel import TAFieldsListModel
-from org.sortition.groupselect.data.TATermsDataModel import TATermsDataModel
+from org.sortition.groupselect.data.models.TAPeopleDataModel import TAPeopleDataModel
+from org.sortition.groupselect.data.models.TAFieldsListModel import TAFieldsListModel
+from org.sortition.groupselect.data.models.TATermsDataModel import TATermsDataModel
 
 import csv
 
