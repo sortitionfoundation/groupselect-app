@@ -1,4 +1,3 @@
-from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QTableWidget, QLabel, QInputDialog, QLineEdit, QTableWidgetItem, \
     QStackedLayout, QTableView
@@ -11,15 +10,9 @@ class TAPeopleDataTab(QWidget):
 
         self.table_being_updated = False
 
-        stacked_widget = QWidget()
-        self.stacked_layout = QStackedLayout()
-        self.stacked_layout.addWidget(self.create_empty_widget())
-        self.stacked_layout.addWidget(self.create_data_widget())
-        stacked_widget.setLayout(self.stacked_layout)
-
         layout = QHBoxLayout()
         layout.setContentsMargins(5, 5, 5, 5)
-        layout.addWidget(stacked_widget)
+        layout.addWidget(self.create_data_widget())
         self.setLayout(layout)
 
     def display_empty(self):

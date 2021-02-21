@@ -1,3 +1,5 @@
+import sys
+
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 from org.sortition.groupselect.gui.TAMainWindow import TAMainWindow
@@ -20,7 +22,7 @@ class AppContext(ApplicationContext):
         return self.app.exec_()
 
     ### app state methods
-    def get_status(self):
+    def getStatus(self):
         return self.__status
 
     def set_status(self, status):
@@ -40,8 +42,11 @@ class AppContext(ApplicationContext):
     def hasResults(self):
         return self.__dataManager.hasResults()
 
-    def fnameIsset(self):
-        return self.__dataManager.filesave_manager.issetFname()
+    def getFname(self):
+        return self.__dataManager.getFname()
+
+    def issetFname(self):
+        return self.__dataManager.issetFname()
 
     ### getters for data models
     def getPeopleDataModel(self):
@@ -54,15 +59,15 @@ class AppContext(ApplicationContext):
         return self.__dataManager.termsDataModel
 
     ### global actions
-    def new_file(self):
-        self.__dataManager.new()
+    def newFile(self):
+        self.__dataManager.newFile()
 
         self.set_status(True)
         self.set_unsaved()
         self.__mainWindow.window_file_opened()
 
-    def load_file(self, fname):
-        ex = self.__dataManager.load_file(fname)
+    def loadFile(self, fname):
+        ex = self.__dataManager.loadFile(fname)
 
         if ex: return ex
 
@@ -72,10 +77,20 @@ class AppContext(ApplicationContext):
 
         return False
 
-    def save_file(self, fname):
-        ex = self.__dataManager.save_file(fname)
+    def saveFile(self, fname):
+        ex = self.__dataManager.saveFile(fname)
 
         if ex: return ex
 
         self.set_saved()
         self.__mainWindow.window_file_saved()
+
+    def closeFile(self):
+        self.__dataManager.closeFile()
+
+        self.set_status(False)
+        self.set_saved()
+        self.__mainWindow.window_file_closed()
+
+    def quit(self):
+        sys.exit()

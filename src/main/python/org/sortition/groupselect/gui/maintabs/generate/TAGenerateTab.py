@@ -238,5 +238,5 @@ class TAGenerateTab(QWidget):
         QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.allocationsManager.links, 100 * self.ctx.allocationsManager.links_rel))
 
         self.ctx.set_unsaved()
-        self.ctx.__mainWindow.tabs.results_updated()
+        self.ctx.__mainWindow.__tabs.results_updated()
         self.ctx.__mainWindow.__results_menu.setEnabled(True)

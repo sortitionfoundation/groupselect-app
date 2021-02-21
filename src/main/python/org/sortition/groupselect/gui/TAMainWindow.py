@@ -1,13 +1,13 @@
 import os.path
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStyleFactory
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStyleFactory, QWidget, QStackedLayout, QLabel
 
 from org.sortition.groupselect.gui.mainmenu.TAMainMenu import TAMainMenu
-from org.sortition.groupselect.gui.mainmenu.TAHelpDialog import TAHelpDialog
 from org.sortition.groupselect.gui.maintabs.TAMainTabs import TAMainTabs
 
 class TAMainWindow(QMainWindow):
-    def __init__(self, ctx, parent=None):
+    def __init__(self, ctx:'AppContext', parent=None):
         super(TAMainWindow, self).__init__(parent)
         self.ctx = ctx
 
@@ -21,8 +21,16 @@ class TAMainWindow(QMainWindow):
         self.__mainMenu = TAMainMenu(self.ctx, self)
         self.setMenuBar(self.__mainMenu)
 
-        self.tabs = TAMainTabs(self.ctx)
-        self.setCentralWidget(self.tabs)
+        self.__tabs = TAMainTabs(self.ctx)
+        label = QLabel("Please create a new file or open existing one.")
+        label.setAlignment(Qt.AlignCenter)
+
+        stacked_widget = QWidget()
+        self.stacked_layout = QStackedLayout()
+        self.stacked_layout.addWidget(label)
+        self.stacked_layout.addWidget(self.__tabs)
+        stacked_widget.setLayout(self.stacked_layout)
+        self.setCentralWidget(stacked_widget)
 
     def appStart(self):
         self.window_file_closed()
@@ -33,28 +41,34 @@ class TAMainWindow(QMainWindow):
 
     def window_file_opened(self):
         self.__update_window_title()
-        self.tabs.file_opened()
+
+        self.__tabs.file_opened()
         self.__mainMenu.file_opened()
+
+        self.stacked_layout.setCurrentIndex(1)
 
     def window_file_closed(self):
         self.__update_window_title()
-        self.tabs.file_closed()
+
+        self.__tabs.file_closed()
         self.__mainMenu.file_closed()
+
+        self.stacked_layout.setCurrentIndex(0)
 
     def window_file_saved_or_unsaved(self):
         self.__update_window_title()
 
     def __update_window_title(self):
-        if self.ctx.get_status():
-            if self.ctx.fnameIsset():
-                fname_win_title = os.path.basename(self.ctx.filesave_manager.getFname())
+        if self.ctx.getStatus():
+            if self.ctx.issetFname():
+                fnameWinTitle = os.path.basename(self.ctx.filesave_manager.getFname())
                 if self.ctx.is_unsaved():
-                    fname_win_title += '*'
+                    fnameWinTitle += '*'
             else:
-                fname_win_title = "Unsaved File"
+                fnameWinTitle = "Unsaved File"
                 if self.ctx.is_unsaved():
-                    fname_win_title += '*'
-            new_title = '{} — GroupSelect'.format(fname_win_title)
+                    fnameWinTitle += '*'
+            newTitle = '{} — GroupSelect'.format(fnameWinTitle)
         else:
-            new_title = 'GroupSelect'
-        self.setWindowTitle(new_title)
+            newTitle = 'GroupSelect'
+        self.setWindowTitle(newTitle)

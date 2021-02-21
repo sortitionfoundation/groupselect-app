@@ -7,15 +7,15 @@ from org.sortition.groupselect.gui.mainmenu.TAMainWindowResultsActionHandler imp
 
 
 class TAMainMenu(QMenuBar):
-    def __init__(self, ctx, window, parent=None):
+    def __init__(self, ctx:'AppContext', main_window:'TAMainWindow', parent=None):
         super(TAMainMenu, self).__init__(parent)
 
         self.ctx = ctx
-        self.win = window
+        self.mainWindow = main_window
         
-        self.__file_action_handler = TAMainWindowFileActionHandler(self.ctx, self)
-        self.__data_action_handler = TAMainWindowDataActionHandler(self.ctx, self)
-        self.__results_action_handler = TAMainWindowResultsActionHandler(self.ctx, self)
+        self.__file_action_handler = TAMainWindowFileActionHandler(self.ctx, self.mainWindow)
+        self.__data_action_handler = TAMainWindowDataActionHandler(self.ctx, self.mainWindow)
+        self.__results_action_handler = TAMainWindowResultsActionHandler(self.ctx, self.mainWindow)
         
         self.__setup_ui()
     
@@ -27,14 +27,14 @@ class TAMainMenu(QMenuBar):
         action_item = QAction('New File', self)
         action_item.setShortcut("Ctrl+N")
         action_item.setStatusTip('Create a new GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.new_action_call)
+        action_item.triggered.connect(self.__file_action_handler.newActionCall)
         file_menu.addAction(action_item)
 
         # open
         action_item = QAction('Open File...', self)
         action_item.setShortcut("Ctrl+O")
         action_item.setStatusTip('Open an existing GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.open_action_call)
+        action_item.triggered.connect(self.__file_action_handler.openActionCall)
         file_menu.addAction(action_item)
 
         file_menu.addSeparator();
@@ -43,14 +43,14 @@ class TAMainMenu(QMenuBar):
         action_item = QAction('Save', self)
         action_item.setShortcut("Ctrl+S")
         action_item.setStatusTip('Save changes to GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.save_action_call)
+        action_item.triggered.connect(self.__file_action_handler.saveActionCall)
         file_menu.addAction(action_item)
 
         # save
         action_item = QAction('Save As...', self)
         action_item.setShortcut("Ctrl+Shift+S")
         action_item.setStatusTip('Save changes to GroupSelect file and specify target file.')
-        action_item.triggered.connect(self.__file_action_handler.save_as_action_call)
+        action_item.triggered.connect(self.__file_action_handler.saveAsActionCall)
         file_menu.addAction(action_item)
 
         file_menu.addSeparator();
@@ -59,14 +59,14 @@ class TAMainMenu(QMenuBar):
         action_item = QAction('Close File', self)
         action_item.setShortcut("Ctrl+W")
         action_item.setStatusTip('Close opened GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.close_action_call)
+        action_item.triggered.connect(self.__file_action_handler.closeActionCall)
         file_menu.addAction(action_item)
 
         # quit
         action_item = QAction('Quit', self)
         action_item.setShortcut("Ctrl+Q")
         action_item.setStatusTip('Terminate the application')
-        action_item.triggered.connect(self.__file_action_handler.quit_action_call)
+        action_item.triggered.connect(self.__file_action_handler.quitActionCall)
         file_menu.addAction(action_item)
 
         # raw data menu
@@ -140,7 +140,7 @@ class TAMainMenu(QMenuBar):
         help_menu.addAction(action_item)
 
     def close_action_call(self):
-        self.__file_action_handler.quit_action_call()
+        self.__file_action_handler.quitActionCall()
 
     def file_opened(self):
         self.__data_menu.setEnabled(True)

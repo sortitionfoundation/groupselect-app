@@ -133,7 +133,7 @@ class TAFieldsTab(QWidget):
         mode = self.ctx.app_data.fields[j]['mode']
         self.status_terms_group(True if mode in ['cluster', 'diversify'] else False)
 
-        self.ctx.__mainWindow.tabs.fields_update()
+        self.ctx.__mainWindow.__tabs.fields_update()
 
     def userchanged_table(self, k, l):
         if self._table_being_updated: return

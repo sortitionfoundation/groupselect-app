@@ -10,7 +10,7 @@ import csv
 
 
 class TAAppDataManager:
-    def __init__(self, ctx):
+    def __init__(self, ctx:'AppContext'):
         self.ctx = ctx
 
         self.currentAppData = None
@@ -19,6 +19,9 @@ class TAAppDataManager:
         self.termsDataModel = TATermsDataModel(self)
 
         self.peopleDataModel.dataChanged.connect(self.updatedPeopleData)
+        self.peopleDataModel.dataChanged.connect(self.ctx.set_unsaved)
+        self.fieldsListModel.dataChanged.connect(self.ctx.set_unsaved)
+        self.termsDataModel.dataChanged.connect(self.ctx.set_unsaved)
 
         self.allocationsManager = TAAllocationsManager(self)
         self.filesave_manager = TAFileSaveManager()
@@ -33,19 +36,19 @@ class TAAppDataManager:
 
     ### global commands
     def appStart(self):
-        self.close()
+        self.closeFile()
 
-    def new(self):
+    def newFile(self):
         self.generate_new()
         self.updateAppData()
         self.filesave_manager.unsetFname()
 
-    def close(self):
+    def closeFile(self):
         self.generate_empty()
         self.updateAppData()
         self.filesave_manager.unsetFname()
 
-    def load_file(self, fname):
+    def loadFile(self, fname):
         ex, app_data = self.filesave_manager.load_fname(fname)
 
         if ex: return ex
@@ -53,10 +56,16 @@ class TAAppDataManager:
             self.currentAppData = app_data
             self.updateAppData()
 
-    def save_file(self, fname):
+    def saveFile(self, fname):
         ex = self.filesave_manager.save_fname(self.currentAppData, fname)
 
         if ex: return ex
+
+    def getFname(self):
+        return self.filesave_manager.getFname()
+
+    def issetFname(self):
+        return self.filesave_manager.issetFname()
 
 
     ### generate or load appdata

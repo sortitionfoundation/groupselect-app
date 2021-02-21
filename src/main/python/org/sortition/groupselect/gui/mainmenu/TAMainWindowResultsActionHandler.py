@@ -15,7 +15,7 @@ class TAMainWindowResultsActionHandler:
             fname += '.csv'
         try:
             with open(fname, 'w') as handle:
-                a = self.ctx.__mainWindow.tabs.tab_results.tabs.currentIndex()
+                a = self.ctx.__mainWindow.__tabs.tab_results.__tabs.currentIndex()
                 self.ctx.__dataManager.export_allocation_to_csv(handle, a)
                 handle.close()
         except Exception as e:
