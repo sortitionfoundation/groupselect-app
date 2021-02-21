@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
+from org.sortition.groupselect.gui.mainmenu.TANewFileOptionsDialog import TANewFileOptionsDialog
+
 
 class TAMainWindowFileActionHandler:
     def __init__(self, ctx: 'AppContext', main_window: 'TAMainWindow'):
@@ -8,7 +10,9 @@ class TAMainWindowFileActionHandler:
 
     def newActionCall(self):
         if self.__confirmDiscard():
-            self.ctx.newFile()
+            ok, number, names = TANewFileOptionsDialog.get_input(self.mainWindow)
+            if not ok: return
+            self.ctx.newFile(number, names)
 
     def closeActionCall(self):
         if self.__confirmDiscard():

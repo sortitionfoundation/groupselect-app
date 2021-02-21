@@ -25,5 +25,5 @@ class TAPeopleDataTab(QTableView):
         #self.ctx.app_data.peopledata_keys[j] = new_key
         self.model().updateFieldName(j, new_key)
         self.model().headerDataChanged.emit(QtCore.Qt.Horizontal, 0, 2)
-        self.ctx.setUnsaved()
+        self.ctx.changesToFile()
         #self.ctx.window.tabs.peopledata_updated()

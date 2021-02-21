@@ -34,11 +34,9 @@ class AppContext(ApplicationContext):
 
     def setUnsaved(self):
         self.__changed = True
-        self.__mainWindow.window_file_saved_or_unsaved()
 
     def setSaved(self):
         self.__changed = False
-        self.__mainWindow.window_file_saved_or_unsaved()
 
     def hasResults(self):
         return self.__dataManager.hasResults()
@@ -63,8 +61,8 @@ class AppContext(ApplicationContext):
         return self.__dataManager.termsDataModel
 
     ### global actions
-    def newFile(self):
-        self.__dataManager.newFile()
+    def newFile(self, number, names):
+        self.__dataManager.newFile(number, names)
 
         self.setStatus(True)
         self.setUnsaved()
@@ -87,7 +85,11 @@ class AppContext(ApplicationContext):
         if ex: return ex
 
         self.setSaved()
-        self.__mainWindow.window_file_saved()
+        self.__mainWindow.windowFileSavedOrUnsaved()
+
+    def changesToFile(self):
+        self.setUnsaved()
+        self.__mainWindow.windowFileSavedOrUnsaved()
 
     def closeFile(self):
         self.__dataManager.closeFile()

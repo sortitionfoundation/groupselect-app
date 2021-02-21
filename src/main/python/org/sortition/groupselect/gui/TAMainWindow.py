@@ -55,7 +55,7 @@ class TAMainWindow(QMainWindow):
 
         self.stackedLayout.setCurrentIndex(0)
 
-    def window_file_saved_or_unsaved(self):
+    def windowFileSavedOrUnsaved(self):
         self.__updateWindowTitle()
 
     def __updateWindowTitle(self):

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QFrame
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
-from org.sortition.groupselect.gui.maintabs.fields.TAFieldsTab import TAFieldsTab
+from org.sortition.groupselect.gui.maintabs.peopledata.TAFieldsTab import TAFieldsTab
 from org.sortition.groupselect.gui.maintabs.generate.TAGenerateTab import TAGenerateTab
 from org.sortition.groupselect.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
 from org.sortition.groupselect.gui.maintabs.results.TAOutputTab import TAOutputTab

@@ -1,4 +1,3 @@
-from org.sortition.groupselect.allocator.TAAllocationsManager import TAAllocationsManager
 from org.sortition.groupselect.data.TAAppData import TAAppData
 from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
 
@@ -21,14 +20,13 @@ class TAAppDataManager:
 
         self.__filesaveManager = TAFileSaveManager()
 
-        self.connectModels()
+        self.__connectModels()
 
-    def connectModels(self):
+    def __connectModels(self):
         self.peopleDataModel.dataChanged.connect(self.updatedPeopleData)
 
-        self.peopleDataModel.dataChanged.connect(self.ctx.setUnsaved)
-        self.fieldsListModel.dataChanged.connect(self.ctx.setUnsaved)
-        self.termsDataModel.dataChanged.connect(self.ctx.setUnsaved)
+        self.peopleDataModel.dataChanged.connect(self.ctx.changesToFile)
+        self.termsDataModel.dataChanged.connect(self.ctx.changesToFile)
 
     def updateAppData(self):
         self.peopleDataModel.updateAppData(self.currentAppData)
@@ -42,8 +40,8 @@ class TAAppDataManager:
     def appStart(self):
         self.closeFile()
 
-    def newFile(self):
-        self.generate_new()
+    def newFile(self, number, names):
+        self.generate_new(number, names)
         self.updateAppData()
         self.__filesaveManager.unsetFname()
 
@@ -78,13 +76,13 @@ class TAAppDataManager:
     def generate_empty(self):
         self.currentAppData = TAAppData()
 
-    def generate_new(self):
+    def generate_new(self, number, names):
         self.currentAppData = TAAppData()
 
-        m_data = 20
-        n_data = 10
+        m_data = number
+        n_data = len(names.split(","))
 
-        self.currentAppData.peopledata_keys = ["Col {}".format(j+1) for j in range(n_data)]
+        self.currentAppData.peopledata_keys = [n.strip() for n in names.split(",")]
         self.currentAppData.peopledata_vals = [['' for j in range(n_data)] for i in range(m_data)]
         self.currentAppData.peopledata_terms = [None for j in range(n_data)]
 

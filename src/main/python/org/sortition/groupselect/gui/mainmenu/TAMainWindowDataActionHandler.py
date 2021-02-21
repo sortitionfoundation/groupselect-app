@@ -36,7 +36,7 @@ class TAMainWindowDataActionHandler:
                 error_dialog = QErrorMessage()
                 error_dialog.showMessage(str(e))
                 return
-            self.ctx.setUnsaved()
+            self.ctx.changesToFile()
             self.win.__tabs.tab_peopledata.update_table_from_data()
             self.win.__tabs.peopledata_updated()
 
@@ -62,7 +62,7 @@ class TAMainWindowDataActionHandler:
         ok, beforeRow, number = TAInsertRowsColsDialog.get_input(self.win, 'rows', options)
         if not ok: return
         self.ctx.__dataManager.insert_rows(beforeRow, number)
-        self.ctx.setUnsaved()
+        self.ctx.changesToFile()
         self.win.__tabs.tab_peopledata.update_table_from_data()
         self.win.__tabs.peopledata_updated()
         self.win.__tabs.tab_results.display_empty()
@@ -76,7 +76,7 @@ class TAMainWindowDataActionHandler:
         ok, beforeCol, number = TAInsertRowsColsDialog.get_input(self.win, 'cols', options)
         if not ok: return
         self.ctx.__dataManager.insert_cols(beforeCol, number)
-        self.ctx.setUnsaved()
+        self.ctx.changesToFile()
         self.win.__tabs.tab_peopledata.update_table_from_data()
         self.win.__tabs.peopledata_updated()
         self.win.__tabs.tab_results.display_empty()
@@ -90,7 +90,7 @@ class TAMainWindowDataActionHandler:
         rows = [index.row() for index in selection.selectedRows()]
         if not rows: return
         self.ctx.__dataManager.delete_rows(rows)
-        self.ctx.setUnsaved()
+        self.ctx.changesToFile()
         self.win.__tabs.tab_peopledata.update_table_from_data()
         self.win.__tabs.peopledata_updated()
         self.win.__tabs.tab_results.display_empty()
@@ -106,7 +106,7 @@ class TAMainWindowDataActionHandler:
         if must_discard_results:
             if not self.confirm_discard_results(): return
         self.ctx.__dataManager.delete_cols(cols, must_discard_results)
-        self.ctx.setUnsaved()
+        self.ctx.changesToFile()
         self.win.__tabs.tab_peopledata.update_table_from_data()
         self.win.__tabs.peopledata_updated()
         if must_discard_results: self.win.__tabs.tab_results.display_empty()

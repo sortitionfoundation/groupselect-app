@@ -48,7 +48,7 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
 
     def button_press(self):
         if self.sender() == self.btn_ok:
-            self.ok = True
+            self.ok = False
             if(self.rb1.isChecked()):
                 self.radio_status = 'auto'
             elif(self.rb2.isChecked()):
@@ -58,7 +58,7 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
             else:
                 self.radio_status = 'auto'
         else:
-            self.ok = True
+            self.ok = False
             self.radio_status = ''
         self.close()
 
