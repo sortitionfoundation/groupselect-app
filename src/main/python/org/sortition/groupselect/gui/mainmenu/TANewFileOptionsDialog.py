@@ -7,6 +7,11 @@ class TANewFileOptionsDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super(TANewFileOptionsDialog, self).__init__(parent)
 
+        self.__ok = False
+
+        self.__number = 20
+        self.__names = "name,gender,age"
+
         self.__createUi()
 
     def __createUi(self):
@@ -17,10 +22,10 @@ class TANewFileOptionsDialog(QtWidgets.QDialog):
 
         self.__numberField = QLineEdit()
         self.__numberField.setValidator(QIntValidator(1, 10000, self))
-        self.__numberField.setText("20")
+        self.__numberField.setText(str(self.__number))
 
         self.__nameField = QLineEdit()
-        self.__nameField.setText("name,gender,age")
+        self.__nameField.setText(self.__names)
 
         form = QFormLayout()
         form.addRow(label1, self.__numberField)
