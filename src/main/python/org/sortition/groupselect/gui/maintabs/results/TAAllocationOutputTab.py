@@ -97,6 +97,6 @@ class TAAllocationOutputTab(QScrollArea):
         self.ctx.app_data.results[self.a] = new_allocation
         self.allocation = new_allocation
 
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
         self.set_content()

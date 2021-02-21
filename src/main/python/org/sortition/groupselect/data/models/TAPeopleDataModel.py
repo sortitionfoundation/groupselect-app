@@ -10,24 +10,30 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
         super(TAPeopleDataModel, self).__init__(parent, *args)
         self.__currentAppData = TAAppData()
 
+        self.__viewState = True
+
     def updateAppData(self, current_app_data: TAAppData):
         self.__currentAppData = current_app_data
         self.layoutChanged.emit()
 
-    def updateFieldName(self, j, newName):
-        self.__currentAppData.peopledata_keys[j] = newName
+    def updateFieldName(self, j, new_name):
+        self.__currentAppData.peopledata_keys[j] = new_name
         self.headerDataChanged.emit(QtCore.Qt.Horizontal, j, j)
+
+    def setFieldsView(self, view_state):
+        self.__viewState = view_state
+        self.layoutChanged.emit()
 
     def data(self, index, role):
         if role == Qt.EditRole or role == Qt.DisplayRole:
-            return self.__getDisplayData(index.row(), index.column(), ignoreTerms=(role==Qt.EditRole))
+            return self.__getDisplayData(index.row(), index.column(), ignoreTerms=(role==Qt.EditRole or not self.__viewState))
         if role == Qt.ForegroundRole:
-            if self.__getDisplayData(index.row(), index.column()) != "(empty)":
+            if not self.__viewState or self.__getDisplayData(index.row(), index.column()) != "(empty)":
                 return QColor(Qt.black)
             else:
                 return QColor(Qt.gray)
         if role == Qt.BackgroundRole:
-            if self.__hasDataChangedByTerms(index.row(), index.column()):
+            if self.__viewState and self.__hasDataChangedByTerms(index.row(), index.column()):
                 brush = QBrush(Qt.BDiagPattern)
                 brush.setColor(Qt.lightGray)
                 return brush
@@ -44,7 +50,7 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return QtCore.QVariant(self.__currentAppData.peopledata_keys[col])
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            return QtCore.QVariant(col)
+            return QtCore.QVariant(col+1)
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
         if role != QtCore.Qt.EditRole:

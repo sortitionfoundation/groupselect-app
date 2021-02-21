@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QFrame
 
-from org.sortition.groupselect.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
 from org.sortition.groupselect.gui.maintabs.fields.TAFieldsTab import TAFieldsTab
 from org.sortition.groupselect.gui.maintabs.generate.TAGenerateTab import TAGenerateTab
+from org.sortition.groupselect.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
 from org.sortition.groupselect.gui.maintabs.results.TAOutputTab import TAOutputTab
+
 
 class TAMainTabs(QWidget):
     editted = False
@@ -12,36 +13,33 @@ class TAMainTabs(QWidget):
         super(QWidget, self).__init__()
         self.ctx = ctx
 
-        self.__tab_peopledata = TAPeopleDataTab(ctx)
-        self.__tab_fields = TAFieldsTab(ctx)
-        self.__tab_generate = TAGenerateTab(ctx)
-        self.__tab_results = TAOutputTab(ctx)
+        self.__createUi()
+
+    def __createUi(self):
+        self.__tabPeopleData = TAPeopleDataTab(self.ctx)
+        self.__tabFields = TAFieldsTab(self.ctx)
+
+        self.__tabPeopleDataTab = QTabWidget()
+        self.__tabPeopleDataTab.setTabPosition(QTabWidget.South)
+        self.__tabPeopleDataTab.addTab(self.__tabPeopleData, "Data")
+        self.__tabPeopleDataTab.addTab(self.__tabFields, "Fields")
+
+        self.__tabGenerate = TAGenerateTab(self.ctx)
+        self.__tabResults = TAOutputTab(self.ctx)
 
         self.__tabs = QTabWidget()
-        self.__tabs.addTab(self.__tab_peopledata, "People Data")
-        self.__tabs.addTab(self.__tab_fields, "Fields")
-        self.__tabs.addTab(self.__tab_generate, "Generate")
-        self.__tabs.addTab(self.__tab_results, "Results")
+        self.__tabs.addTab(self.__tabPeopleDataTab, "People Data")
+        self.__tabs.addTab(self.__tabGenerate, "Generate")
+        self.__tabs.addTab(self.__tabResults, "Results")
 
+        m = 10
         self.__layout = QVBoxLayout(self)
+        self.__layout.setContentsMargins(m, m, m, m)
         self.__layout.addWidget(self.__tabs)
         self.setLayout(self.__layout)
 
-    def file_opened(self):
+    def fileOpened(self):
         self.__tabs.setCurrentIndex(0)
 
-    def file_closed(self):
+    def fileClosed(self):
         pass
-
-    def peopledata_updated(self):
-        self.__tab_fields.update_fields_list()
-        self.__tab_fields.display_none()
-        self.__tab_generate.update_field_order_lists()
-        self.__tab_generate.update_manuals_list()
-
-    def fields_update(self):
-        self.__tab_generate.update_field_order_lists()
-
-    def results_updated(self):
-        self.__tab_results.display_data()
-        self.__tab_results.update_tables_from_data()

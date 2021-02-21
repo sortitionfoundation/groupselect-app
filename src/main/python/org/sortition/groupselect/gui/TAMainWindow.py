@@ -22,51 +22,51 @@ class TAMainWindow(QMainWindow):
         self.setMenuBar(self.__mainMenu)
 
         self.__tabs = TAMainTabs(self.ctx)
-        label = QLabel("Please create a new file or open existing one.")
+        label = QLabel("Please create a new file or open an existing one.")
         label.setAlignment(Qt.AlignCenter)
 
-        stacked_widget = QWidget()
-        self.stacked_layout = QStackedLayout()
-        self.stacked_layout.addWidget(label)
-        self.stacked_layout.addWidget(self.__tabs)
-        stacked_widget.setLayout(self.stacked_layout)
-        self.setCentralWidget(stacked_widget)
+        stackedWidget = QWidget()
+        self.stackedLayout = QStackedLayout()
+        self.stackedLayout.addWidget(label)
+        self.stackedLayout.addWidget(self.__tabs)
+        stackedWidget.setLayout(self.stackedLayout)
+        self.setCentralWidget(stackedWidget)
 
     def appStart(self):
-        self.window_file_closed()
+        self.windowFileClosed()
         self.show()
 
     def closeEvent(self, event):
         self.__mainMenu.close_action_call()
 
-    def window_file_opened(self):
-        self.__update_window_title()
+    def windowFileOpened(self):
+        self.__updateWindowTitle()
 
-        self.__tabs.file_opened()
-        self.__mainMenu.file_opened()
+        self.__tabs.fileOpened()
+        self.__mainMenu.fileOpened()
 
-        self.stacked_layout.setCurrentIndex(1)
+        self.stackedLayout.setCurrentIndex(1)
 
-    def window_file_closed(self):
-        self.__update_window_title()
+    def windowFileClosed(self):
+        self.__updateWindowTitle()
 
-        self.__tabs.file_closed()
+        self.__tabs.fileClosed()
         self.__mainMenu.file_closed()
 
-        self.stacked_layout.setCurrentIndex(0)
+        self.stackedLayout.setCurrentIndex(0)
 
     def window_file_saved_or_unsaved(self):
-        self.__update_window_title()
+        self.__updateWindowTitle()
 
-    def __update_window_title(self):
+    def __updateWindowTitle(self):
         if self.ctx.getStatus():
             if self.ctx.issetFname():
-                fnameWinTitle = os.path.basename(self.ctx.filesave_manager.getFname())
-                if self.ctx.is_unsaved():
+                fnameWinTitle = os.path.basename(self.ctx.getFname())
+                if self.ctx.isUnsaved():
                     fnameWinTitle += '*'
             else:
                 fnameWinTitle = "Unsaved File"
-                if self.ctx.is_unsaved():
+                if self.ctx.isUnsaved():
                     fnameWinTitle += '*'
             newTitle = '{} — GroupSelect'.format(fnameWinTitle)
         else:

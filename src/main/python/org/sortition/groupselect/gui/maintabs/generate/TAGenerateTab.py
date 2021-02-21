@@ -171,7 +171,7 @@ class TAGenerateTab(QWidget):
         self.ctx.app_data.order_cluster = [self.order_cluster.item(l).data(Qt.UserRole) for l in range(self.order_cluster.count())]
         self.ctx.app_data.order_diverse = [self.order_diverse.item(l).data(Qt.UserRole) for l in range(self.order_diverse.count())]
 
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
     def buttonclicked_manual_add(self):
         try:
@@ -184,14 +184,14 @@ class TAGenerateTab(QWidget):
         if not status: return
         self.ctx.app_data.manuals.append([person, table])
         self.update_manuals_list()
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
     def buttonclicked_manual_del(self):
         if not self.order_manual.currentItem(): return
         index = self.order_manual.indexFromItem(self.order_manual.currentItem()).row()
         self.ctx.app_data.manuals.pop(index)
         self.update_manuals_list()
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
     def userchanged_settings_fields(self):
         if self._settings_being_updated: return
@@ -201,7 +201,7 @@ class TAGenerateTab(QWidget):
             self.ctx.app_data.settings['nallocations'] = int(self.number_field.text()) if self.number_field.text() else 0
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
     def buttonclicked_advanced_settings(self):
         try:
@@ -213,7 +213,7 @@ class TAGenerateTab(QWidget):
             self.ctx.app_data.settings['seed'] = seed
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
 
     def buttonclicked_run_allocation(self):
         attempts = self.ctx.app_data.settings['nattempts']
@@ -237,6 +237,6 @@ class TAGenerateTab(QWidget):
         progress_bar.close()
         QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.allocationsManager.links, 100 * self.ctx.allocationsManager.links_rel))
 
-        self.ctx.set_unsaved()
+        self.ctx.setUnsaved()
         self.ctx.__mainWindow.__tabs.results_updated()
-        self.ctx.__mainWindow.__results_menu.setEnabled(True)
+        self.ctx.__mainWindow.__resultsMenu.setEnabled(True)

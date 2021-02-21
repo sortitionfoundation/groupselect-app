@@ -27,13 +27,13 @@ class TAMainWindowFileActionHandler:
             if ex: QMessageBox.critical(self.mainWindow, "Error", "Error while loading file: {}".format(str(ex)))
 
     def saveAsActionCall(self):
-        self.__saveAction(requestedFname=True)
+        self.__saveAction(requested_fname=True)
 
     def saveActionCall(self):
-        self.__saveAction(requestedFname=False)
+        self.__saveAction(requested_fname=False)
 
-    def __saveAction(self, requestedFname: bool = True):
-        if requestedFname or not self.ctx.issetFname():
+    def __saveAction(self, requested_fname: bool = True):
+        if requested_fname or not self.ctx.issetFname():
             fname, scheme = QFileDialog.getSaveFileName(self.mainWindow, 'Save GroupSelect File', None,
                                                         "GroupSelect Files (*.gsf)")
             if not fname: return
@@ -46,7 +46,7 @@ class TAMainWindowFileActionHandler:
         if ex: QMessageBox.critical(self.mainWindow, "Error", "Error while saving file: {}".format(str(ex)))
 
     def __confirmDiscard(self):
-        if self.ctx.is_unsaved():
+        if self.ctx.isUnsaved():
             reply = QMessageBox.question(self.mainWindow, 'Unsaved Changes',
                                          "Would you like to discard your unsaved changes?",
                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)

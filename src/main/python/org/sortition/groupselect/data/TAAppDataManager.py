@@ -14,17 +14,21 @@ class TAAppDataManager:
         self.ctx = ctx
 
         self.currentAppData = None
+
         self.peopleDataModel = TAPeopleDataModel()
         self.fieldsListModel = TAFieldsListModel()
-        self.termsDataModel = TATermsDataModel(self)
+        self.termsDataModel = TATermsDataModel()
 
+        self.__filesaveManager = TAFileSaveManager()
+
+        self.connectModels()
+
+    def connectModels(self):
         self.peopleDataModel.dataChanged.connect(self.updatedPeopleData)
-        self.peopleDataModel.dataChanged.connect(self.ctx.set_unsaved)
-        self.fieldsListModel.dataChanged.connect(self.ctx.set_unsaved)
-        self.termsDataModel.dataChanged.connect(self.ctx.set_unsaved)
 
-        self.allocationsManager = TAAllocationsManager(self)
-        self.filesave_manager = TAFileSaveManager()
+        self.peopleDataModel.dataChanged.connect(self.ctx.setUnsaved)
+        self.fieldsListModel.dataChanged.connect(self.ctx.setUnsaved)
+        self.termsDataModel.dataChanged.connect(self.ctx.setUnsaved)
 
     def updateAppData(self):
         self.peopleDataModel.updateAppData(self.currentAppData)
@@ -41,15 +45,15 @@ class TAAppDataManager:
     def newFile(self):
         self.generate_new()
         self.updateAppData()
-        self.filesave_manager.unsetFname()
+        self.__filesaveManager.unsetFname()
 
     def closeFile(self):
         self.generate_empty()
         self.updateAppData()
-        self.filesave_manager.unsetFname()
+        self.__filesaveManager.unsetFname()
 
     def loadFile(self, fname):
-        ex, app_data = self.filesave_manager.load_fname(fname)
+        ex, app_data = self.__filesaveManager.load_fname(fname)
 
         if ex: return ex
         else:
@@ -57,16 +61,18 @@ class TAAppDataManager:
             self.updateAppData()
 
     def saveFile(self, fname):
-        ex = self.filesave_manager.save_fname(self.currentAppData, fname)
+        ex = self.__filesaveManager.save_fname(self.currentAppData, fname)
 
         if ex: return ex
 
     def getFname(self):
-        return self.filesave_manager.getFname()
+        return self.__filesaveManager.getFname()
 
     def issetFname(self):
-        return self.filesave_manager.issetFname()
+        return self.__filesaveManager.issetFname()
 
+    def setFieldsView(self, view_state):
+        self.peopleDataModel.setFieldsView(view_state)
 
     ### generate or load appdata
     def generate_empty(self):

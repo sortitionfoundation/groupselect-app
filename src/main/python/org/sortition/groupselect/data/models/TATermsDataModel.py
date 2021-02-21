@@ -6,10 +6,8 @@ from org.sortition.groupselect.data.TAAppData import TAAppData
 
 
 class TATermsDataModel(QtCore.QAbstractTableModel):
-    def __init__(self, data_manager, parent=None, *args):
+    def __init__(self, parent=None, *args):
         super(TATermsDataModel, self).__init__(parent, *args)
-        self.__dataManager = data_manager
-
         self.__currentAppData = TAAppData()
         self.__currentKey = None
         self.__tmpTerms = None

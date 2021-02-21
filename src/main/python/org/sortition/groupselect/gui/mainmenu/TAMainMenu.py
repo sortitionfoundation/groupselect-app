@@ -7,150 +7,159 @@ from org.sortition.groupselect.gui.mainmenu.TAMainWindowResultsActionHandler imp
 
 
 class TAMainMenu(QMenuBar):
-    def __init__(self, ctx:'AppContext', main_window:'TAMainWindow', parent=None):
+    def __init__(self, ctx: 'AppContext', main_window: 'TAMainWindow', parent=None):
         super(TAMainMenu, self).__init__(parent)
 
         self.ctx = ctx
         self.mainWindow = main_window
-        
-        self.__file_action_handler = TAMainWindowFileActionHandler(self.ctx, self.mainWindow)
-        self.__data_action_handler = TAMainWindowDataActionHandler(self.ctx, self.mainWindow)
-        self.__results_action_handler = TAMainWindowResultsActionHandler(self.ctx, self.mainWindow)
-        
-        self.__setup_ui()
-    
-    def __setup_ui(self):
+
+        self.__fileActionHandler = TAMainWindowFileActionHandler(self.ctx, self.mainWindow)
+        self.__dataActionHandler = TAMainWindowDataActionHandler(self.ctx, self.mainWindow)
+        self.__resultsActionHandler = TAMainWindowResultsActionHandler(self.ctx, self.mainWindow)
+
+        self.__setupUi()
+
+    def __setupUi(self):
         # file menu
-        file_menu = self.addMenu('File')
+        fileMenu = self.addMenu('File')
 
         # new
-        action_item = QAction('New File', self)
-        action_item.setShortcut("Ctrl+N")
-        action_item.setStatusTip('Create a new GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.newActionCall)
-        file_menu.addAction(action_item)
+        actionItem = QAction('New File', self)
+        actionItem.setShortcut("Ctrl+N")
+        actionItem.setStatusTip('Create a new GroupSelect file.')
+        actionItem.triggered.connect(self.__fileActionHandler.newActionCall)
+        fileMenu.addAction(actionItem)
 
         # open
-        action_item = QAction('Open File...', self)
-        action_item.setShortcut("Ctrl+O")
-        action_item.setStatusTip('Open an existing GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.openActionCall)
-        file_menu.addAction(action_item)
+        actionItem = QAction('Open File...', self)
+        actionItem.setShortcut("Ctrl+O")
+        actionItem.setStatusTip('Open an existing GroupSelect file.')
+        actionItem.triggered.connect(self.__fileActionHandler.openActionCall)
+        fileMenu.addAction(actionItem)
 
-        file_menu.addSeparator();
-
-        # save
-        action_item = QAction('Save', self)
-        action_item.setShortcut("Ctrl+S")
-        action_item.setStatusTip('Save changes to GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.saveActionCall)
-        file_menu.addAction(action_item)
+        fileMenu.addSeparator();
 
         # save
-        action_item = QAction('Save As...', self)
-        action_item.setShortcut("Ctrl+Shift+S")
-        action_item.setStatusTip('Save changes to GroupSelect file and specify target file.')
-        action_item.triggered.connect(self.__file_action_handler.saveAsActionCall)
-        file_menu.addAction(action_item)
+        actionItem = QAction('Save', self)
+        actionItem.setShortcut("Ctrl+S")
+        actionItem.setStatusTip('Save changes to GroupSelect file.')
+        actionItem.triggered.connect(self.__fileActionHandler.saveActionCall)
+        fileMenu.addAction(actionItem)
 
-        file_menu.addSeparator();
+        # save
+        actionItem = QAction('Save As...', self)
+        actionItem.setShortcut("Ctrl+Shift+S")
+        actionItem.setStatusTip('Save changes to GroupSelect file and specify target file.')
+        actionItem.triggered.connect(self.__fileActionHandler.saveAsActionCall)
+        fileMenu.addAction(actionItem)
+
+        fileMenu.addSeparator();
 
         # close
-        action_item = QAction('Close File', self)
-        action_item.setShortcut("Ctrl+W")
-        action_item.setStatusTip('Close opened GroupSelect file.')
-        action_item.triggered.connect(self.__file_action_handler.closeActionCall)
-        file_menu.addAction(action_item)
+        actionItem = QAction('Close File', self)
+        actionItem.setShortcut("Ctrl+W")
+        actionItem.setStatusTip('Close opened GroupSelect file.')
+        actionItem.triggered.connect(self.__fileActionHandler.closeActionCall)
+        fileMenu.addAction(actionItem)
 
         # quit
-        action_item = QAction('Quit', self)
-        action_item.setShortcut("Ctrl+Q")
-        action_item.setStatusTip('Terminate the application')
-        action_item.triggered.connect(self.__file_action_handler.quitActionCall)
-        file_menu.addAction(action_item)
+        actionItem = QAction('Quit', self)
+        actionItem.setShortcut("Ctrl+Q")
+        actionItem.setStatusTip('Terminate the application')
+        actionItem.triggered.connect(self.__fileActionHandler.quitActionCall)
+        fileMenu.addAction(actionItem)
 
         # raw data menu
-        self.__data_menu = self.addMenu('People Data')
+        self.__dataMenu = self.addMenu('People Data')
 
         # Import
-        action_item = QAction('Import from CSV...', self)
-        action_item.setShortcut("Ctrl+I")
-        action_item.setStatusTip('Import raw data to process.')
-        action_item.triggered.connect(self.__data_action_handler.import_raw)
-        self.__data_menu.addAction(action_item)
+        actionItem = QAction('Import from CSV...', self)
+        actionItem.setShortcut("Ctrl+I")
+        actionItem.setStatusTip('Import raw data to process.')
+        actionItem.triggered.connect(self.__dataActionHandler.import_raw)
+        self.__dataMenu.addAction(actionItem)
 
         # Export
-        action_item = QAction('Export to CSV...', self)
-        action_item.setShortcut("Ctrl+X")
-        action_item.setStatusTip('Export your edited raw data to a file.')
-        action_item.triggered.connect(self.__data_action_handler.export_raw)
-        self.__data_menu.addAction(action_item)
+        actionItem = QAction('Export to CSV...', self)
+        actionItem.setShortcut("Ctrl+X")
+        actionItem.setStatusTip('Export your edited raw data to a file.')
+        actionItem.triggered.connect(self.__dataActionHandler.export_raw)
+        self.__dataMenu.addAction(actionItem)
 
-        self.__data_menu.addSeparator();
+        self.__dataMenu.addSeparator();
 
         # Insert rows
-        action_item = QAction('Insert rows...', self)
-        action_item.setStatusTip('Insert new rows into the people\'s data table.')
-        action_item.triggered.connect(self.__data_action_handler.insert_rows)
-        self.__data_menu.addAction(action_item)
+        actionItem = QAction('Insert rows...', self)
+        actionItem.setStatusTip('Insert new rows into the people\'s data table.')
+        actionItem.triggered.connect(self.__dataActionHandler.insert_rows)
+        self.__dataMenu.addAction(actionItem)
 
         # Insert cols
-        action_item = QAction('Insert columns...', self)
-        action_item.setStatusTip('Insert new columns into the people\'s data table.')
-        action_item.triggered.connect(self.__data_action_handler.insert_cols)
-        self.__data_menu.addAction(action_item)
+        actionItem = QAction('Insert columns...', self)
+        actionItem.setStatusTip('Insert new columns into the people\'s data table.')
+        actionItem.triggered.connect(self.__dataActionHandler.insert_cols)
+        self.__dataMenu.addAction(actionItem)
 
-        self.__data_menu.addSeparator();
-
-        # Insert rows
-        action_item = QAction('Delete selected rows', self)
-        action_item.setStatusTip('Delete rows currently selected in the people\'s data table.')
-        action_item.triggered.connect(self.__data_action_handler.delete_rows)
-        self.__data_menu.addAction(action_item)
+        self.__dataMenu.addSeparator();
 
         # Insert rows
-        action_item = QAction('Delete selected columns', self)
-        action_item.setStatusTip('Delete columns currently selected in the people\'s data table.')
-        action_item.triggered.connect(self.__data_action_handler.delete_cols)
-        self.__data_menu.addAction(action_item)
+        actionItem = QAction('Delete selected rows', self)
+        actionItem.setStatusTip('Delete rows currently selected in the people\'s data table.')
+        actionItem.triggered.connect(self.__dataActionHandler.delete_rows)
+        self.__dataMenu.addAction(actionItem)
+
+        # Insert rows
+        actionItem = QAction('Delete selected columns', self)
+        actionItem.setStatusTip('Delete columns currently selected in the people\'s data table.')
+        actionItem.triggered.connect(self.__dataActionHandler.delete_cols)
+        self.__dataMenu.addAction(actionItem)
 
         # results menu
-        self.__results_menu = self.addMenu('Results')
+        self.__resultsMenu = self.addMenu('Results')
 
         # Import
-        action_item = QAction('Export selected...', self)
-        action_item.setShortcut("Ctrl+E")
-        action_item.setStatusTip('Export a single allocation to a CSV file.')
-        action_item.triggered.connect(self.__results_action_handler.export_results_select)
-        self.__results_menu.addAction(action_item)
+        actionItem = QAction('Export selected...', self)
+        actionItem.setShortcut("Ctrl+E")
+        actionItem.setStatusTip('Export a single allocation to a CSV file.')
+        actionItem.triggered.connect(self.__resultsActionHandler.export_results_select)
+        self.__resultsMenu.addAction(actionItem)
 
         # Export
-        action_item = QAction('Export all...', self)
-        action_item.setShortcut("Ctrl+Shift+E")
-        action_item.setStatusTip('Import all allocations to CSV files.')
-        action_item.triggered.connect(self.__results_action_handler.export_results_all)
-        self.__results_menu.addAction(action_item)
+        actionItem = QAction('Export all...', self)
+        actionItem.setShortcut("Ctrl+Shift+E")
+        actionItem.setStatusTip('Import all allocations to CSV files.')
+        actionItem.triggered.connect(self.__resultsActionHandler.export_results_all)
+        self.__resultsMenu.addAction(actionItem)
+
+        # settings menu
+        settingsMenu = self.addMenu('Settings')
+
+        actionItem = QAction("Show term usage in table", self)
+        actionItem.setCheckable(True)
+        actionItem.setChecked(True)
+        actionItem.triggered.connect(self.ctx.toggleFieldsView)
+        settingsMenu.addAction(actionItem)
 
         # help menu
-        help_menu = self.addMenu('Help')
+        helpMenu = self.addMenu('Help')
 
-        action_item = QAction('About...', self)
-        action_item.setStatusTip('Show information about this software.')
-        action_item.triggered.connect(self.__show_about_dialog)
-        help_menu.addAction(action_item)
+        actionItem = QAction('About...', self)
+        actionItem.setStatusTip('Show information about this software.')
+        actionItem.triggered.connect(self.__show_about_dialog)
+        helpMenu.addAction(actionItem)
 
     def close_action_call(self):
-        self.__file_action_handler.quitActionCall()
+        self.__fileActionHandler.quitActionCall()
 
-    def file_opened(self):
-        self.__data_menu.setEnabled(True)
+    def fileOpened(self):
+        self.__dataMenu.setEnabled(True)
         if self.ctx.hasResults():
-            self.__results_menu.setEnabled(True)
+            self.__resultsMenu.setEnabled(True)
 
     def file_closed(self):
-        self.__data_menu.setEnabled(False)
-        self.__results_menu.setEnabled(False)
+        self.__dataMenu.setEnabled(False)
+        self.__resultsMenu.setEnabled(False)
 
     def __show_about_dialog(self):
-        about_html = open(self.ctx.get_resource("about.html")).read()
-        TAHelpDialog.show(about_html, self)
+        aboutHtml = open(self.ctx.get_resource("about.html")).read()
+        TAHelpDialog.show(aboutHtml, self)

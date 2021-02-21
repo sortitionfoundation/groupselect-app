@@ -5,6 +5,7 @@ from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from org.sortition.groupselect.gui.TAMainWindow import TAMainWindow
 from org.sortition.groupselect.data.TAAppDataManager import TAAppDataManager
 
+
 class AppContext(ApplicationContext):
     def __init__(self, *args, **kwargs):
         super(AppContext, self).__init__(*args, **kwargs)
@@ -25,17 +26,17 @@ class AppContext(ApplicationContext):
     def getStatus(self):
         return self.__status
 
-    def set_status(self, status):
+    def setStatus(self, status):
         self.__status = status
 
-    def is_unsaved(self):
+    def isUnsaved(self):
         return self.__changed
 
-    def set_unsaved(self):
+    def setUnsaved(self):
         self.__changed = True
         self.__mainWindow.window_file_saved_or_unsaved()
 
-    def set_saved(self):
+    def setSaved(self):
         self.__changed = False
         self.__mainWindow.window_file_saved_or_unsaved()
 
@@ -47,6 +48,9 @@ class AppContext(ApplicationContext):
 
     def issetFname(self):
         return self.__dataManager.issetFname()
+
+    def toggleFieldsView(self, view_state: bool):
+        self.__dataManager.setFieldsView(view_state)
 
     ### getters for data models
     def getPeopleDataModel(self):
@@ -62,18 +66,18 @@ class AppContext(ApplicationContext):
     def newFile(self):
         self.__dataManager.newFile()
 
-        self.set_status(True)
-        self.set_unsaved()
-        self.__mainWindow.window_file_opened()
+        self.setStatus(True)
+        self.setUnsaved()
+        self.__mainWindow.windowFileOpened()
 
     def loadFile(self, fname):
         ex = self.__dataManager.loadFile(fname)
 
         if ex: return ex
 
-        self.set_status(True)
-        self.set_saved()
-        self.__mainWindow.window_file_opened()
+        self.setStatus(True)
+        self.setSaved()
+        self.__mainWindow.windowFileOpened()
 
         return False
 
@@ -82,15 +86,15 @@ class AppContext(ApplicationContext):
 
         if ex: return ex
 
-        self.set_saved()
+        self.setSaved()
         self.__mainWindow.window_file_saved()
 
     def closeFile(self):
         self.__dataManager.closeFile()
 
-        self.set_status(False)
-        self.set_saved()
-        self.__mainWindow.window_file_closed()
+        self.setStatus(False)
+        self.setSaved()
+        self.__mainWindow.windowFileClosed()
 
     def quit(self):
         sys.exit()
