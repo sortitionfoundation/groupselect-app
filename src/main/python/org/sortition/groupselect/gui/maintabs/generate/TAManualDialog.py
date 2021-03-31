@@ -1,17 +1,17 @@
 from PyQt5.QtWidgets import QDialog, QPushButton, QComboBox, QFormLayout, QLabel, QWidget, QHBoxLayout, QVBoxLayout
 
 class TAManualDialog(QDialog):
-    def __init__(self, parent, peopleList, tables):
+    def __init__(self, parent, people_list, group_list):
         super(TAManualDialog, self).__init__(parent)
 
         self.ok = False
 
         self.cb1 = QComboBox()
-        for i,p in peopleList:
-            self.cb1.addItem(p, i)
+        for pid, plabel in people_list:
+            self.cb1.addItem(plabel, pid)
         self.cb2 = QComboBox()
-        for t in range(tables):
-            self.cb2.addItem("Table {}".format(t+1), t)
+        for gid, glabel in group_list:
+            self.cb2.addItem(glabel, gid)
 
         label1 = QLabel("Person:")
         label2 = QLabel("Group:")
@@ -45,7 +45,7 @@ class TAManualDialog(QDialog):
         self.close()
 
     @classmethod
-    def get_input(cls, parent, peopleList, tables):
-        dialog = cls(parent, peopleList, tables)
+    def get_input(cls, parent, people_list, group_list):
+        dialog = cls(parent, people_list, group_list)
         dialog.exec_()
         return (dialog.ok, dialog.cb1.currentData(), dialog.cb2.currentData())

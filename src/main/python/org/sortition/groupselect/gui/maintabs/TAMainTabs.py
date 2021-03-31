@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout, QGridLayout
 
+from org.sortition.groupselect.gui.maintabs.generate.TAGenerateFieldsGroup import TAGenerateFieldsGroup
+from org.sortition.groupselect.gui.maintabs.generate.TAGenerateSettingsGroup import TAGenerateSettingsGroup
 from org.sortition.groupselect.gui.maintabs.peopledata.TAFieldsTab import TAFieldsTab
-from org.sortition.groupselect.gui.maintabs.generate.TAGenerateTab import TAGenerateTab
 from org.sortition.groupselect.gui.maintabs.peopledata.TAPeopleDataTab import TAPeopleDataTab
 from org.sortition.groupselect.gui.maintabs.results.TAOutputTab import TAOutputTab
 
@@ -24,12 +25,20 @@ class TAMainTabs(QWidget):
         self.__tabPeopleDataTab.addTab(self.__tabPeopleData, "Data")
         self.__tabPeopleDataTab.addTab(self.__tabFields, "Fields")
 
-        self.__tabGenerate = TAGenerateTab(self.ctx)
+        self.__tabGenerateFieldsGroup = TAGenerateFieldsGroup(self.ctx)
+        self.__tabGenerateSettingsGroup = TAGenerateSettingsGroup(self.ctx)
+        generateLayout = QGridLayout()
+        generateLayout.addWidget(self.__tabGenerateFieldsGroup, 0, 0)
+        generateLayout.addWidget(self.__tabGenerateSettingsGroup, 1, 0)
+        generateLayout.setRowStretch(0,1)
+        generateWidget = QWidget()
+        generateWidget.setLayout(generateLayout)
+
         self.__tabResults = TAOutputTab(self.ctx)
 
         self.__tabs = QTabWidget()
         self.__tabs.addTab(self.__tabPeopleDataTab, "People Data")
-        self.__tabs.addTab(self.__tabGenerate, "Generate")
+        self.__tabs.addTab(generateWidget, "Generate")
         self.__tabs.addTab(self.__tabResults, "Results")
 
         m = 10

@@ -60,6 +60,12 @@ class AppContext(ApplicationContext):
     def getTermsDataModel(self):
         return self.__dataManager.termsDataModel
 
+    def getFieldsModels(self):
+        return self.__dataManager.getFieldsModels()
+
+    def getManualsModel(self):
+        return self.__dataManager.getManualsModel()
+
     ### global actions
     def newFile(self, number, names):
         self.__dataManager.newFile(number, names)

@@ -4,12 +4,14 @@ from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
 from org.sortition.groupselect.data.models.TAPeopleDataModel import TAPeopleDataModel
 from org.sortition.groupselect.data.models.TAFieldsListModel import TAFieldsListModel
 from org.sortition.groupselect.data.models.TATermsDataModel import TATermsDataModel
+from org.sortition.groupselect.data.models.TAFieldsStringListModel import TAFieldsStringListModel
+from org.sortition.groupselect.gui.maintabs.generate.TAManualsListModel import TAManualsListModel
 
 import csv
 
 
 class TAAppDataManager:
-    def __init__(self, ctx:'AppContext'):
+    def __init__(self, ctx: 'AppContext'):
         self.ctx = ctx
 
         self.currentAppData = None
@@ -18,23 +20,62 @@ class TAAppDataManager:
         self.fieldsListModel = TAFieldsListModel()
         self.termsDataModel = TATermsDataModel()
 
+        self.__fieldModeModels = {}
+        for mode in ['ignore', 'print', 'cluster', 'diverse']:
+            self.__fieldModeModels[mode] = TAFieldsStringListModel(mode)
+
+        self.__manualsModel = TAManualsListModel(self)
+
         self.__filesaveManager = TAFileSaveManager()
 
         self.__connectModels()
 
     def __connectModels(self):
-        self.peopleDataModel.dataChanged.connect(self.updatedPeopleData)
-
+        # record new changes to file
         self.peopleDataModel.dataChanged.connect(self.ctx.changesToFile)
         self.termsDataModel.dataChanged.connect(self.ctx.changesToFile)
+
+        for mode in self.__fieldModeModels:
+            self.__fieldModeModels[mode].dataChanged.connect(self.ctx.changesToFile)
+
+        self.__manualsModel.dataChanged.connect(self.ctx.changesToFile)
+
+        # updates arising from new people data
+        self.peopleDataModel.dataChanged.connect(self.__peopleDataUpdated)
 
     def updateAppData(self):
         self.peopleDataModel.updateAppData(self.currentAppData)
         self.fieldsListModel.updateAppData(self.currentAppData)
         self.termsDataModel.updateAppData(self.currentAppData)
 
-    def updatedPeopleData(self):
+        for mode in self.__fieldModeModels:
+            self.__fieldModeModels[mode].updateAppData(self.currentAppData)
+
+        self.__manualsModel.updateAppData(self.currentAppData)
+
+        self.__updateFieldsFromKeys()
+
+    def __peopleDataUpdated(self):
         self.termsDataModel.updatedPeopleData()
+
+    def __updateFieldsFromKeys(self):
+        m_data = len(self.currentAppData.peopledata_keys)
+        allFields = list(range(0, m_data))
+
+        currentFields = []
+        for mode in self.__fieldModeModels:
+            currentFields.extend(self.currentAppData.fieldsUsage[mode])
+
+        for f in allFields:
+            if f not in currentFields:
+                self.currentAppData.fieldsUsage['ignore'].append(f)
+
+        for f in currentFields:
+            if f not in allFields:
+                currentFields.remove(f)
+
+        for mode in self.__fieldModeModels:
+            self.__fieldModeModels[mode].stringListUpdated()
 
     ### global commands
     def appStart(self):
@@ -72,11 +113,17 @@ class TAAppDataManager:
     def setFieldsView(self, view_state):
         self.peopleDataModel.setFieldsView(view_state)
 
+    def getFieldsModels(self):
+        return self.__fieldModeModels
+
+    def getManualsModel(self):
+        return self.__manualsModel
+
     ### generate or load appdata
     def generate_empty(self):
         self.currentAppData = TAAppData()
 
-    def generate_new(self, number, names):
+    def generate_new(self, number: int, names: str):
         self.currentAppData = TAAppData()
 
         m_data = number
@@ -90,16 +137,21 @@ class TAAppDataManager:
     def hasResults(self):
         return True if self.currentAppData.results else False
 
-    def get_fields_with_mode(self, mode):
-        return [j for j, field in self.ctx.app_data.fields.items() if field['mode'] == mode]
+    def get_fields_with_mode(self, mode: str):
+        return self.currentAppData.fieldsUsage[mode]
 
-    def get_print_labels(self, i):
+    def get_print_labels(self, pid, include_pid = False):
         print_fields = self.get_fields_with_mode('print')
-        if not print_fields: return str(i)
-        rs = []
+        if not print_fields: return "Person {0}".format(pid + 1)
+        retvals = []
         for j in print_fields:
-            rs.append(self.ctx.app_data.peopledata_vals[i][j])
-        return " ".join(rs) if any(rs) else "(empty print label)"
+            retvals.append(self.currentAppData.peopledata_vals[pid][j])
+        retval = " ".join(retvals) if any(retvals) else "(empty print label)"
+        if include_pid: retval += " (ID {0})".format(pid + 1)
+        return retval
+
+    def get_group_label(self, gid):
+        return "Group {0}".format(gid+1)
 
     def get_fields_cluster_dict(self):
         return {j:list(set([t_used for t_found, t_used in self.ctx.app_data.fields[j]['terms']])) for j in self.ctx.app_data.order_cluster}
