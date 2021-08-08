@@ -25,7 +25,7 @@ class TAMainWindowFileActionHandler:
     def openActionCall(self):
         if self.__confirmDiscard():
             fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Open GroupSelect File', None,
-                                                        "GroupSelect Files (*.gsf)")
+                                                        "GroupSelect 2 Files (*.gsf2)")
             if not fname: return
             ex = self.ctx.loadFile(fname)
             if ex: QMessageBox.critical(self.mainWindow, "Error", "Error while loading file: {}".format(str(ex)))
@@ -39,10 +39,10 @@ class TAMainWindowFileActionHandler:
     def __saveAction(self, requested_fname: bool = True):
         if requested_fname or not self.ctx.issetFname():
             fname, scheme = QFileDialog.getSaveFileName(self.mainWindow, 'Save GroupSelect File', None,
-                                                        "GroupSelect Files (*.gsf)")
+                                                        "GroupSelect 2 Files (*.gsf2)")
             if not fname: return
-            if not fname.endswith('.gsf'):
-                fname += '.gsf'
+            if not fname.endswith('.gsf2'):
+                fname += '.gsf2'
         else:
             fname = None
 
