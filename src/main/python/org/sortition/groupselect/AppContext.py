@@ -20,6 +20,8 @@ class AppContext(ApplicationContext):
         self.__dataManager.appStart()
         self.__mainWindow.appStart()
 
+        self.setSaved()
+
         return self.app.exec_()
 
     ### app state methods

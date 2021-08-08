@@ -40,12 +40,14 @@ class TAFieldsStringListModel(QtCore.QAbstractListModel):
         self.beginInsertRows(QModelIndex(), row, row+count-1)
         self.__getStringList()[row:row] = [0] * count
         self.endInsertRows()
+        self.layoutChanged.emit()
         return True
 
     def removeRows(self, row: int, count: int, parent=None):
         self.beginRemoveRows(QModelIndex(), row, row+count-1)
         del self.__getStringList()[row:row+count]
         self.endRemoveRows()
+        self.layoutChanged.emit()
         return True
 
     def rowCount(self, index):
@@ -55,6 +57,7 @@ class TAFieldsStringListModel(QtCore.QAbstractListModel):
         if role == Qt.ItemDataRole or role == Qt.EditRole:
             self.__getStringList()[index.row()] = value
 
+        self.layoutChanged.emit()
         return True
 
     def setItemData(self, index, roles):

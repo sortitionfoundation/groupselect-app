@@ -36,7 +36,7 @@ class TAAppDataManager:
         self.termsDataModel.dataChanged.connect(self.ctx.changesToFile)
 
         for mode in self.__fieldModeModels:
-            self.__fieldModeModels[mode].dataChanged.connect(self.ctx.changesToFile)
+            self.__fieldModeModels[mode].layoutChanged.connect(self.ctx.changesToFile)
 
         self.__manualsModel.dataChanged.connect(self.ctx.changesToFile)
 
