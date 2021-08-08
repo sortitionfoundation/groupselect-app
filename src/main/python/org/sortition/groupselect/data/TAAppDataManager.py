@@ -3,6 +3,7 @@ from org.sortition.groupselect.data.TAFileSaveManager import TAFileSaveManager
 
 from org.sortition.groupselect.data.models.TAPeopleDataModel import TAPeopleDataModel
 from org.sortition.groupselect.data.models.TAFieldsListModel import TAFieldsListModel
+from org.sortition.groupselect.data.models.TASettingsDataModel import TASettingsDataModel
 from org.sortition.groupselect.data.models.TATermsDataModel import TATermsDataModel
 from org.sortition.groupselect.data.models.TAFieldsStringListModel import TAFieldsStringListModel
 from org.sortition.groupselect.gui.maintabs.generate.TAManualsListModel import TAManualsListModel
@@ -15,6 +16,8 @@ class TAAppDataManager:
         self.ctx = ctx
 
         self.currentAppData = None
+
+        self.settingsDataModel = TASettingsDataModel()
 
         self.peopleDataModel = TAPeopleDataModel()
         self.fieldsListModel = TAFieldsListModel()
@@ -44,6 +47,8 @@ class TAAppDataManager:
         self.peopleDataModel.dataChanged.connect(self.__peopleDataUpdated)
 
     def updateAppData(self):
+        self.settingsDataModel.updateAppData(self.currentAppData)
+
         self.peopleDataModel.updateAppData(self.currentAppData)
         self.fieldsListModel.updateAppData(self.currentAppData)
         self.termsDataModel.updateAppData(self.currentAppData)

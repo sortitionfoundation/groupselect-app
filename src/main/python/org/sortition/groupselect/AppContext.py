@@ -53,6 +53,9 @@ class AppContext(ApplicationContext):
         self.__dataManager.setFieldsView(view_state)
 
     ### getters for data models
+    def getSettingsDataModel(self):
+        return self.__dataManager.settingsDataModel
+
     def getPeopleDataModel(self):
         return self.__dataManager.peopleDataModel
 

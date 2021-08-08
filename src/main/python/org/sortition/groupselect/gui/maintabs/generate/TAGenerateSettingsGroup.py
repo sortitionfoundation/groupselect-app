@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit, \
-    QListWidget, QGroupBox, QGridLayout, QFormLayout, QListWidgetItem, QProgressDialog, QListView
+    QListWidget, QGroupBox, QGridLayout, QFormLayout, QListWidgetItem, QProgressDialog, QListView, QDataWidgetMapper
 from PyQt5.QtGui import QIntValidator
 
 from org.sortition.groupselect.gui.maintabs.generate.TAManualDialog import TAManualDialog
@@ -12,7 +12,12 @@ class TAGenerateSettingsGroup(QGroupBox):
         super(TAGenerateSettingsGroup, self).__init__("Allocation Settings")
         self.ctx = ctx
 
+        self.__mapper = QDataWidgetMapper(self)
+        self.__mapper.setModel(self.ctx.getSettingsDataModel())
+
         self.__createUi()
+
+        self.__mapper.toFirst()
 
     def __createUi(self):
         layout = QHBoxLayout()
@@ -44,20 +49,20 @@ class TAGenerateSettingsGroup(QGroupBox):
         return manualGroup
 
     def __createSettingsGroup(self):
-        self.seats_field = QLineEdit()
-        self.seats_field.setValidator( QIntValidator(1, 16, self) )
-        #self.seats_field.textChanged.connect(self.userchanged_settings_fields)
-
         self.tables_field = QLineEdit()
-        self.tables_field.setValidator( QIntValidator(1, 100, self) )
-        #self.tables_field.textChanged.connect(self.userchanged_settings_fields)
+        self.tables_field.setValidator(QIntValidator(1, 100, self))
+        self.__mapper.addMapping(self.tables_field, 0)
+
+        self.seats_field = QLineEdit()
+        self.seats_field.setValidator( QIntValidator(1, 100, self) )
+        self.__mapper.addMapping(self.seats_field, 1)
 
         self.number_field = QLineEdit()
-        self.number_field.setValidator( QIntValidator(1, 16, self) )
-        #self.number_field.textChanged.connect(self.userchanged_settings_fields)
+        self.number_field.setValidator( QIntValidator(1, 100, self) )
+        self.__mapper.addMapping(self.number_field, 2)
 
         btnAdvanced = QPushButton("Change Settings")
-        #btnAdvanced.clicked.connect(self.buttonclicked_advanced_settings)
+        btnAdvanced.clicked.connect(self.buttonclicked_advanced_settings)
 
         m = 50
         formLayout = QFormLayout()
@@ -96,41 +101,21 @@ class TAGenerateSettingsGroup(QGroupBox):
             return
         self.orderManual.model().removeManual(self.orderManual.currentIndex().row())
 
-    def update_settings(self):
-        self._settings_being_updated = True
-
-        self.tables_field.setText(str(self.ctx.app_data.settings['tables']))
-        self.seats_field.setText(str(self.ctx.app_data.settings['seats']))
-
-        self.number_field.setText(str(self.ctx.app_data.settings['nallocations']))
-
-        self._settings_being_updated = False
-
-    def userchanged_settings_fields(self):
-        if self._settings_being_updated: return
-        try:
-            self.ctx.app_data.settings['tables'] = int(self.tables_field.text()) if self.tables_field.text() else 0
-            self.ctx.app_data.settings['seats'] = int(self.seats_field.text()) if self.seats_field.text() else 0
-            self.ctx.app_data.settings['nallocations'] = int(self.number_field.text()) if self.number_field.text() else 0
-        except Exception as e:
-            QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
-        self.ctx.changesToFile()
-
     def buttonclicked_advanced_settings(self):
         try:
-            attempts_default = self.ctx.app_data.settings['nattempts']
-            seed_default = self.ctx.app_data.settings['seed']
+            settings = []
+            attempts_default = settings['nattempts']
+            seed_default = settings['seed']
             status, attempts, seed = TAAdvancedSettingsDialog.get_input(self, attempts_default, seed_default)
             if not status: return
-            self.ctx.app_data.settings['nattempts'] = attempts
-            self.ctx.app_data.settings['seed'] = seed
+            settings['nattempts'] = attempts
+            settings['seed'] = seed
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
         self.ctx.changesToFile()
 
     def buttonclicked_run_allocation(self):
-        attempts = self.ctx.app_data.settings['nattempts']
-        progress_bar = QProgressDialog("Generating table allocations...", "", 0, attempts, self.ctx.__mainWindow)
+        progress_bar = QProgressDialog("Generating table allocations...", "", 0, self.ctx.getSettings()['nattempts'], self.ctx.__mainWindow)
         progress_bar.setWindowTitle("Generating...")
         progress_bar.setWindowModality(Qt.WindowModal)
         progress_bar.setAutoClose(False)
