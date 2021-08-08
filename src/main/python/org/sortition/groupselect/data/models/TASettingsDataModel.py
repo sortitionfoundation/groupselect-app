@@ -41,3 +41,9 @@ class TASettingsDataModel(QtCore.QAbstractTableModel):
         self.dataChanged.emit(index, index)
 
         return False
+
+    def getSetting(self, key: str):
+        return self.__currentAppData.settings[key] if key in self.__currentAppData.settings else None
+
+    def setSetting(self, key: str, value):
+        self.__currentAppData.settings[key] = value

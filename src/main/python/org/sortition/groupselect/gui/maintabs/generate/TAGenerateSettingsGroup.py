@@ -62,7 +62,7 @@ class TAGenerateSettingsGroup(QGroupBox):
         self.__mapper.addMapping(self.number_field, 2)
 
         btnAdvanced = QPushButton("Change Settings")
-        btnAdvanced.clicked.connect(self.buttonclicked_advanced_settings)
+        btnAdvanced.clicked.connect(self.__buttonClickedAdvancedSettings)
 
         m = 50
         formLayout = QFormLayout()
@@ -101,15 +101,14 @@ class TAGenerateSettingsGroup(QGroupBox):
             return
         self.orderManual.model().removeManual(self.orderManual.currentIndex().row())
 
-    def buttonclicked_advanced_settings(self):
+    def __buttonClickedAdvancedSettings(self):
         try:
-            settings = []
-            attempts_default = settings['nattempts']
-            seed_default = settings['seed']
+            attempts_default = self.__mapper.model().getSetting('nattempts')
+            seed_default = self.__mapper.model().getSetting('seed')
             status, attempts, seed = TAAdvancedSettingsDialog.get_input(self, attempts_default, seed_default)
             if not status: return
-            settings['nattempts'] = attempts
-            settings['seed'] = seed
+            self.__mapper.model().setSetting('nattempts', attempts)
+            self.__mapper.model().setSetting('seed', seed)
         except Exception as e:
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
         self.ctx.changesToFile()
