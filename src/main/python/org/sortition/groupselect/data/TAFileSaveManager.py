@@ -23,9 +23,7 @@ class TAFileSaveManager:
         except Exception as ex:
             return ex, None
 
-        app_data.fields = {int(key):value for key,value in app_data.fields.items()}
-
-        return False, app_data
+        return None, app_data
 
     def load_fname(self, __fname):
         self.__setFname(__fname)
