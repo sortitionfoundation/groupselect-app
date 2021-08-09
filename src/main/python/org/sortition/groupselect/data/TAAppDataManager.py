@@ -36,17 +36,22 @@ class TAAppDataManager:
     def __connectModels(self):
         # record new changes to file
         self.peopleDataModel.dataChanged.connect(self.ctx.changesToFile)
+        self.peopleDataModel.layoutChanged.connect(self.ctx.changesToFile)
         self.termsDataModel.dataChanged.connect(self.ctx.changesToFile)
+        self.termsDataModel.layoutChanged.connect(self.ctx.changesToFile)
 
         for mode in self.__fieldModeModels:
+            self.__fieldModeModels[mode].dataChanged.connect(self.ctx.changesToFile)
             self.__fieldModeModels[mode].layoutChanged.connect(self.ctx.changesToFile)
 
         self.__manualsModel.dataChanged.connect(self.ctx.changesToFile)
 
         # updates arising from new people data
         self.peopleDataModel.dataChanged.connect(self.__peopleDataUpdated)
+        self.peopleDataModel.layoutChanged.connect(self.__peopleDataUpdated)
 
     def updateAppData(self):
+        # tell all models that a new appData object is being used
         self.settingsDataModel.updateAppData(self.currentAppData)
 
         self.peopleDataModel.updateAppData(self.currentAppData)
@@ -58,10 +63,9 @@ class TAAppDataManager:
 
         self.__manualsModel.updateAppData(self.currentAppData)
 
-        self.__updateFieldsFromKeys()
-
     def __peopleDataUpdated(self):
         self.termsDataModel.updatedPeopleData()
+        self.__updateFieldsFromKeys()
 
     def __updateFieldsFromKeys(self):
         m_data = len(self.currentAppData.peopledata_keys)
@@ -87,9 +91,10 @@ class TAAppDataManager:
         self.closeFile()
 
     def newFile(self, number, names):
-        self.generate_new(number, names)
+        self.generate_empty()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
+        self.peopleDataModel.generateNewData(number, names)
 
     def closeFile(self):
         self.generate_empty()
@@ -128,17 +133,10 @@ class TAAppDataManager:
     def generate_empty(self):
         self.currentAppData = TAAppData()
 
-    def generate_new(self, number: int, names: str):
-        self.currentAppData = TAAppData()
-
-        m_data = number
-        n_data = len(names.split(","))
-
-        self.currentAppData.peopledata_keys = [n.strip() for n in names.split(",")]
-        self.currentAppData.peopledata_vals = [['' for j in range(n_data)] for i in range(m_data)]
-        self.currentAppData.peopledata_terms = [None for j in range(n_data)]
-
     ### getters and setters
+    def hasPeople(self):
+        return not self.peopleDataModel.isEmpty()
+
     def hasResults(self):
         return True if self.currentAppData.results else False
 
@@ -175,31 +173,8 @@ class TAAppDataManager:
     def get_occurences(self, a, t, j, t_used):
         return sum(1 for i in self.ctx.app_data.results[a][t] if self.load_details(i, j) == t_used)
 
-    def peopledata_is_empty(self):
-        return not any(self.ctx.app_data.peopledata_vals[i][j] for j in range(self.ctx.app_data.n_data) for i in range(self.ctx.app_data.m_data))
-
     def cols_not_ignored(self, cols):
         return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
-
-    ### advanced manipulation functions ###
-    def import_raw_from_csv(self, file_handle, csv_format):
-        app_data = self.ctx.app_data
-        if(csv_format == 'auto'):
-            N=10
-            file_content = "".join([next(file_handle) for i in range(N)])
-            ncs = file_content[:4096].count(',')
-            nss = file_content[:4096].count(';')
-            if(ncs < nss): csv_format = 'semicolon'
-            else: csv_format = 'comma'
-            file_handle.seek(0)
-        csv_reader = csv.reader(file_handle, delimiter=(';' if csv_format=='semicolon' else ','))
-        app_data.peopledata_keys = list(next(csv_reader))
-        app_data.n_data = len(app_data.peopledata_keys)
-        entries = []
-        for row_raw in csv_reader:
-            entries.append(row_raw)
-        app_data.peopledata_vals = entries
-        app_data.m_data = len(app_data.peopledata_vals)
 
     def export_raw_to_csv(self, file_handle):
         app_data = self.ctx.app_data

@@ -76,7 +76,7 @@ class TAMainMenu(QMenuBar):
         actionItem = QAction('Import from CSV...', self)
         actionItem.setShortcut("Ctrl+I")
         actionItem.setStatusTip('Import raw data to process.')
-        actionItem.triggered.connect(self.__dataActionHandler.import_raw)
+        actionItem.triggered.connect(self.__dataActionHandler.importRaw)
         self.__dataMenu.addAction(actionItem)
 
         # Export

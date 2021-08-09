@@ -52,7 +52,7 @@ class TAMainWindowFileActionHandler:
     def __confirmDiscard(self):
         if self.ctx.isUnsaved():
             reply = QMessageBox.question(self.mainWindow, 'Unsaved Changes',
-                                         "Would you like to discard your unsaved changes?",
+                                         'Would you like to discard your unsaved changes?',
                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 return True

@@ -75,7 +75,7 @@ class TAGenerateSettingsGroup(QGroupBox):
         formWidget.setLayout(formLayout)
 
         btnRun = QPushButton("Generate Groups!")
-        #btnRun.clicked.connect(self.buttonclicked_run_allocation)
+        btnRun.clicked.connect(self.__buttonclickedRunAllocation)
 
         settingsLayout = QGridLayout()
         settingsLayout.addWidget(formWidget, 1, 1, 1, 1)
@@ -113,8 +113,8 @@ class TAGenerateSettingsGroup(QGroupBox):
             QMessageBox.critical(self, "Error", "Error occurred while processing your entry: {}".format(str(e)))
         self.ctx.changesToFile()
 
-    def buttonclicked_run_allocation(self):
-        progress_bar = QProgressDialog("Generating table allocations...", "", 0, self.ctx.getSettings()['nattempts'], self.ctx.__mainWindow)
+    def __buttonclickedRunAllocation(self):
+        progress_bar = QProgressDialog("Generating table allocations...", "", 0, self.__mapper.model().getSetting('nattempts'), self.ctx.__mainWindow)
         progress_bar.setWindowTitle("Generating...")
         progress_bar.setWindowModality(Qt.WindowModal)
         progress_bar.setAutoClose(False)
@@ -128,12 +128,12 @@ class TAGenerateSettingsGroup(QGroupBox):
             self.ctx.allocationsManager.run(progress_bar)
         except Exception as e:
             progress_bar.close()
-            QMessageBox.critical(self, "Error", "An error occured during allocation: {}".format(str(e)))
+            QMessageBox.critical(self, "Error", "An error occurred during allocation: {}".format(str(e)))
             return
 
         progress_bar.close()
         QMessageBox.information(self, "Success!", "The allocations were successfully computed. Average number of links is {:.2f} ({:.2f} % of max).".format(self.ctx.allocationsManager.links, 100 * self.ctx.allocationsManager.links_rel))
 
         self.ctx.changesToFile()
-        self.ctx.__mainWindow.__tabs.results_updated()
-        self.ctx.__mainWindow.__resultsMenu.setEnabled(True)
+        #self.ctx.__mainWindow.__tabs.results_updated()
+        #self.ctx.__mainWindow.__resultsMenu.setEnabled(True)

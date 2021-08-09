@@ -40,6 +40,9 @@ class AppContext(ApplicationContext):
     def setSaved(self):
         self.__changed = False
 
+    def hasPeople(self):
+        return self.__dataManager.hasPeople()
+
     def hasResults(self):
         return self.__dataManager.hasResults()
 
