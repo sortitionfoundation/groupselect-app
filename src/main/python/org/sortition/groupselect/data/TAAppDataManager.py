@@ -68,8 +68,8 @@ class TAAppDataManager:
         self.__updateFieldsFromKeys()
 
     def __updateFieldsFromKeys(self):
-        m_data = len(self.currentAppData.peopledata_keys)
-        allFields = list(range(0, m_data))
+        n_data = len(self.currentAppData.peopledata_keys)
+        allFields = list(range(0, n_data))
 
         currentFields = []
         for mode in self.__fieldModeModels:
@@ -82,6 +82,8 @@ class TAAppDataManager:
         for f in currentFields:
             if f not in allFields:
                 currentFields.remove(f)
+                for mode in self.__fieldModeModels:
+                    self.currentAppData.fieldsUsage[mode].remove(f)
 
         for mode in self.__fieldModeModels:
             self.__fieldModeModels[mode].stringListUpdated()
