@@ -12,6 +12,7 @@ class TATermsDataModel(QtCore.QAbstractTableModel):
         self.__currentKey = None
         self.__tmpTerms = None
 
+    # update appData object
     def updateAppData(self, current_app_data: TAAppData):
         self.__currentAppData = current_app_data
         self.__currentKey = None
@@ -19,15 +20,7 @@ class TATermsDataModel(QtCore.QAbstractTableModel):
 
         self.layoutChanged.emit()
 
-    def updateKey(self, key: int):
-        self.__currentKey = key
-        self.__tmpTerms = self.__getTermsForCurrentKey()
-        self.layoutChanged.emit()
-
-    def updatedPeopleData(self):
-        if self.__currentKey is not None: self.__tmpTerms = self.__getTermsForCurrentKey()
-        self.layoutChanged.emit()
-
+    # abstract method implementations
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole or role == Qt.ForegroundRole:
             term_found, term_used = self.__tmpTerms[index.row()]
@@ -73,20 +66,6 @@ class TATermsDataModel(QtCore.QAbstractTableModel):
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
-    def __updateTermsFromData(self, j, current_terms):
-        terms_fresh = sorted(list(set(self.__currentAppData.peopledata_vals[i][j] for i in range(len(self.__currentAppData.peopledata_vals)))))
-
-        for t_new in terms_fresh:
-            if t_new not in [term_found for term_found, term_used in current_terms]:
-                current_terms.append((t_new, t_new))
-
-        check_empty = [term_found for term_found, term_used in current_terms]
-        if "" in check_empty:
-            empty_entry = check_empty.index("")
-            _, term_used_for_empty = current_terms[empty_entry]
-            del current_terms[empty_entry]
-            current_terms.append(("", term_used_for_empty))
-
     def __getTermsForCurrentKey(self):
         terms = self.__currentAppData.peopledata_terms[self.__currentKey]
 
@@ -96,3 +75,31 @@ class TATermsDataModel(QtCore.QAbstractTableModel):
         self.__updateTermsFromData(self.__currentKey, terms)
 
         return terms
+
+    # externally invoked data updates
+    def updateKey(self, key: int):
+        self.__currentKey = key
+        self.__tmpTerms = self.__getTermsForCurrentKey()
+        self.layoutChanged.emit()
+
+    def updatedPeopleData(self):
+        if self.__currentKey is not None: self.__tmpTerms = self.__getTermsForCurrentKey()
+        self.layoutChanged.emit()
+
+    def __updateTermsFromData(self, j, current_terms):
+        terms_fresh = sorted(list(set(self.__currentAppData.peopledata_vals[i][j] for i in range(len(self.__currentAppData.peopledata_vals)))))
+
+        for t_new in terms_fresh:
+            if t_new not in [term_found for term_found, term_used in current_terms]:
+                current_terms.append((t_new, t_new))
+
+        for term_found, term_used in current_terms:
+            if term_found not in terms_fresh:
+                current_terms.remove((term_found, term_used))
+
+        check_empty = [term_found for term_found, term_used in current_terms]
+        if "" in check_empty:
+            empty_entry = check_empty.index("")
+            _, term_used_for_empty = current_terms[empty_entry]
+            del current_terms[empty_entry]
+            current_terms.append(("", term_used_for_empty))
