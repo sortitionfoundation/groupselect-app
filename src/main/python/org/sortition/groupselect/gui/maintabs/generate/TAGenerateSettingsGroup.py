@@ -1,10 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit, \
-    QListWidget, QGroupBox, QGridLayout, QFormLayout, QListWidgetItem, QProgressDialog, QListView, QDataWidgetMapper
+    QGroupBox, QGridLayout, QFormLayout, QProgressDialog, QListView, QDataWidgetMapper
 from PyQt5.QtGui import QIntValidator
 
 from org.sortition.groupselect.gui.maintabs.generate.TAManualDialog import TAManualDialog
-from org.sortition.groupselect.gui.maintabs.generate.TAListMove import TAListMove
 from org.sortition.groupselect.gui.maintabs.generate.TAAdvancedSettingsDialog import TAAdvancedSettingsDialog
 
 class TAGenerateSettingsGroup(QGroupBox):

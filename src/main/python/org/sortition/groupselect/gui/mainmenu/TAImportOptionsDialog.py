@@ -1,8 +1,39 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QRadioButton, QHBoxLayout, QLabel, QPushButton, QWidget, QTableWidget
+from PyQt5.QtWidgets import QVBoxLayout, QRadioButton, QHBoxLayout, QLabel, QPushButton, QWidget, QTableWidget, \
+    QFormLayout, QTableWidgetItem, QSpinBox
+
+from org.sortition.groupselect.data.TAImport import importFromCSV
 
 
 class TAImportOptionsDialog(QtWidgets.QDialog):
+    __numbPreview = 10
+
+    __optionDefaults = {
+        'delimiter': 'auto',
+        'startLine': 1,
+        'skipLines': 0,
+        'ignoreLast': 0,
+    }
+
+    __delimiterTypes = {
+        'auto': 'Automatic',
+        'comma': 'Comma',
+        'semicolon': 'Semicolon',
+    }
+
+    __lineEditTypes = {
+        'startLine': 'Header at line number',
+        'skipLines': 'Number of lines to skip after header',
+        'ignoreLast': 'Number of lines to omit at the end',
+    }
+
+    __lineEditMins = {
+        'startLine': 1,
+        'skipLines': 0,
+        'ignoreLast': 0,
+    }
+
+
     def __init__(self, parent, data_action_handler: 'TAMainWindowDataActionHandler', file_lines: list):
         super(TAImportOptionsDialog, self).__init__(parent)
 
@@ -11,29 +42,40 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
 
         self.__setupUi()
 
-        self.__updateTableData()
+        self.__initOptions()
+
+        self.__updateTableContent()
+
+        self.ok = False
+
 
     def __setupUi(self):
-        # radios
+        # radios delimiter
         radioButtonLayout = QHBoxLayout()
-        self.rb1 = QRadioButton("Automatic", self)
-        self.rb2 = QRadioButton("Comma", self)
-        self.rb3 = QRadioButton("Semicolon", self)
-        self.rb1.setChecked(True)
         radioButtonLayout.addWidget(QLabel('Delimiter:', self))
-        radioButtonLayout.addWidget(self.rb1)
-        radioButtonLayout.addWidget(self.rb2)
-        radioButtonLayout.addWidget(self.rb3)
+        self.delimiterRadios = {}
+        for delKey, delName in self.__delimiterTypes.items():
+            self.delimiterRadios[delKey] = QRadioButton(delName, self)
+            self.delimiterRadios[delKey].clicked.connect(self.__widgetUpdated)
+            radioButtonLayout.addWidget(self.delimiterRadios[delKey])
+
+        # line edits
+        lineEditsLayout = QFormLayout()
+        self.lineEdits = {}
+        for editKey, editName in self.__lineEditTypes.items():
+            self.lineEdits[editKey] = QSpinBox()
+            self.lineEdits[editKey].setMinimum(self.__lineEditMins[editKey])
+            self.lineEdits[editKey].textChanged.connect(self.__widgetUpdated)
+            lineEditsLayout.addRow(QLabel(f"{editName}:", self), self.lineEdits[editKey])
 
         # table
-        self.table = QTableWidget()
-        #self.tablesetEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        self.__table = QTableWidget()
 
         # buttons
-        self.btn_ok = QPushButton("Ok")
-        self.btn_ok.clicked.connect(self.__radioButtonPress)
-        self.btn_cancel = QPushButton("Cancel")
-        self.btn_cancel.clicked.connect(self.__radioButtonPress)
+        self.btn_ok = QPushButton('Ok')
+        self.btn_ok.clicked.connect(self.__buttonPress)
+        self.btn_cancel = QPushButton('Cancel')
+        self.btn_cancel.clicked.connect(self.__buttonPress)
         self.btn_cancel.move(80, 0)
 
         buttons = QHBoxLayout()
@@ -42,6 +84,7 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
         buttons_widget = QWidget()
         buttons_widget.setLayout(buttons)
 
+        # layout
         layout = QVBoxLayout()
         layout.addWidget(buttons_widget)
 
@@ -49,45 +92,58 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
         vbox.addSpacing(15)
         vbox.addWidget(QLabel('Please specify how the CSV file should be imported.', self))
         vbox.addLayout(radioButtonLayout)
-        vbox.addWidget(self.table)
+        vbox.addLayout(lineEditsLayout)
+        vbox.addWidget(QLabel('Preview:'))
+        vbox.addWidget(self.__table)
         vbox.addWidget(buttons_widget)
         self.setLayout(vbox)
 
-    def __radioButtonPress(self):
-        if self.sender() == self.btn_ok:
-            self.ok = True
-            if(self.rb1.isChecked()):
-                self.radio_status = 'auto'
-            elif(self.rb2.isChecked()):
-                self.radio_status = 'comma'
-            elif(self.rb3.isChecked()):
-                self.radio_status = 'semicolon'
-            else:
-                self.radio_status = 'auto'
-        else:
-            self.ok = False
-            self.radio_status = ''
+
+    def __initOptions(self):
+        self.options = self.__optionDefaults.copy()
+
+        self.delimiterRadios[self.options['delimiter']].setChecked(True)
+        for editKey in self.__lineEditTypes:
+            self.lineEdits[editKey].setValue(self.options[editKey])
+
+
+    def __updateOptionsFromWidgets(self):
+        for delKey in self.__delimiterTypes:
+            if self.delimiterRadios[delKey].isChecked():
+                self.options['delimiter'] = delKey
+                break
+
+        for editKey in self.__lineEditTypes:
+            self.options[editKey] = self.lineEdits[editKey].value()
+
+
+    def __widgetUpdated(self):
+        self.__updateOptionsFromWidgets()
+        self.__updateTableContent()
+
+
+    def __updateTableContent(self):
+        keys, vals = importFromCSV(self.__fileLines, self.options, numb_preview=self.__numbPreview)
+        self.__table.setColumnCount(len(keys))
+        self.__table.setHorizontalHeaderLabels(keys)
+        self.__table.setRowCount(len(vals))
+        for j in range(len(keys)):
+            for i in range(len(vals)):
+                self.__table.setItem(i, j, QTableWidgetItem(vals[i][j]))
+
+
+    def __buttonPress(self):
+        self.ok = (self.sender() == self.btn_ok)
+        if self.ok: self.__updateOptionsFromWidgets()
         self.close()
 
-    def collectOptions(self):
-        options = {}
-
-        if(self.rb1.isChecked()):
-            options['csv_format'] = 'auto'
-        elif(self.rb2.isChecked()):
-            options['csv_format'] = 'comma'
-        elif(self.rb3.isChecked()):
-            options['csv_format'] = 'semicolon'
-        else:
-            options['csv_format'] = 'auto'
-
-        return options
-
-    def __updateTableData(self):
-        self.__dataActionHandler.importRawWithOptions(self.__fileLines, self.collectOptions())
 
     @classmethod
     def get_input(cls, parent, data_action_handler: 'TAMainWindowDataActionHandler', file_lines: list):
         dialog = cls(parent, data_action_handler, file_lines)
         dialog.exec_()
-        return (dialog.ok, dialog.collectOptions())
+        if dialog.ok:
+            keys, vals = importFromCSV(file_lines, dialog.options)
+            return dialog.ok, keys, vals
+        else:
+            return dialog.ok, None, None

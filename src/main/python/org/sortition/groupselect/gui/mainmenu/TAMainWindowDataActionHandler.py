@@ -1,9 +1,8 @@
-import csv
-
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
 from org.sortition.groupselect.gui.mainmenu.TAImportOptionsDialog import TAImportOptionsDialog
 from org.sortition.groupselect.gui.mainmenu.TAInsertRowsColsDialog import TAInsertRowsColsDialog
+
 
 class TAMainWindowDataActionHandler:
     def __init__(self, ctx: 'AppContext', main_window: 'TAMainWindow'):
@@ -12,7 +11,7 @@ class TAMainWindowDataActionHandler:
 
     def confirm_discard_results(self):
         if self.ctx.app_data.results:
-            reply = QMessageBox.question(self.mainWindow, 'Discard Results', "Please be aware that this action will discard your current results. Proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            reply = QMessageBox.question(self.mainWindow, 'Discard Results', 'Please be aware that this action will discard your current results. Proceed?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes: return True
             else: return False
         else: return True
@@ -20,7 +19,7 @@ class TAMainWindowDataActionHandler:
     def importRaw(self):
         if not self.ctx.getStatus(): return
         if self.__confirmDiscardRaw():
-            fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Import People Data to CSV', None, "Comma-separated Values Files (*.csv)")
+            fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Import People Data to CSV', None, 'Comma-separated Values Files (*.csv)')
             if not fname: return
 
             try:
@@ -30,40 +29,14 @@ class TAMainWindowDataActionHandler:
                 error_dialog.showMessage(str(e))
                 return
 
-            ok, options = TAImportOptionsDialog.get_input(self.mainWindow, self, fileLines)
+            ok, keys, vals = TAImportOptionsDialog.get_input(self.mainWindow, self, fileLines)
             if not ok: return
-            keys, vals = self.importRawWithOptions(fileLines, options)
             self.ctx.getPeopleDataModel().updateFromImport(keys, vals)
             self.ctx.changesToFile()
 
-    def importRawWithOptions(self, file_lines: list, options: dict):
-        #app_data = self.ctx.app_data
-
-        if (options['csv_format'] == 'auto'):
-            csv_format = self.__determineFormatAuto(file_lines)
-        else:
-            csv_format = options['csv_format']
-
-        csv_reader = csv.reader(file_lines, delimiter=(';' if csv_format == 'semicolon' else ','))
-
-        keys = list(next(csv_reader))
-        vals = [row for row in csv_reader]
-
-        return keys, vals
-
-    def __determineFormatAuto(self, file_lines):
-        N = 10
-        contents = ''.join(file_lines[:N])
-        ncs = contents.count(',')
-        nss = contents.count(';')
-        if (ncs < nss):
-            return 'semicolon'
-        else:
-            return 'comma'
-
     def export_raw(self):
         if not self.ctx.getStatus(): return
-        fname, scheme = QFileDialog.getSaveFileName(self.mainWindow, 'Export People Data to CSV', None, "Comma-separated Values Files (*.csv)")
+        fname, scheme = QFileDialog.getSaveFileName(self.mainWindow, 'Export People Data to CSV', None, 'Comma-separated Values Files (*.csv)')
         if not fname: return
         if not fname.endswith('.csv'):
             fname += '.csv'
