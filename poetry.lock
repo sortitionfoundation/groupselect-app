@@ -127,6 +127,17 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "pyqt5-stubs"
+version = "5.15.2.0"
+description = "PEP561 stub files for the PyQt5 framework"
+category = "dev"
+optional = false
+python-versions = ">= 3.5"
+
+[package.extras]
+build = ["docker (==4.2.0)"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.0.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
@@ -149,7 +160,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "29c2f237e7c221513917a62f376e45ba301a5b84b11978ac4a2831257989cd89"
+content-hash = "9782d1db413b64282678114660a0cb47260f8b91113ee3b185006529de21f64e"
 
 [metadata.files]
 altgraph = [
@@ -215,6 +226,10 @@ pyqt5-sip = [
     {file = "PyQt5_sip-12.9.1-cp39-cp39-win32.whl", hash = "sha256:ee188eac5fd94dfe8d9e04a9e7fbda65c3535d5709278d8b7367ebd54f00e27f"},
     {file = "PyQt5_sip-12.9.1-cp39-cp39-win_amd64.whl", hash = "sha256:989d51c41456cc496cb96f0b341464932b957040d26561f0bb4cf5a0914d6b36"},
     {file = "PyQt5_sip-12.9.1.tar.gz", hash = "sha256:2f24f299b44c511c23796aafbbb581bfdebf78d0905657b7cee2141b4982030e"},
+]
+pyqt5-stubs = [
+    {file = "PyQt5-stubs-5.15.2.0.tar.gz", hash = "sha256:dc0dea66f02fe297fb0cddd5767fbf58275b54ecb67f69ebeb994e1553bfb9b2"},
+    {file = "PyQt5_stubs-5.15.2.0-py3-none-any.whl", hash = "sha256:4b750d04ffca1bb188615d1a4e7d655a1d81d30df6ee3488f0adfe09b78e3d36"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
