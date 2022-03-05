@@ -6,6 +6,8 @@ class TAAppData:
         self.peopledata_vals = []
         self.peopledata_terms = []
 
+        self.peopledata_keys_sources = {}
+
         self.fieldsUsage = {'ignore': [], 'print': [], 'cluster': [], 'diverse': []}
 
         self.manuals = []

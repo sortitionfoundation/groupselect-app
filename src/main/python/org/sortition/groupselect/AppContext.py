@@ -75,8 +75,15 @@ class AppContext(ApplicationContext):
         return self.__dataManager.getManualsModel()
 
     ### global actions
-    def newFile(self, number, names):
-        self.__dataManager.newFile(number, names)
+    def newFileEmpty(self, number, names):
+        self.__dataManager.newEmptyFile(number, names)
+
+        self.setStatus(True)
+        self.setUnsaved()
+        self.__mainWindow.windowFileOpened()
+
+    def newFileImported(self, keys, vals):
+        self.__dataManager.newImportedFile(keys, vals)
 
         self.setStatus(True)
         self.setUnsaved()

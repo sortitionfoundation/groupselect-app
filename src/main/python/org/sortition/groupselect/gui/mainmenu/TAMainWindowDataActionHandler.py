@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
-from org.sortition.groupselect.gui.mainmenu.import_dialogs.TACSVImportDialog import TACSVImportDialog
+from org.sortition.groupselect.data.TAFileFormats import import_formats
+from org.sortition.groupselect.data.TAFileImports import get_import_data
 from org.sortition.groupselect.gui.mainmenu.TAInsertRowsColsDialog import TAInsertRowsColsDialog
-from org.sortition.groupselect.gui.mainmenu.import_dialogs.TASpreadsheetImportDialog import TASpreadsheetImportDialog
 
 
 class TAMainWindowDataActionHandler:
@@ -20,15 +20,10 @@ class TAMainWindowDataActionHandler:
     def importRaw(self):
         if not self.ctx.getStatus(): return
         if self.__confirmDiscardRaw():
-            fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Import people data from file', None, 'Excel files (*.xls *.xlsx);;OpenDocument files (*.ods);;Comma-separated values files (*.csv *.tsv)')
+            fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Import people data from file', None, import_formats)
             if not fname: return
 
-            if any(fname.endswith(f".{ending}") for ending in ['csv', 'tsv']):
-                ok, keys, vals = TACSVImportDialog.get_input(self.mainWindow, fname)
-            elif any(fname.endswith(f".{ending}") for ending in ['xls', 'xlsx']):
-                ok, keys, vals = TASpreadsheetImportDialog.get_input(self.mainWindow, fname)
-            else:
-                QErrorMessage(self.mainWindow).showMessage(str('Unknown file type.'))
+            ok, keys, vals = get_import_data(fname, self.mainWindow)
 
             if not ok: return
             self.ctx.getPeopleDataModel().updateFromImport(keys, vals)

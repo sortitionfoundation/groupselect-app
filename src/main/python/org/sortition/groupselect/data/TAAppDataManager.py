@@ -92,14 +92,20 @@ class TAAppDataManager:
     def appStart(self):
         self.closeFile()
 
-    def newFile(self, number, names):
-        self.generate_empty()
+    def newEmptyFile(self, number, names):
+        self.__createAppData()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
         self.peopleDataModel.generateNewData(number, names)
 
+    def newImportedFile(self, keys, vals):
+        self.__createAppData()
+        self.updateAppData()
+        self.__filesaveManager.unsetFname()
+        self.peopleDataModel.updateFromImport(keys, vals)
+
     def closeFile(self):
-        self.generate_empty()
+        self.__createAppData()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
 
@@ -132,7 +138,7 @@ class TAAppDataManager:
         return self.__manualsModel
 
     ### generate or load appdata
-    def generate_empty(self):
+    def __createAppData(self):
         self.currentAppData = TAAppData()
 
     ### getters and setters
