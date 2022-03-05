@@ -15,7 +15,6 @@ def importFromCSV(file_lines: list, options: dict, numb_preview = None):
         return [], []
 
     lines_analyse = [file_lines[iHeader]]
-    print(lines_analyse)
 
     if iStartRows < iEndRows:
         if numb_preview is None or iEndRows - iStartRows < numb_preview:

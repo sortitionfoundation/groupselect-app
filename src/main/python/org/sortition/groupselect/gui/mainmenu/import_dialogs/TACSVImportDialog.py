@@ -1,11 +1,11 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QVBoxLayout, QRadioButton, QHBoxLayout, QLabel, QPushButton, QWidget, QTableWidget, \
-    QFormLayout, QTableWidgetItem, QSpinBox
+    QFormLayout, QTableWidgetItem, QSpinBox, QErrorMessage
 
-from org.sortition.groupselect.data.TAImport import importFromCSV
+from org.sortition.groupselect.data.importers.TACSVImporter import importFromCSV
 
 
-class TAImportOptionsDialog(QtWidgets.QDialog):
+class TACSVImportDialog(QtWidgets.QDialog):
     __numbPreview = 10
 
     __optionDefaults = {
@@ -34,10 +34,9 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
     }
 
 
-    def __init__(self, parent, data_action_handler: 'TAMainWindowDataActionHandler', file_lines: list):
-        super(TAImportOptionsDialog, self).__init__(parent)
+    def __init__(self, parent, file_lines: list):
+        super(TACSVImportDialog, self).__init__(parent)
 
-        self.__dataActionHandler = data_action_handler
         self.__fileLines = file_lines
 
         self.__setupUi()
@@ -56,7 +55,6 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
         self.delimiterRadios = {}
         for delKey, delName in self.__delimiterTypes.items():
             self.delimiterRadios[delKey] = QRadioButton(delName, self)
-            self.delimiterRadios[delKey].clicked.connect(self.__widgetUpdated)
             radioButtonLayout.addWidget(self.delimiterRadios[delKey])
 
         # line edits
@@ -100,11 +98,19 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
 
 
     def __initOptions(self):
+        # create options dict from defaults
         self.options = self.__optionDefaults.copy()
 
+        # set values of widgets
         self.delimiterRadios[self.options['delimiter']].setChecked(True)
         for editKey in self.__lineEditTypes:
             self.lineEdits[editKey].setValue(self.options[editKey])
+
+        # set triggers
+        for delKey in self.__delimiterTypes:
+            self.delimiterRadios[delKey].clicked.connect(self.__widgetUpdated)
+        for editKey in self.__lineEditTypes:
+            self.lineEdits[editKey].textChanged.connect(self.__widgetUpdated)
 
 
     def __updateOptionsFromWidgets(self):
@@ -139,11 +145,18 @@ class TAImportOptionsDialog(QtWidgets.QDialog):
 
 
     @classmethod
-    def get_input(cls, parent, data_action_handler: 'TAMainWindowDataActionHandler', file_lines: list):
-        dialog = cls(parent, data_action_handler, file_lines)
+    def get_input(cls, parent, fname: str):
+        try:
+            fileLines = open(fname, 'r').readlines()
+        except Exception as e:
+            error_dialog = QErrorMessage(parent)
+            error_dialog.showMessage(str(e))
+            return
+
+        dialog = cls(parent, fileLines)
         dialog.exec_()
         if dialog.ok:
-            keys, vals = importFromCSV(file_lines, dialog.options)
+            keys, vals = importFromCSV(fileLines, dialog.options)
             return dialog.ok, keys, vals
         else:
             return dialog.ok, None, None
