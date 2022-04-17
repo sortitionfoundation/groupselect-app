@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from org.sortition.groupselect.data.TAFileFormats import file_formats, save_formats
+from org.sortition.groupselect.data.TAFileFormats import file_formats, save_formats, determineFormatFromFname
 from org.sortition.groupselect.data.TAFileImports import get_import_data
 from org.sortition.groupselect.gui.mainmenu.TANewFileOptionsDialog import TANewFileOptionsDialog
 
@@ -29,13 +29,15 @@ class TAMainWindowFileActionHandler:
             fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Open file', None, file_formats)
             if not fname: return
 
-            if fname.endswith('.gsf2'):
+            if determineFormatFromFname(fname) == 'native':
                 ex = self.ctx.loadFile(fname)
                 if ex: QMessageBox.critical(self.mainWindow, 'Error', f"Error while loading file: {ex}")
             else:
-                ok, keys, vals = get_import_data(fname, self.mainWindow)
-                if ok: self.ctx.newFileImported(keys, vals)
+                ok, keys, vals, options, forname = get_import_data(self.mainWindow, fname)
+                if not ok: return
 
+                self.ctx.newFileImported(keys, vals)
+                self.ctx.setQuickImport(fname, forname, options)
 
     def saveAsActionCall(self):
         self.__saveAction(requested_fname=True)

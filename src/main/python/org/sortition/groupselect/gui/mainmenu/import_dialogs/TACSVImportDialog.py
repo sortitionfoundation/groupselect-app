@@ -157,6 +157,19 @@ class TACSVImportDialog(QtWidgets.QDialog):
         dialog.exec_()
         if dialog.ok:
             keys, vals = importFromCSV(fileLines, dialog.options)
-            return dialog.ok, keys, vals
+            return dialog.ok, keys, vals, dialog.options
         else:
-            return dialog.ok, None, None
+            return dialog.ok, None, None, {}
+
+
+    @classmethod
+    def get_quick(cls, parent, fname: str, options: dict):
+        try:
+            fileLines = open(fname, 'r').readlines()
+        except Exception as e:
+            error_dialog = QErrorMessage(parent)
+            error_dialog.showMessage(str(e))
+            return
+
+        keys, vals = importFromCSV(fileLines, options)
+        return True, keys, vals, options

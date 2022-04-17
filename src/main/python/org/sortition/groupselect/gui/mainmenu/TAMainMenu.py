@@ -73,14 +73,21 @@ class TAMainMenu(QMenuBar):
         self.__dataMenu = self.addMenu('People Data')
 
         # Import
-        actionItem = QAction('Import from CSV...', self)
-        actionItem.setShortcut("Ctrl+I")
+        actionItem = QAction('Import from file...', self)
+        actionItem.setShortcut('Ctrl+I')
         actionItem.setStatusTip('Import raw data to process.')
         actionItem.triggered.connect(self.__dataActionHandler.importRaw)
         self.__dataMenu.addAction(actionItem)
 
+        # Import
+        actionItem = QAction('Quick import', self)
+        actionItem.setShortcut('F5')
+        actionItem.setStatusTip('Import raw data to process.')
+        actionItem.triggered.connect(self.__dataActionHandler.importQuick)
+        self.__dataMenu.addAction(actionItem)
+
         # Export
-        actionItem = QAction('Export to CSV...', self)
+        actionItem = QAction('Export to file...', self)
         actionItem.setShortcut("Ctrl+X")
         actionItem.setStatusTip('Export your edited raw data to a file.')
         actionItem.triggered.connect(self.__dataActionHandler.export_raw)

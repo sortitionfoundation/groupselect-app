@@ -102,7 +102,7 @@ class TAAppDataManager:
         self.__createAppData()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
-        self.peopleDataModel.updateFromImport(keys, vals)
+        self.peopleDataModel.insertFromImport(keys, vals)
 
     def closeFile(self):
         self.__createAppData()
@@ -184,6 +184,20 @@ class TAAppDataManager:
     def cols_not_ignored(self, cols):
         return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
 
+    ### quick import
+    def getQuickImport(self):
+        return self.currentAppData.quickImport.values()
+
+    def setQuickImport(self, fname: str, forname: str, options: dict):
+        self.currentAppData.quickImport = {
+            'fname': fname,
+            'forname': forname,
+            'options': options,
+        }
+
+        print(self.currentAppData.quickImport)
+
+    ### data commands
     def export_raw_to_csv(self, file_handle):
         app_data = self.ctx.app_data
         writer = csv.writer(file_handle, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)

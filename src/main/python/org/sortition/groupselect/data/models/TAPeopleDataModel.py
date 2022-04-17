@@ -63,6 +63,9 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
 
         return False
 
+    def getKeys(self):
+        return self.__currentAppData.peopledata_keys
+
     def flags(self, index):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
 
@@ -103,7 +106,12 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
 
         self.__updateData(keys, vals, terms)
 
-    def updateFromImport(self, keys, vals):
+    def insertFromImport(self, keys, vals):
+        terms = len(keys) * [None]
+
+        self.__updateData(keys, vals, terms)
+
+    def updateFromImport(self, keys, vals, consider_sources: bool = False):
         terms = copy.deepcopy(self.__currentAppData.peopledata_terms)
 
         if len(keys) > len(terms):
@@ -111,17 +119,44 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
         elif len(keys) < len(terms):
             terms = terms[:len(keys)]
 
-        self.__updateData(keys, vals, terms)
+        self.__updateData(keys, vals, terms, consider_sources)
 
-    def __updateData(self, keys: list, vals: list, terms: list):
+    def __updateData(self, keys: list, vals: list, terms: list, consider_sources: bool = False):
         rows = self.rowCount(0)
         cols = self.columnCount(0)
 
         self.beginInsertRows(QModelIndex(), 0, rows)
         self.beginInsertColumns(QModelIndex(), 0, cols)
 
-        self.__currentAppData.peopledata_keys = keys
-        self.__currentAppData.peopledata_vals = vals
+        if not consider_sources:
+            self.__currentAppData.peopledata_keys = keys
+            self.__currentAppData.peopledata_vals = vals
+
+            self.__currentAppData.peopledata_keys_sources = {i: i for i in range(len(keys))}
+        else:
+            nCols = len(self.__currentAppData.peopledata_keys)
+            lenOld = len(self.__currentAppData.peopledata_vals)
+            lenNew = len(vals)
+
+            for i in range(lenNew-lenOld):
+                self.__currentAppData.peopledata_vals.append(nCols * [''])
+
+            # if lenOld < lenNew:
+            #     for i in range(lenNew-lenOld):
+            #        self.__currentAppData.peopledata_vals.append(nCols * [''])
+            # else:
+            #     self.__currentAppData.peopledata_vals = self.__currentAppData.peopledata_vals[0:lenNew]
+
+            for col in self.__currentAppData.peopledata_keys:
+                if col not in self.__currentAppData.peopledata_keys_sources:
+                    continue
+
+                j1 = self.__currentAppData.peopledata_keys.index(col)
+                j2 = keys.index(self.__currentAppData.peopledata_keys_sources[col])
+                for i in range(lenNew):
+                    self.__currentAppData.peopledata_vals[i][j1] = vals[i][j2]
+
+            self.__currentAppData.peopledata_vals = vals
         self.__currentAppData.peopledata_terms = terms
 
         self.endInsertColumns()

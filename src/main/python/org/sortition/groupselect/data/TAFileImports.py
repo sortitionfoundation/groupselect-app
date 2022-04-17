@@ -1,14 +1,17 @@
 from PyQt5.QtWidgets import QErrorMessage
 
-from org.sortition.groupselect.gui.mainmenu.import_dialogs.TACSVImportDialog import TACSVImportDialog
-from org.sortition.groupselect.gui.mainmenu.import_dialogs.TASpreadsheetImportDialog import TASpreadsheetImportDialog
+from org.sortition.groupselect.data.TAFileFormats import formats_mapping
 
 
-def get_import_data(fname: str, main_window: 'TAMainWindow'):
-    if any(fname.endswith(f".{ending}") for ending in ['csv', 'tsv']):
-        return TACSVImportDialog.get_input(main_window, fname)
-    elif any(fname.endswith(f".{ending}") for ending in ['xls', 'xlsx']):
-        return TASpreadsheetImportDialog.get_input(main_window, fname)
-    else:
-        QErrorMessage(main_window).showMessage(str('Unknown file type.'))
-        return False, None, None
+def get_import_data(main_window: 'TAMainWindow', fname: str):
+    for forname, fordict in formats_mapping.items():
+        if fordict['importable'] and any(fname.endswith(f".{ending}") for ending in fordict['endings']):
+            return *fordict['handler'].get_input(main_window, fname), forname
+
+    QErrorMessage(main_window).showMessage(str('Unknown file type.'))
+    return False, None, None, None, None
+
+
+def get_import_data_quick(main_window: 'TAMainWindow', fname: str, forname: str, options: dict):
+    handler = formats_mapping[forname]['handler']
+    return *handler.get_quick(main_window, fname, options), forname

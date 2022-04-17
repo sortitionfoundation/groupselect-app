@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 
 from org.sortition.groupselect.data.TAFileFormats import import_formats
-from org.sortition.groupselect.data.TAFileImports import get_import_data
+from org.sortition.groupselect.data.TAFileImports import get_import_data, get_import_data_quick
 from org.sortition.groupselect.gui.mainmenu.TAInsertRowsColsDialog import TAInsertRowsColsDialog
 
 
@@ -10,6 +10,7 @@ class TAMainWindowDataActionHandler:
         self.ctx = ctx
         self.mainWindow = main_window
 
+
     def confirm_discard_results(self):
         if self.ctx.app_data.results:
             reply = QMessageBox.question(self.mainWindow, 'Discard Results', 'Please be aware that this action will discard your current results. Proceed?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -17,17 +18,47 @@ class TAMainWindowDataActionHandler:
             else: return False
         else: return True
 
+
     def importRaw(self):
         if not self.ctx.getStatus(): return
         if self.__confirmDiscardRaw():
             fname, scheme = QFileDialog.getOpenFileName(self.mainWindow, 'Import people data from file', None, import_formats)
             if not fname: return
 
-            ok, keys, vals = get_import_data(fname, self.mainWindow)
-
+            ok, keys, vals, options, forname = get_import_data(self.mainWindow, fname)
             if not ok: return
-            self.ctx.getPeopleDataModel().updateFromImport(keys, vals)
+
+            self.__processImport(keys, vals)
+
+            self.ctx.setQuickImport(fname, forname, options)
+
             self.ctx.changesToFile()
+
+
+    def importQuick(self):
+        if not self.ctx.getStatus(): return
+        if self.__confirmDiscardRaw():
+            fname, forname, options = self.ctx.getQuickImport()
+            ok, keys, vals, options, forname = get_import_data_quick(self.mainWindow, fname, forname, options)
+
+            self.__processImport(keys, vals)
+
+            self.ctx.changesToFile()
+
+
+    def __processImport(self, keys: list, vals: list):
+        old_keys = self.ctx.getPeopleDataModel().getKeys()
+        # considerSources = not (len(keys) == len(old_keys) and
+        #                       all(keys[i]==old_keys[i] for i in range(len(keys))) and
+        #                       not self.ctx.app_data.peopledata_keys_sources)
+        considerSources = False
+
+        if considerSources:
+            # TODO: obtain sources from user via gui
+            # self.ctx.app_data.peopledata_keys_sources = ...
+            pass
+        self.ctx.getPeopleDataModel().updateFromImport(keys, vals, consider_sources=considerSources)
+
 
     def export_raw(self):
         if not self.ctx.getStatus(): return

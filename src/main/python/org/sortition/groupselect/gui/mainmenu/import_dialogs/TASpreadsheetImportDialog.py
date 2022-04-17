@@ -138,7 +138,7 @@ class TASpreadsheetImportDialog(QtWidgets.QDialog):
     @classmethod
     def get_input(cls, parent, fname: str):
         try:
-            wb =  openpyxl.load_workbook(fname)
+            wb = openpyxl.load_workbook(fname)
         except Exception as e:
             QErrorMessage(parent).showMessage(str(e))
             return
@@ -147,6 +147,19 @@ class TASpreadsheetImportDialog(QtWidgets.QDialog):
         dialog.exec_()
         if dialog.ok:
             keys, vals = importFromSpreadsheet(wb, dialog.options)
-            return dialog.ok, keys, vals
+            return dialog.ok, keys, vals, dialog.options
         else:
-            return dialog.ok, None, None
+            return dialog.ok, None, None, {}
+
+
+    @classmethod
+    def get_quick(cls, parent, fname: str, options: dict):
+        try:
+            wb = openpyxl.load_workbook(fname)
+        except Exception as e:
+            error_dialog = QErrorMessage(parent)
+            error_dialog.showMessage(str(e))
+            return
+
+        keys, vals = importFromSpreadsheet(wb, options)
+        return True, keys, vals, options

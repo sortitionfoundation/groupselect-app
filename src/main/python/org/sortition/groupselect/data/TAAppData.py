@@ -8,6 +8,8 @@ class TAAppData:
 
         self.peopledata_keys_sources = {}
 
+        self.quickImport = {}
+
         self.fieldsUsage = {'ignore': [], 'print': [], 'cluster': [], 'diverse': []}
 
         self.manuals = []
