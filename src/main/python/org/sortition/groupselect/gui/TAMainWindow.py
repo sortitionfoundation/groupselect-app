@@ -16,7 +16,7 @@ class TAMainWindow(QMainWindow):
 
         height = ctx.app.primaryScreen().size().height()
         width = ctx.app.primaryScreen().size().width()
-        self.setGeometry(.1*width, .1*height, .8*width, .8*height)
+        self.setGeometry(int(.1*width), int(.1*height), int(.8*width), int(.8*height))
 
         self.__mainMenu = TAMainMenu(self.ctx, self)
         self.setMenuBar(self.__mainMenu)

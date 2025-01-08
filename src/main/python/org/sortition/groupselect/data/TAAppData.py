@@ -6,9 +6,7 @@ class TAAppData:
         self.peopledata_vals = []
         self.peopledata_terms = []
 
-        self.peopledata_keys_sources = {}
-
-        self.quickImport = {}
+        self.import_cfg = {'fname': None, 'forname': None, 'options': None, 'colmap': None}
 
         self.fieldsUsage = {'ignore': [], 'print': [], 'cluster': [], 'diverse': []}
 

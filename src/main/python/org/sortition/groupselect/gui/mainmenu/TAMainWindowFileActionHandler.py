@@ -36,8 +36,10 @@ class TAMainWindowFileActionHandler:
                 ok, keys, vals, options, forname = get_import_data(self.mainWindow, fname)
                 if not ok: return
 
+                colmap = [i for i in range(len(keys))]
+
                 self.ctx.newFileImported(keys, vals)
-                self.ctx.setQuickImport(fname, forname, options)
+                self.ctx.setImportCfg(fname, forname, options, colmap)
 
     def saveAsActionCall(self):
         self.__saveAction(requested_fname=True)

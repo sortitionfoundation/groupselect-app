@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog, QErrorMessage
 from org.sortition.groupselect.data.TAFileFormats import import_formats
 from org.sortition.groupselect.data.TAFileImports import get_import_data, get_import_data_quick
 from org.sortition.groupselect.gui.mainmenu.TAInsertRowsColsDialog import TAInsertRowsColsDialog
+from org.sortition.groupselect.gui.mainmenu.import_dialogs.TAColmapDialog import TAColmapDialog
 
 
 class TAMainWindowDataActionHandler:
@@ -28,9 +29,14 @@ class TAMainWindowDataActionHandler:
             ok, keys, vals, options, forname = get_import_data(self.mainWindow, fname)
             if not ok: return
 
-            self.__processImport(keys, vals)
+            _, _, _, colmap = self.ctx.getImportCfg()
+            oldKeys = self.ctx.getPeopleDataModel()
+            ok, colmap = TAColmapDialog.get_input(self.mainWindow, keys, oldKeys, colmap)
+            if not ok: return
 
-            self.ctx.setQuickImport(fname, forname, options)
+            self.ctx.getPeopleDataModel().updateImportedData(keys, vals, colmap)
+
+            self.ctx.setImportCfg(fname, forname, options, colmap)
 
             self.ctx.changesToFile()
 
@@ -38,26 +44,19 @@ class TAMainWindowDataActionHandler:
     def importQuick(self):
         if not self.ctx.getStatus(): return
         if self.__confirmDiscardRaw():
-            fname, forname, options = self.ctx.getQuickImport()
+            fname, forname, options, colmap = self.ctx.getImportCfg()
             ok, keys, vals, options, forname = get_import_data_quick(self.mainWindow, fname, forname, options)
 
-            self.__processImport(keys, vals)
+            oldKeys = self.ctx.getPeopleDataModel()
+            ok, colmap = TAColmapDialog.get_input(self.mainWindow, keys, oldKeys, colmap, skip=True)
+            if not ok: return
+
+            oldKeys = self.ctx.getPeopleDataModel()
+            self.ctx.getPeopleDataModel().updateImportedData(keys, vals, colmap)
+
+            self.ctx.setImportCfg(fname, forname, options, colmap)
 
             self.ctx.changesToFile()
-
-
-    def __processImport(self, keys: list, vals: list):
-        old_keys = self.ctx.getPeopleDataModel().getKeys()
-        # considerSources = not (len(keys) == len(old_keys) and
-        #                       all(keys[i]==old_keys[i] for i in range(len(keys))) and
-        #                       not self.ctx.app_data.peopledata_keys_sources)
-        considerSources = False
-
-        if considerSources:
-            # TODO: obtain sources from user via gui
-            # self.ctx.app_data.peopledata_keys_sources = ...
-            pass
-        self.ctx.getPeopleDataModel().updateFromImport(keys, vals, consider_sources=considerSources)
 
 
     def export_raw(self):

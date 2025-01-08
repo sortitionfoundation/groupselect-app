@@ -95,69 +95,56 @@ class TAPeopleDataModel(QtCore.QAbstractTableModel):
         except StopIteration:
             return False
 
+
     # externally invoked data updates
-    def generateNewData(self, number: int, names: str):
-        m_data = number
-        n_data = len(names.split(","))
-
+    def insertEmptyData(self, number: int, names: str):
         keys = [n.strip() for n in names.split(",")]
-        vals = [['' for j in range(n_data)] for i in range(m_data)]
-        terms = [None for j in range(n_data)]
+        vals = [['' for j in range(len(keys))] for i in range(number)]
 
-        self.__updateData(keys, vals, terms)
+        self.insertImportedData(keys, vals)
 
-    def insertFromImport(self, keys, vals):
-        terms = len(keys) * [None]
-
-        self.__updateData(keys, vals, terms)
-
-    def updateFromImport(self, keys, vals, consider_sources: bool = False):
-        terms = copy.deepcopy(self.__currentAppData.peopledata_terms)
-
-        if len(keys) > len(terms):
-            terms.extend((len(keys) - len(terms)) * [None])
-        elif len(keys) < len(terms):
-            terms = terms[:len(keys)]
-
-        self.__updateData(keys, vals, terms, consider_sources)
-
-    def __updateData(self, keys: list, vals: list, terms: list, consider_sources: bool = False):
+    def insertImportedData(self, keys, vals):
         rows = self.rowCount(0)
         cols = self.columnCount(0)
 
         self.beginInsertRows(QModelIndex(), 0, rows)
         self.beginInsertColumns(QModelIndex(), 0, cols)
 
-        if not consider_sources:
-            self.__currentAppData.peopledata_keys = keys
-            self.__currentAppData.peopledata_vals = vals
+        self.__currentAppData.peopledata_keys = keys
+        self.__currentAppData.peopledata_vals = vals
 
-            self.__currentAppData.peopledata_keys_sources = {i: i for i in range(len(keys))}
-        else:
-            nCols = len(self.__currentAppData.peopledata_keys)
-            lenOld = len(self.__currentAppData.peopledata_vals)
-            lenNew = len(vals)
+        self.__currentAppData.peopledata_terms = len(keys) * [None]
 
-            for i in range(lenNew-lenOld):
-                self.__currentAppData.peopledata_vals.append(nCols * [''])
+        self.endInsertColumns()
+        self.endInsertRows()
 
-            # if lenOld < lenNew:
-            #     for i in range(lenNew-lenOld):
-            #        self.__currentAppData.peopledata_vals.append(nCols * [''])
-            # else:
-            #     self.__currentAppData.peopledata_vals = self.__currentAppData.peopledata_vals[0:lenNew]
+        self.layoutChanged.emit()
 
-            for col in self.__currentAppData.peopledata_keys:
-                if col not in self.__currentAppData.peopledata_keys_sources:
-                    continue
+    def updateImportedData(self, keys: list, vals: list, colmap: list):
+        rows = self.rowCount(0)
+        cols = self.columnCount(0)
 
-                j1 = self.__currentAppData.peopledata_keys.index(col)
-                j2 = keys.index(self.__currentAppData.peopledata_keys_sources[col])
-                for i in range(lenNew):
-                    self.__currentAppData.peopledata_vals[i][j1] = vals[i][j2]
+        self.beginInsertRows(QModelIndex(), 0, rows)
+        self.beginInsertColumns(QModelIndex(), 0, cols)
 
-            self.__currentAppData.peopledata_vals = vals
-        self.__currentAppData.peopledata_terms = terms
+        # append rows in case new vals list is longer
+        for i in range(len(vals) - len(self.__currentAppData.peopledata_vals)):
+            self.__currentAppData.peopledata_vals.append(len(self.__currentAppData.peopledata_keys) * [''])
+
+        # loop through column mapping
+        for colImported, colTarget in enumerate(colmap):
+            # if target is an existing column, just update the values
+            if isinstance(colTarget, int):
+                for i in range(len(self.__currentAppData.peopledata_vals)):
+                    self.__currentAppData.peopledata_vals[i][colTarget] = vals[i]
+            # else if target is a new column, create it and
+            elif colTarget == 'new':
+                self.__currentAppData.peopledata_keys += [keys[colImported]]
+                self.__currentAppData.peopledata_terms += [None]
+                for i in range(len(self.__currentAppData.peopledata_vals)):
+                    self.__currentAppData.peopledata_vals[i] += [vals[i]]
+
+        self.__currentAppData.peopledata_terms += list(colmap.values()).count('create') * [None]
 
         self.endInsertColumns()
         self.endInsertRows()

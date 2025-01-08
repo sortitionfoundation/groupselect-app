@@ -119,11 +119,11 @@ class AppContext(ApplicationContext):
         self.setSaved()
         self.__mainWindow.windowFileClosed()
 
-    def getQuickImport(self):
-        return self.__dataManager.getQuickImport()
+    def getImportCfg(self):
+        return self.__dataManager.getImportCfg()
 
-    def setQuickImport(self, *args):
-        self.__dataManager.setQuickImport(*args)
+    def setImportCfg(self, *args):
+        self.__dataManager.setImportCfg(*args)
 
     def quit(self):
         sys.exit()

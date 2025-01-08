@@ -96,13 +96,13 @@ class TAAppDataManager:
         self.__createAppData()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
-        self.peopleDataModel.generateNewData(number, names)
+        self.peopleDataModel.insertEmptyData(number, names)
 
     def newImportedFile(self, keys, vals):
         self.__createAppData()
         self.updateAppData()
         self.__filesaveManager.unsetFname()
-        self.peopleDataModel.insertFromImport(keys, vals)
+        self.peopleDataModel.insertImportedData(keys, vals)
 
     def closeFile(self):
         self.__createAppData()
@@ -185,17 +185,16 @@ class TAAppDataManager:
         return any((j in self.ctx.app_data.fields and self.ctx.app_data.fields[j]['mode'] != 'ignore') for j in cols)
 
     ### quick import
-    def getQuickImport(self):
-        return self.currentAppData.quickImport.values()
+    def getImportCfg(self):
+        return self.currentAppData.import_cfg.values()
 
-    def setQuickImport(self, fname: str, forname: str, options: dict):
-        self.currentAppData.quickImport = {
+    def setImportCfg(self, fname: str, forname: str, options: dict, colmap: list):
+        self.currentAppData.import_cfg = {
             'fname': fname,
             'forname': forname,
             'options': options,
+            'colmap': colmap,
         }
-
-        print(self.currentAppData.quickImport)
 
     ### data commands
     def export_raw_to_csv(self, file_handle):
