@@ -1,19 +1,22 @@
-[tool.poetry]
+[project]
 name = "groupselect-app"
 version = "2.0.0"
 description = "The GroupSelect App developed by the Sortition Foundation."
-authors = ["Philipp C. Verpoort <pcv@sortitionfoundation.org>"]
+authors = [
+    { name = "Philipp C. Verpoort", email = "pcv@sortitionfoundation.org" }
+]
 license = "GNU GPL 3"
 package-mode = false
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "base-app",
+    "datahandling",
+    "groupselect",
+    "pandas>=2.3.3",
+    "setuptools>=80.9.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-setuptools = "^60.8.1"
-pandas = "^2.2.2"
-datahandling = {git = "git@github.com:PhilippVerpoort/datahandling.git"}
-groupselect = {git = "git@github.com:PhilippVerpoort/groupselect-lib.git"}
-base-app = {git = "git@github.com:PhilippVerpoort/base-app.git"}
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv.sources]
+base-app = { git = "https://github.com/PhilippVerpoort/base-app/" }
+datahandling = { git = "https://github.com/PhilippVerpoort/datahandling/" }
+groupselect = { git = "https://github.com/PhilippVerpoort/groupselect-lib" }
