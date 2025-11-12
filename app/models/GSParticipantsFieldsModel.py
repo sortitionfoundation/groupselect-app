@@ -2,9 +2,9 @@ from PySide6 import QtCore
 from PySide6.QtCore import Qt
 from datahandling import excel_col_name
 
-from AbstractProjectModel import AbstractProjectModel
+from base_app.AbstractProjectModel import AbstractProjectModel
 
-from src.GSProject import GSProject
+from GSProject import GSProject
 
 
 class GSParticipantsFieldsModel(QtCore.QStringListModel, AbstractProjectModel):

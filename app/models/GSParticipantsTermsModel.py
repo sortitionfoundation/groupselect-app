@@ -2,9 +2,9 @@ from PySide6 import QtCore
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 
-from AbstractProjectModel import AbstractProjectModel
+from base_app.AbstractProjectModel import AbstractProjectModel
 
-from src.GSProject import GSProject
+from GSProject import GSProject
 
 
 class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel):

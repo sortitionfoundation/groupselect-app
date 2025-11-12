@@ -3,9 +3,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from datahandling import excel_col_name
 
-from AbstractProjectModel import AbstractProjectModel
+from base_app.AbstractProjectModel import AbstractProjectModel
 
-from src.GSProject import GSProject
+from GSProject import GSProject
 
 
 class GSResultsListModel(QtCore.QStringListModel, AbstractProjectModel):

@@ -1,8 +1,8 @@
 from base_app.AppContext import AppContext
 
-from src.GSProject import GSProject
-from src.GSMainWindow import GSMainWindow
-from src.GSModelManager import GSModelManager
+from GSProject import GSProject
+from GSMainWindow import GSMainWindow
+from GSModelManager import GSModelManager
 
 
 def main():

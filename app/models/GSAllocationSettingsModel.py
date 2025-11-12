@@ -3,7 +3,7 @@ from typing import Any
 from PySide6 import QtCore
 from PySide6.QtCore import Qt, QModelIndex, QPersistentModelIndex
 
-from AbstractProjectModel import AbstractProjectModel
+from base_app.AbstractProjectModel import AbstractProjectModel
 from GSProject import GSProject, settings_lookup
 
 
