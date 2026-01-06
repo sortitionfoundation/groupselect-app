@@ -67,6 +67,9 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._part_per_group_field.textChanged.connect(self.update_groups_estimate)
         self._mapper.addMapping(self._part_per_group_field, settings_lookup.index('n_part_per_group'))
 
+        self._algorithm = QLineEdit()
+        self._mapper.addMapping(self._algorithm, settings_lookup.index('algorithm'))
+
         self._groups_calculated = QLabel()
 
         self._allocations_field = QLineEdit()
@@ -80,6 +83,7 @@ class GSGenerateSettingsGroup(QGroupBox):
         form_layout = QFormLayout()
         form_layout.setContentsMargins(m, 0, m, 0)
         form_layout.addRow(QLabel('# Participants p. Group'), self._part_per_group_field)
+        form_layout.addRow(QLabel('# Algorithm'), self._algorithm)
         form_layout.addRow(QLabel('# Groups'), self._groups_calculated)
         form_layout.addRow(QLabel('# Allocations'), self._allocations_field)
         form_layout.addRow(QLabel('Advanced Settings'), self._btn_advanced)
@@ -177,6 +181,13 @@ class GSGenerateSettingsGroup(QGroupBox):
                     if key not in ['n_part_per_group', 'n_allocations']
                 }
 
+                if project.settings['algorithm'] == 1:
+                    algorithm =  Algorithm.Legacy
+                elif project.settings['algorithm'] == 2:
+                    algorithm = Algorithm.dream
+                else:
+                    algorithm = Algorithm.Heuristic
+
                 groups: pd.DataFrame
                 allocation_result: AllocatorResult
 
@@ -188,6 +199,7 @@ class GSGenerateSettingsGroup(QGroupBox):
                     progress_func=lambda steps: progress_bar.setValue(steps),
                     settings=settings,
                     return_full=True,
+                    algorithm=algorithm,
                 )
             except Exception as ex:
                 progress_bar.close()
