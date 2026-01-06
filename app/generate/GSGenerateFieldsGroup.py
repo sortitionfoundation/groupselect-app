@@ -21,8 +21,12 @@ class GSGenerateFieldsGroup(QGroupBox):
     def _create_ui(self):
         horizontal_layout = QHBoxLayout()
         for usage_mode in GSAppFieldMode:
+            if usage_mode.name[0:3] == 'Div':
+                name = usage_mode.name.replace('_', ' ')
+            else:
+                name = usage_mode.name
             horizontal_layout.addWidget(self._create_list(
-                f"{usage_mode.name} Fields",
+                f"{name} Fields",
                 self._ctx.model_manager[f"fu{usage_mode.name.lower()}"],
             ))
         self.setLayout(horizontal_layout)
