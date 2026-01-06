@@ -14,8 +14,12 @@ class GSAppFieldMode(Enum):
 
 
 def map_field_modes(field_mode: GSAppFieldMode):
-    if field_mode == GSAppFieldMode.Diversify:
-        return FieldMode.Diversify
+    if field_mode == GSAppFieldMode.Diversify_rank_1:
+        return FieldMode.Diversify_1
+    elif field_mode == GSAppFieldMode.Diversify_rank_2:
+        return FieldMode.Diversify_2
+    elif field_mode == GSAppFieldMode.Diversify_rank_3:
+        return FieldMode.Diversify_3
     elif field_mode == GSAppFieldMode.Cluster:
         return FieldMode.Cluster
     else:
