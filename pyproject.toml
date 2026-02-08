@@ -12,11 +12,21 @@ dependencies = [
     "base-app",
     "datahandling",
     "groupselect",
-    "pandas>=2.3.3",
-    "setuptools>=80.9.0",
+    "pandas>=2.3.3,<3.0.0",
 ]
 
 [tool.uv.sources]
 base-app = { git = "https://github.com/PhilippVerpoort/base-app/" }
 datahandling = { git = "https://github.com/PhilippVerpoort/datahandling/" }
 groupselect = { git = "https://github.com/PhilippVerpoort/groupselect-lib" }
+
+[dependency-groups]
+deployment = [
+    "nuitka==2.7.11",
+    "ordered-set>=4.1.0",
+    "patchelf>=0.17.2.4",
+    "pip>=26.0.1",
+    "setuptools>=81.0.0",
+    "wheel>=0.46.3",
+    "zstandard>=0.25.0",
+]

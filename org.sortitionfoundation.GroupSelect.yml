@@ -1,0 +1,22 @@
+app-id: org.sortitionfoundation.GroupSelect
+runtime: org.kde.Platform
+runtime-version: "6.6"
+sdk: org.kde.Sdk
+command: groupselect2
+
+finish-args:
+  - --filesystem=home
+
+modules:
+  - name: groupselect2
+    buildsystem: simple
+    build-commands:
+      - curl -LsSf https://astral.sh/uv/install.sh | sh
+      - export PATH=$PATH:$HOME/.cargo/bin
+
+      - install -Dm755 app/main.py /app/bin/groupselect2
+      # - install -Dm755 dist/groupselect2.bin /app/bin/groupselect2
+    sources:
+      - type: git
+        url: https://github.com/sortitionfoundation/groupselect-app
+        commit: e566cdc8e9b8713a6c9616ea4de1d0c734e830e6

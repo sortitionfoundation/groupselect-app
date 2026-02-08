@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          powershell -ExecutionPolicy Bypass -c `
+            "irm https://astral.sh/uv/install.ps1 | iex"
+          echo "$env:USERPROFILE\.cargo\bin" >> $env:GITHUB_PATH
+
+      - name: Verify uv
+        run: uv --version
+
+      - name: Install dependencies
+        run: uv sync --group deployment
+
+      - name: Build app
+        run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: groupselect2-dist-${{ matrix.os }}
+          path: app/groupselect2.dist
