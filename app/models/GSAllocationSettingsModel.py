@@ -4,7 +4,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import Qt, QModelIndex, QPersistentModelIndex
 
 from base_app.AbstractProjectModel import AbstractProjectModel
-from GSProject import GSProject, settings_lookup
+from GSProject import GSProject, settings_lookup, settings_template
 
 
 class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel):
@@ -43,7 +43,11 @@ class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel
         key = settings_lookup[index.column()]
 
         # Set value in project settings dict.
-        self._project.settings[key] = int(value)
+        if isinstance(settings_template[key], int):
+            value = int(value)
+        elif isinstance(settings_template[key], float):
+            value = float(value)
+        self._project.settings[key] = value
 
         # Emit dataChanged signal.
         self.dataChanged.emit(index, index)

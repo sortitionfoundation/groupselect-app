@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from groupselect import AllocationEnsemble
+from groupselect import Algorithm
 
 from GSAppFieldMode import GSAppFieldMode
 from base_app.AbstractProject import AbstractProject
@@ -13,6 +13,7 @@ settings_template = {
     'n_part_per_group': 8,
     'n_allocations': 3,
     'n_attempts': 100,
+    'algorithm': Algorithm.Dream.name,
     'seed': 0,
 }
 settings_lookup = list(settings_template)

@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING
 from math import ceil
 
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit,
-                               QGroupBox, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog)
+                               QGroupBox, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog,
+                               QComboBox)
 from PySide6 import QtCore, QtGui
 
-from groupselect import allocate_pandas, AllocatorResult, FieldMode
+from groupselect import allocate_pandas, AllocatorResult, Algorithm
 
 from GSAppFieldMode import map_field_modes
 from GSProject import settings_lookup, GSProject
@@ -67,7 +68,8 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._part_per_group_field.textChanged.connect(self.update_groups_estimate)
         self._mapper.addMapping(self._part_per_group_field, settings_lookup.index('n_part_per_group'))
 
-        self._algorithm = QLineEdit()
+        self._algorithm = QComboBox()
+        self._algorithm.addItems([a.name for a in Algorithm])
         self._mapper.addMapping(self._algorithm, settings_lookup.index('algorithm'))
 
         self._groups_calculated = QLabel()
@@ -82,10 +84,10 @@ class GSGenerateSettingsGroup(QGroupBox):
         m = 50
         form_layout = QFormLayout()
         form_layout.setContentsMargins(m, 0, m, 0)
-        form_layout.addRow(QLabel('# Participants p. Group'), self._part_per_group_field)
-        form_layout.addRow(QLabel('# Algorithm'), self._algorithm)
-        form_layout.addRow(QLabel('# Groups'), self._groups_calculated)
-        form_layout.addRow(QLabel('# Allocations'), self._allocations_field)
+        form_layout.addRow(QLabel('No. Participants p. Group'), self._part_per_group_field)
+        form_layout.addRow(QLabel('Algorithm'), self._algorithm)
+        form_layout.addRow(QLabel('No. Groups'), self._groups_calculated)
+        form_layout.addRow(QLabel('No. Allocations'), self._allocations_field)
         form_layout.addRow(QLabel('Advanced Settings'), self._btn_advanced)
         form_widget = QWidget()
         form_widget.setLayout(form_layout)
@@ -181,12 +183,7 @@ class GSGenerateSettingsGroup(QGroupBox):
                     if key not in ['n_part_per_group', 'n_allocations']
                 }
 
-                if project.settings['algorithm'] == 1:
-                    algorithm =  Algorithm.Legacy
-                elif project.settings['algorithm'] == 2:
-                    algorithm = Algorithm.dream
-                else:
-                    algorithm = Algorithm.Heuristic
+                algorithm = Algorithm[project.settings['algorithm']]
 
                 groups: pd.DataFrame
                 allocation_result: AllocatorResult
