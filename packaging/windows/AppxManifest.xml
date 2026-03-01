@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="rescap">
+
+  <Identity
+    Name="PhilippVerpoort.GroupSelect"
+    Publisher="CN=AF1537D8-AEDC-4CBD-A7E8-4B47BA0B3DD6"
+    Version="2.0.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>GroupSelect</DisplayName>
+    <PublisherDisplayName>Philipp C. Verpoort</PublisherDisplayName>
+    <Logo>assets/logo-store.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="groupselect2" Executable="main.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="GroupSelect"
+        Description="GroupSelect App for dividing participants of deliberative mini-publics into groups."
+        Square150x150Logo="assets/logo150.png"
+        Square44x44Logo="assets/logo44.png"
+        BackgroundColor="transparent"/>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

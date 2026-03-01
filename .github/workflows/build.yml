@@ -10,7 +10,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -44,3 +45,32 @@ jobs:
         with:
           name: groupselect2-dist-${{ matrix.os }}
           path: app/groupselect2.dist
+
+      ### BUILD MSIX FOR WINDOWS
+      - name: Assemble MSIX package folder
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $pkg = "msix_staging"
+          New-Item -ItemType Directory -Path $pkg
+          Copy-Item -Recurse "app\groupselect2.dist\*" "$pkg\"
+          Copy-Item "packaging\windows\AppxManifest.xml" "$pkg\"
+          Copy-Item -Recurse "packaging\windows\assets" "$pkg\assets"
+
+      - name: Build MSIX with makeappx
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Recurse -Filter "makeappx.exe" |
+            Where-Object { $_.FullName -like "*x64*" } |
+            Select-Object -Last 1 -ExpandProperty FullName
+
+          & $makeappx pack /d msix_staging /p groupselect2.msix /nv
+
+      - name: Upload MSIX artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: groupselect2-msix
+          path: groupselect2.msix
