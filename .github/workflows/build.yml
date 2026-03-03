@@ -47,6 +47,23 @@ jobs:
           path: app/groupselect2.dist
 
       ### BUILD MSIX FOR WINDOWS
+      - name: Set version in manifest
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tag = git describe --tags --abbrev=0 2>$null
+          if ($tag) {
+            $semver = $tag -replace '^v', ''
+          } else {
+            $semver = "2.0.0"
+          }
+          $commitCount = git rev-list --count HEAD
+          $version = "$semver.$commitCount"
+          (Get-Content packaging\windows\AppxManifest.xml) `
+            -replace 'Version="0.0.0.0"', "Version=""$version""" |
+            Set-Content packaging\windows\AppxManifest.xml
+          Write-Host "Set version to $version"
+
       - name: Assemble MSIX package folder
         if: runner.os == 'Windows'
         shell: pwsh

@@ -8,7 +8,7 @@
   <Identity
     Name="PhilippVerpoort.GroupSelect"
     Publisher="CN=AF1537D8-AEDC-4CBD-A7E8-4B47BA0B3DD6"
-    Version="2.0.0.0"
+    Version="0.0.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
