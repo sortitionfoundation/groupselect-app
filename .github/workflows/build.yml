@@ -38,6 +38,8 @@ jobs:
         run: uv sync --group deployment
 
       - name: Build app
+        env:
+          NUITKA_ASSUME_YES_FOR_DOWNLOADS: "1"
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
 
       - name: Inspect dist folder
