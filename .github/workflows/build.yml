@@ -40,6 +40,12 @@ jobs:
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
 
+      - name: Inspect dist folder
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse app\groupselect2.dist | Select-Object FullName
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
