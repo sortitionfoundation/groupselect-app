@@ -37,9 +37,17 @@ jobs:
       - name: Install dependencies
         run: uv sync --group deployment
 
+      - name: Download Dependency Walker for Nuitka
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dest = "$env:LOCALAPPDATA\Nuitka\Nuitka\Cache\downloads\depends\x86_64"
+          New-Item -ItemType Directory -Force -Path $dest
+          Invoke-WebRequest -Uri "https://dependencywalker.com/depends22_x64.zip" `
+            -OutFile "$dest\depends.zip"
+          Expand-Archive -Path "$dest\depends.zip" -DestinationPath $dest -Force
+
       - name: Build app
-        env:
-          NUITKA_ASSUME_YES_FOR_DOWNLOADS: "1"
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
 
       - name: Inspect dist folder
