@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from base_app.AppContext import AppContext
 
 from GSProject import GSProject
