@@ -16,9 +16,9 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-base-app = { git = "https://github.com/PhilippVerpoort/base-app/" }
-datahandling = { git = "https://github.com/PhilippVerpoort/datahandling/" }
-groupselect = { git = "https://github.com/PhilippVerpoort/groupselect-lib" }
+base-app = { git = "https://github.com/sortitionfoundation/base-app/", tag = "v0.1.0" }
+datahandling = { git = "https://github.com/sortitionfoundation/datahandling/", tag = "v0.1.0" }
+groupselect = { git = "https://github.com/sortitionfoundation/groupselect-lib", tag = "v0.1.0" }
 
 [dependency-groups]
 deployment = [
