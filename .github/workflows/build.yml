@@ -10,14 +10,14 @@ jobs:
   build:
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
+      ### INSTALL UV
       - name: Install uv (Unix)
         if: runner.os != 'Windows'
         run: |
@@ -34,9 +34,11 @@ jobs:
       - name: Verify uv
         run: uv --version
 
+      ### INSTALL PYTHON DEPENDENCIES
       - name: Install dependencies
         run: uv sync --group deployment
 
+      ### INSTALL DEPENDENCY WALKER FOR NUITKA ON WINDOWS
       - name: Download Dependency Walker for Nuitka
         if: runner.os == 'Windows'
         shell: pwsh
@@ -47,14 +49,9 @@ jobs:
             -OutFile "$dest\depends.zip"
           Expand-Archive -Path "$dest\depends.zip" -DestinationPath $dest -Force
 
+      ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
-
-      - name: Inspect dist folder
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Get-ChildItem -Recurse app\groupselect2.dist | Select-Object FullName
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
