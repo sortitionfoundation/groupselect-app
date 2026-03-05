@@ -5,7 +5,7 @@ requires-python = "==3.11.*"
 [[package]]
 name = "base-app"
 version = "0.1.0"
-source = { git = "https://github.com/sortitionfoundation/base-app/?tag=v0.1.0#a43fc880ec8e81f19b8ffa76f9ba1e05888ffe73" }
+source = { git = "https://github.com/sortitionfoundation/base-app/?tag=v0.1.0#1bb503ef531295c8882eb059fd29f18aedf54d81" }
 dependencies = [
     { name = "jsonpickle" },
     { name = "pyside6" },
