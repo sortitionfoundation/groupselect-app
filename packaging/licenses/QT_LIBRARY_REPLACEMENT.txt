@@ -1,0 +1,15 @@
+Qt Library Replacement Notice
+==============================
+
+This application uses Qt6 and PySide6, distributed as separate DLL files
+in accordance with the GNU Lesser General Public License version 3 (LGPLv3).
+
+In compliance with the LGPLv3, you are free to replace the Qt6 and PySide6
+library files (qt6*.dll, pyside6.abi3.dll, shiboken6.abi3.dll, and files
+in the PySide6/ subdirectory) with compatible modified versions of your
+own, provided the modified libraries remain interface-compatible with the
+originals.
+
+The Qt source code is available at: https://code.qt.io
+Build instructions for PySide6 are available at:
+https://doc.qt.io/qtforpython-6/gettingstarted/index.html

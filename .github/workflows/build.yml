@@ -38,6 +38,10 @@ jobs:
       - name: Install dependencies
         run: uv sync --group deployment
 
+      ### CREATE LIST OF THIRD-PARTY LICENCES
+      - name: Create list of third-party licences
+        run: uv run python packaging/licenses/third_party_licenses.py
+
       ### INSTALL DEPENDENCY WALKER FOR NUITKA ON WINDOWS
       - name: Download Dependency Walker for Nuitka
         if: runner.os == 'Windows'
@@ -87,6 +91,10 @@ jobs:
           Copy-Item -Recurse "app\groupselect2.dist\*" "$pkg\"
           Copy-Item "packaging\windows\AppxManifest.xml" "$pkg\"
           Copy-Item -Recurse "packaging\windows\assets" "$pkg\assets"
+          Copy-Item "packaging\licenses\PYTHON_LICENSE.txt" "$pkg\"
+          Copy-Item "THIRD_PARTY_LICENSES.txt" "$pkg\"
+          Copy-Item "packaging\licenses\PYSIDE6_LICENSES.txt" "$pkg\"
+          Copy-Item "packaging\licenses\QT_LIBRARY_REPLACEMENT.txt" "$pkg\"
 
       - name: Build MSIX with makeappx
         if: runner.os == 'Windows'
