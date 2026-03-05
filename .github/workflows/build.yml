@@ -64,14 +64,15 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Continue"
           $tag = git describe --tags --abbrev=0 2>$null
-          if ($tag) {
-            $semver = $tag -replace '^v', ''
-          } else {
+          if ($LASTEXITCODE -ne 0 -or -not $tag) {
             $semver = "2.0.0"
+          } else {
+            $semver = $tag -replace '^v', ''
           }
-          $commitCount = git rev-list --count HEAD
-          $version = "$semver.$commitCount"
+          $global:LASTEXITCODE = 0
+          $version = "$semver.0"
           (Get-Content packaging\windows\AppxManifest.xml) `
             -replace 'Version="0.0.0.0"', "Version=""$version""" |
             Set-Content packaging\windows\AppxManifest.xml
