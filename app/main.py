@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import sys
 
 from base_app.AppContext import AppContext
 
@@ -8,7 +9,10 @@ from GSMainWindow import GSMainWindow
 from GSModelManager import GSModelManager
 
 
-RESOURCES_PATH: Path = Path(__file__).parent / "resources"
+if getattr(sys, "frozen", False):
+    RESOURCES_PATH: Path = Path(sys.executable).parent / "resources"
+else:
+    RESOURCES_PATH: Path = Path(__file__).parent / "resources"
 
 
 def main():
