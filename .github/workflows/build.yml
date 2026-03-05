@@ -38,6 +38,10 @@ jobs:
       - name: Install dependencies
         run: uv sync --group deployment
 
+      ### CREATE LIST OF THIRD-PARTY LICENCES
+      - name: Create list of third-party licences
+        run: uv run python packaging/licenses/third_party_licenses.py
+
       ### INSTALL DEPENDENCY WALKER FOR NUITKA ON WINDOWS
       - name: Download Dependency Walker for Nuitka
         if: runner.os == 'Windows'
@@ -52,6 +56,9 @@ jobs:
       ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
+
+      - name: Copy resources
+        run: python -c "import shutil; shutil.copytree('app/resources', 'app/groupselect2.dist/resources')"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -87,6 +94,10 @@ jobs:
           Copy-Item -Recurse "app\groupselect2.dist\*" "$pkg\"
           Copy-Item "packaging\windows\AppxManifest.xml" "$pkg\"
           Copy-Item -Recurse "packaging\windows\assets" "$pkg\assets"
+          Copy-Item "packaging\licenses\PYTHON_LICENSE.txt" "$pkg\"
+          Copy-Item "THIRD_PARTY_LICENSES.txt" "$pkg\"
+          Copy-Item "packaging\licenses\PYSIDE6_LICENSES.txt" "$pkg\"
+          Copy-Item "packaging\licenses\QT_LIBRARY_REPLACEMENT.txt" "$pkg\"
 
       - name: Build MSIX with makeappx
         if: runner.os == 'Windows'

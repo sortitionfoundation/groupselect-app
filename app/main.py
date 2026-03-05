@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
+from pathlib import Path
+import sys
+
 from base_app.AppContext import AppContext
 
 from GSProject import GSProject
 from GSMainWindow import GSMainWindow
 from GSModelManager import GSModelManager
+
+
+if getattr(sys, "frozen", False):
+    RESOURCES_PATH: Path = Path(sys.executable).parent / "resources"
+else:
+    RESOURCES_PATH: Path = Path(__file__).parent / "resources"
 
 
 def main():
@@ -14,6 +23,7 @@ def main():
         main_window_cls=GSMainWindow,
         model_manager_cls=GSModelManager,
         project_cls=GSProject,
+        about_html_template=(RESOURCES_PATH / "about.html").read_text(encoding="utf-8")
     )
     app_ctx.launch()
 
