@@ -57,6 +57,9 @@ jobs:
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
 
+      - name: Copy resources
+        run: python -c "import shutil; shutil.copytree('app/resources', 'app/groupselect2.dist/resources')"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
