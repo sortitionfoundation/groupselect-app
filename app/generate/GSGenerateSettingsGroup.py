@@ -2,10 +2,9 @@ import pandas as pd
 from typing import TYPE_CHECKING
 
 from math import ceil
-
 from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit,
                                QGroupBox, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog,
-                               QComboBox)
+                               QComboBox, QScrollArea, QSlider)
 from PySide6 import QtCore, QtGui
 
 from groupselect import allocate_pandas, AllocatorResult, Algorithm
@@ -72,6 +71,57 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._algorithm.addItems([a.name for a in Algorithm])
         self._mapper.addMapping(self._algorithm, settings_lookup.index('algorithm'))
 
+        self._cluster_val = QLineEdit()
+        self._mapper.addMapping(self._cluster_val, settings_lookup.index('cluster_val'))
+        self._cluster_val.hide()
+
+        self.labels = []
+        self._sliders = [QSlider] * 5
+
+        self._slider_widget = QWidget()
+        self._slider_layout = QFormLayout(self._slider_widget)
+
+        for i in range(0, 5):
+            self.prob_label = QLabel('Demographic weight ' + str(i + 1))
+            self.prob_label.hide()
+
+            self._sliders[i] = QSlider(QtCore.Qt.Orientation.Horizontal)
+            self._sliders[i].setMinimum(0)
+            self._sliders[i].setMaximum(10)
+            self._sliders[i].setTickInterval(1)  # must be int
+            self._sliders[i].setTickPosition(QSlider.TicksBelow)
+            self._sliders[i].valueChanged.connect(self._probs_changed)
+            self._sliders[i].hide()
+
+            self.labels.append(self.prob_label)
+
+            self._slider_layout.addRow(self.prob_label, self._sliders[i])
+
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setWidget(self._slider_widget)
+        self._scroll_area.setMinimumHeight(30)
+        self._scroll_area.setMinimumWidth(300)
+        self._scroll_area.hide()
+        self._scroll_label = QLabel("Demographic weights")
+        self._scroll_label.hide()
+
+        """
+        for i in range (0, 5):
+            self.prob_label = QLabel('Diversity weight ' + str(i + 1))
+            self.prob_label.hide()
+
+            self._sliders[i] = QSlider(QtCore.Qt.Orientation.Horizontal)
+            self._sliders[i].setMinimum(0)
+            self._sliders[i].setMaximum(10)
+            self._sliders[i].setTickInterval(0.5)
+            self._sliders[i].setTickPosition(QSlider.TicksBelow)
+            self._sliders[i].valueChanged.connect(self._probs_changed)
+            self._sliders[i].hide()
+
+            self.labels.append(self.prob_label)
+        """
+
         self._groups_calculated = QLabel()
 
         self._allocations_field = QLineEdit()
@@ -84,10 +134,19 @@ class GSGenerateSettingsGroup(QGroupBox):
         m = 50
         form_layout = QFormLayout()
         form_layout.setContentsMargins(m, 0, m, 0)
-        form_layout.addRow(QLabel('No. Participants p. Group'), self._part_per_group_field)
+        form_layout.addRow(QLabel('# Participants p. Group'), self._part_per_group_field)
         form_layout.addRow(QLabel('Algorithm'), self._algorithm)
-        form_layout.addRow(QLabel('No. Groups'), self._groups_calculated)
-        form_layout.addRow(QLabel('No. Allocations'), self._allocations_field)
+        # form_layout.addRow(self.labels[0], self._sliders[0])
+        # form_layout.addRow(self.labels[1], self._sliders[1])
+        # form_layout.addRow(self.labels[2], self._sliders[2])
+        # form_layout.addRow(self.labels[3], self._sliders[3])
+        # form_layout.addRow(self.labels[4], self._sliders[4])
+        form_layout.addRow(self._scroll_label, self._scroll_area)
+        # form_layout.addRow(QLabel('Algorithm-'), self._btn_legacy)
+        # form_layout.addRow(QLabel(''), self._btn_dream)
+        # form_layout.addRow(QLabel(''), self._btn_heuristic)
+        form_layout.addRow(QLabel('# Groups'), self._groups_calculated)
+        form_layout.addRow(QLabel('# Allocations'), self._allocations_field)
         form_layout.addRow(QLabel('Advanced Settings'), self._btn_advanced)
         form_widget = QWidget()
         form_widget.setLayout(form_layout)
@@ -119,6 +178,49 @@ class GSGenerateSettingsGroup(QGroupBox):
             )
             n_groups = ceil(len(pdata) / n_part_per_group)
             self._groups_calculated.setText(str(n_groups))
+
+    def _probs_changed(self):
+        sender = self.sender()
+        project: GSProject = self._ctx.project_manager.project
+        if project is None:
+            return
+        else:
+            self._probval = sender.value()
+            for i in range(0, 5):
+                if sender == self._sliders[i]:
+                    name = 'prob' + str(i + 1)
+            project.settings[name] = self._probval
+
+    def _algorithm_changed(self):
+        project: GSProject = self._ctx.project_manager.project
+        if project is None:
+            return
+        else:
+            print(project.fields_usage)
+            print("to")
+            print(project.terms)
+            i = 0
+            div = []
+            for k, v in project.fields_usage.items():
+                if i == 1:
+                    div = v
+                i = i + 1
+
+            divs = len(div)
+            self._algorithm_choice = self._algorithm.currentIndex()
+            project.settings['algorithm'] = self._algorithm_choice
+            if self._algorithm_choice == 2:
+                for i in range(divs):
+                    self._sliders[i].show()
+                    self.labels[i].show()
+                    self._scroll_area.show()
+                    self._scroll_label.show()
+            else:
+                for i in range(divs):
+                    self._sliders[i].hide()
+                    self.labels[i].hide()
+                    self._scroll_area.hide()
+                    self._scroll_label.hide()
 
     def _button_clicked(self):
         sender = self.sender()

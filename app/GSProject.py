@@ -8,12 +8,17 @@ from GSAppFieldMode import GSAppFieldMode
 from base_app.AbstractProject import AbstractProject
 from importing.DataImportHandle import DataImportHandle
 
-
 settings_template = {
     'n_part_per_group': 8,
     'n_allocations': 3,
     'n_attempts': 100,
     'algorithm': Algorithm.Dream.name,
+    'prob1': 0,
+    'prob2': 0,
+    'prob3': 0,
+    'prob4': 0,
+    'prob5': 0,
+    'cluster_val': 0,
     'seed': 0,
 }
 settings_lookup = list(settings_template)
