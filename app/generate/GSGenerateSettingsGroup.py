@@ -2,12 +2,12 @@ import pandas as pd
 from typing import TYPE_CHECKING
 
 from math import ceil
-
-from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit,
-                               QGroupBox, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog)
+from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit, QComboBox,
+                               QGroupBox, QScrollArea, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog, QSlider)
 from PySide6 import QtCore, QtGui
+from PySide6.QtCore import Qt
 
-from groupselect import allocate_pandas, AllocatorResult, FieldMode
+from groupselect import allocate_pandas, AllocatorResult, FieldMode, Algorithm
 
 from GSAppFieldMode import map_field_modes
 from GSProject import settings_lookup, GSProject
@@ -62,10 +62,77 @@ class GSGenerateSettingsGroup(QGroupBox):
         return manual_group
 
     def _create_settings_group(self):
+        project: GSProject = self._ctx.project_manager.project
+
+
         self._part_per_group_field = QLineEdit()
         self._part_per_group_field.setValidator(QtGui.QIntValidator(1, 1000, self))
         self._part_per_group_field.textChanged.connect(self.update_groups_estimate)
         self._mapper.addMapping(self._part_per_group_field, settings_lookup.index('n_part_per_group'))
+
+
+
+        #self._mapper.addMapping(self._this, settings_lookup.index('prob'))
+        #self._algorithm = QLineEdit()
+        #self._mapper.addMapping(self._algorithm, settings_lookup.index('algorithm'))
+
+        self._algorithm = QComboBox()
+        self._algorithm.addItem('Legacy')
+        self._algorithm.addItem('Dream')
+        self._algorithm.addItem('Hermes')
+        self._algorithm.currentIndexChanged.connect(self._algorithm_changed)
+
+ #       self._cluster_val = QLineEdit()
+#        self._mapper.addMapping(self._cluster_val, settings_lookup.index('cluster_val'))
+  #      self._cluster_val.hide()
+
+        self.labels = []
+        self._sliders = [QSlider] * 20
+
+        self._slider_widget = QWidget()
+        self._slider_layout = QFormLayout(self._slider_widget)
+
+        for i in range(0, 20):
+            self.prob_label = QLabel('Demographic weight ' + str(i + 1))
+            self.prob_label.hide()
+
+            self._sliders[i] = QSlider(Qt.Horizontal)
+            self._sliders[i].setMinimum(0)
+            self._sliders[i].setMaximum(10)
+            self._sliders[i].setTickInterval(1)  # must be int
+            self._sliders[i].setTickPosition(QSlider.TicksBelow)
+            self._sliders[i].valueChanged.connect(self._probs_changed)
+            self._sliders[i].hide()
+
+            self.labels.append(self.prob_label)
+
+            self._slider_layout.addRow(self.prob_label, self._sliders[i])
+
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setWidget(self._slider_widget)
+        self._scroll_area.setMinimumHeight(30)
+        self._scroll_area.setMinimumWidth(300)
+        self._scroll_area.hide()
+        self._scroll_label = QLabel("Demographic weights")
+        self._scroll_label.hide()
+
+
+        """
+        for i in range (0, 5):
+            self.prob_label = QLabel('Diversity weight ' + str(i + 1))
+            self.prob_label.hide()
+
+            self._sliders[i] = QSlider(Qt.Horizontal)
+            self._sliders[i].setMinimum(0)
+            self._sliders[i].setMaximum(10)
+            self._sliders[i].setTickInterval(0.5)
+            self._sliders[i].setTickPosition(QSlider.TicksBelow)
+            self._sliders[i].valueChanged.connect(self._probs_changed)
+            self._sliders[i].hide()
+
+            self.labels.append(self.prob_label)
+        """
 
         self._groups_calculated = QLabel()
 
@@ -77,9 +144,21 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._btn_advanced.clicked.connect(self._button_clicked)
 
         m = 50
+
+
         form_layout = QFormLayout()
         form_layout.setContentsMargins(m, 0, m, 0)
         form_layout.addRow(QLabel('# Participants p. Group'), self._part_per_group_field)
+        form_layout.addRow(QLabel('algorithm'), self._algorithm)
+        #form_layout.addRow(self.labels[0], self._sliders[0])
+        #form_layout.addRow(self.labels[1], self._sliders[1])
+        #form_layout.addRow(self.labels[2], self._sliders[2])
+        #form_layout.addRow(self.labels[3], self._sliders[3])
+        #form_layout.addRow(self.labels[4], self._sliders[4])
+        form_layout.addRow(self._scroll_label, self._scroll_area)
+        #form_layout.addRow(QLabel('Algorithm-'), self._btn_legacy)
+        #form_layout.addRow(QLabel(''), self._btn_dream)
+        #form_layout.addRow(QLabel(''), self._btn_heuristic)
         form_layout.addRow(QLabel('# Groups'), self._groups_calculated)
         form_layout.addRow(QLabel('# Allocations'), self._allocations_field)
         form_layout.addRow(QLabel('Advanced Settings'), self._btn_advanced)
@@ -113,6 +192,52 @@ class GSGenerateSettingsGroup(QGroupBox):
             )
             n_groups = ceil(len(pdata) / n_part_per_group)
             self._groups_calculated.setText(str(n_groups))
+
+    def _probs_changed(self):
+        sender = self.sender()
+        project: GSProject = self._ctx.project_manager.project
+        if project is None:
+            return
+        else:
+            name = ""
+            self._probval = sender.value()
+            for i in range(0,20):
+                if sender == self._sliders[i]:
+                    name = 'prob' + str(i+1)
+            if name != "":
+              project.settings[name] = self._probval
+
+    def _algorithm_changed(self):
+        project: GSProject = self._ctx.project_manager.project
+        if project is None:
+            return
+        else:
+            print(project.fields_usage)
+            print("to")
+            print(project.terms)
+            i = 0
+            div = []
+            for k, v in project.fields_usage.items():
+              if i == 1:
+                  div = v
+              i = i+ 1
+
+            divs = len(div)
+            self._algorithm_choice = self._algorithm.currentIndex()
+            project.settings['algorithm'] = self._algorithm_choice
+            if self._algorithm_choice == 2:
+                for i in range (divs):
+                   self._sliders[i].show()
+                   self.labels[i].show()
+                   self._scroll_area.show()
+                   self._scroll_label.show()
+            else:
+                for i in range (20):
+                   self._sliders[i].hide()
+                   self.labels[i].hide()
+                   self._scroll_area.hide()
+                   self._scroll_label.hide()
+
 
     def _button_clicked(self):
         sender = self.sender()
@@ -177,6 +302,13 @@ class GSGenerateSettingsGroup(QGroupBox):
                     if key not in ['n_part_per_group', 'n_allocations']
                 }
 
+                if project.settings['algorithm'] == 0:
+                    algorithm =  Algorithm.Legacy
+                elif project.settings['algorithm'] == 1:
+                    algorithm = Algorithm.dream
+                else:
+                    algorithm = Algorithm.Heuristic
+
                 groups: pd.DataFrame
                 allocation_result: AllocatorResult
 
@@ -188,6 +320,7 @@ class GSGenerateSettingsGroup(QGroupBox):
                     progress_func=lambda steps: progress_bar.setValue(steps),
                     settings=settings,
                     return_full=True,
+                    algorithm = algorithm,
                 )
             except Exception as ex:
                 progress_bar.close()

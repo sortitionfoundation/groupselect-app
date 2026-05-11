@@ -14,6 +14,28 @@ settings_template = {
     'n_allocations': 3,
     'n_attempts': 100,
     'seed': 0,
+    'algorithm': 0,
+    'prob1': 0,
+    'prob2': 0,
+    'prob3': 0,
+    'prob4': 0,
+    'prob5': 0,
+    'prob6': 0,
+    'prob7': 0,
+    'prob8': 0,
+    'prob9': 0,
+    'prob10': 0,
+    'prob11': 0,
+    'prob12': 0,
+    'prob13': 0,
+    'prob14': 0,
+    'prob15': 0,
+    'prob16': 0,
+    'prob17': 0,
+    'prob18': 0,
+    'prob19': 0,
+    'prob20': 0,
+    'cluster_val': 0
 }
 settings_lookup = list(settings_template)
 
