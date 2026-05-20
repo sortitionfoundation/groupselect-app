@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from groupselect import AllocationEnsemble
+from groupselect import Algorithm, AllocationEnsemble
 
 from GSAppFieldMode import GSAppFieldMode
 from base_app.AbstractProject import AbstractProject
@@ -14,43 +14,14 @@ settings_template = {
     'n_allocations': 3,
     'n_attempts': 100,
     'seed': 0,
-    'algorithm': 0,
-    'prob1': 0,
-    'prob2': 0,
-    'prob3': 0,
-    'prob4': 0,
-    'prob5': 0,
-    'prob6': 0,
-    'prob7': 0,
-    'prob8': 0,
-    'prob9': 0,
-    'prob10': 0,
-    'prob11': 0,
-    'prob12': 0,
-    'prob13': 0,
-    'prob14': 0,
-    'prob15': 0,
-    'prob16': 0,
-    'prob17': 0,
-    'prob18': 0,
-    'prob19': 0,
-    'prob20': 0,
-    'cluster_val': 0
+    'algorithm': Algorithm.HERMES.name,
+    'pareto_probs': {},
+    'cluster_val': 0,
 }
 settings_lookup = list(settings_template)
 
 
 class GSProject(AbstractProject):
-    data_handle: None | DataImportHandle
-    terms: dict
-    fields_usage: dict[GSAppFieldMode, list[int]]
-    manuals: dict[int, int]
-    settings: dict
-    results: list[list]
-    result_current: None | int
-
-    _pdata_mapped: None | pd.DataFrame
-
     def __init__(self,
                  output_dir: None | Path = None,
                  data_handle: None | DataImportHandle = None,
@@ -58,18 +29,20 @@ class GSProject(AbstractProject):
                  fields_usage: None | dict[GSAppFieldMode, list[int]] = None,
                  manuals: None | dict[int, int] = None,
                  settings: None | dict = None,
-                 results: None | list[list] = None,
-                 result_current: None | int = None):
+                 results: None | AllocationEnsemble = None,
+                 result_current: None | int = None,
+                 pareto_probs: None | dict[int, float] = None,
+                 ):
         super(GSProject, self).__init__(output_dir=output_dir)
-        self.data_handle = data_handle
-        self.terms = terms or {}
-        self.fields_usage = fields_usage or {usage_mode: [] for usage_mode in GSAppFieldMode}
-        self.manuals = manuals or {}
-        self.settings = settings or settings_template.copy()
-        self.results = results or []
-        self.result_current = result_current
+        self.data_handle: None | DataImportHandle = data_handle
+        self.terms: dict = terms or {}
+        self.fields_usage: dict[GSAppFieldMode, list[int]] = fields_usage or {usage_mode: [] for usage_mode in GSAppFieldMode}
+        self.manuals: dict[int, int] = manuals or {}
+        self.settings: dict = settings or settings_template.copy()
+        self.results: AllocationEnsemble = results or AllocationEnsemble()
+        self.result_current: None | int = result_current
 
-        self._pdata_mapped = None
+        self._pdata_mapped: None | pd.DataFrame = None
 
     @property
     def pdata(self) -> None | pd.DataFrame:
@@ -95,3 +68,13 @@ class GSProject(AbstractProject):
 
     def clear_cache_mapped(self):
         self._pdata_mapped = None
+
+    def fields_display(self) -> list[str]:
+        return [
+            field_id
+            for field_usage, field_ids in self.fields_usage.items()
+            for field_id in field_ids
+            if field_usage in [GSAppFieldMode.Diversify,
+                               GSAppFieldMode.Cluster,
+                               GSAppFieldMode.Display]
+        ]
