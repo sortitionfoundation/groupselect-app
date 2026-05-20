@@ -21,6 +21,11 @@ datahandling = { git = "https://github.com/sortitionfoundation/datahandling/", t
 groupselect = { git = "https://github.com/sortitionfoundation/groupselect-lib", branch = "feature/new-algorithms-2" }
 
 [dependency-groups]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
+]
 deployment = [
     "nuitka==2.7.11",
     "ordered-set>=4.1.0",

@@ -19,6 +19,31 @@ settings_lookup = list(settings_template)
 
 
 class GSProject(AbstractProject):
+    """Mutable state container for one GroupSelect project.
+
+    Persisted to a ``.gspr`` file.  All UI components access project
+    data through the :class:`AppContext`'s ``project_manager``.
+
+    Attributes:
+        data_handle: Manages the imported participant file.  Provides
+            the raw DataFrame via ``imported_data`` and the column-name
+            mapping via ``column_naming``.
+        terms: ``{col_id: [(raw_value, display_label), ...]}`` used to
+            substitute raw field values with human-readable labels before
+            running the allocation.
+        fields_usage: ``{GSAppFieldMode: [col_id, ...]}`` assigning each
+            imported column to a usage role.
+        manuals: ``{participant_row_index: group_index}`` forced
+            participant-to-group pre-assignments.
+        settings: Algorithm configuration dict.  Keys: ``n_part_per_group``,
+            ``n_allocations``, ``n_attempts``, ``seed``, ``algorithm``
+            (str name), ``pareto_probs`` (``{field_id: float}``).
+        results: Accumulated :class:`~groupselect.AllocationEnsemble`
+            containing all allocations generated in this session.
+        result_current: Index of the currently selected allocation in the
+            Results tab, or ``None``.
+    """
+
     def __init__(
         self,
         output_dir: None | Path = None,
@@ -70,6 +95,10 @@ class GSProject(AbstractProject):
         self._pdata_mapped = None
 
     def fields_display(self) -> list[str]:
+        """Return the column IDs whose values should be shown in results.
+
+        Includes ``Diversify``, ``Cluster``, and ``Display`` fields.
+        """
         return [
             field_id
             for field_usage, field_ids in self.fields_usage.items()

@@ -1,0 +1,35 @@
+site_name: GroupSelect App
+site_description: >-
+  Desktop application for partitioning Citizens' Assembly participants
+  into diverse discussion subgroups.
+repo_url: https://github.com/sortitionfoundation/groupselect-app
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [app]
+          options:
+            docstring_style: google
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            members_order: source
+            separate_signature: true
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Getting Started: user-guide/getting-started.md
+      - Workflow: user-guide/workflow.md
+  - Developer Guide:
+      - Architecture: developer/architecture.md
+      - Project model: developer/project-model.md

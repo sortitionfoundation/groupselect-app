@@ -16,6 +16,17 @@ _RANGE_MAX_INTERNAL: Final[int] = 100
 
 
 class GSHermesSlidersPanel(QWidget):
+    """Dynamic panel with one slider per Diversify field for HERMES weights.
+
+    Each slider controls the ``pareto_probs`` value for its field.  The
+    public range is ``[0.0, 0.5]``; internally this is stored as an integer
+    in ``[0, 100]`` snapping to multiples of 5 (giving 0.025 increments).
+
+    The panel responds to changes in the ``fudiversify`` field-usage model
+    and adds or removes rows dynamically.  Values are persisted directly in
+    ``project.settings["pareto_probs"]`` so they survive project save/load.
+    """
+
     def __init__(self, ctx: AppContext, parent=None):
         super().__init__(parent)
 
