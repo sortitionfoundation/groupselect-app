@@ -7,7 +7,9 @@ from base_app.AbstractProjectModel import AbstractProjectModel
 from GSProject import GSProject
 
 
-class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel):
+class GSParticipantsTermsModel(
+    QtCore.QAbstractTableModel, AbstractProjectModel
+):
     _project: GSProject
 
     def __init__(self):
@@ -39,16 +41,22 @@ class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel)
         if self._tmp_terms is None:
             return None
 
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.EditRole or role == Qt.ForegroundRole:
+        if (
+            role == Qt.ItemDataRole.DisplayRole
+            or role == Qt.EditRole
+            or role == Qt.ForegroundRole
+        ):
             term_found, term_used = self._tmp_terms[index.row()]
             if not index.column():
                 ret = term_found
             else:
                 ret = term_used
             if not ret:
-                if role == Qt.ForegroundRole: return QColor(Qt.gray)
-                ret = '(empty)'
-            if role == Qt.ForegroundRole: return QColor(Qt.black)
+                if role == Qt.ForegroundRole:
+                    return QColor(Qt.gray)
+                ret = "(empty)"
+            if role == Qt.ForegroundRole:
+                return QColor(Qt.black)
             return ret
 
     def rowCount(self, index):
@@ -64,8 +72,11 @@ class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel)
         return 2
 
     def headerData(self, col, orientation, role):
-        if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return 'Terms found' if not col else 'Term usage'
+        if (
+            orientation == QtCore.Qt.Orientation.Horizontal
+            and role == QtCore.Qt.ItemDataRole.DisplayRole
+        ):
+            return "Terms found" if not col else "Term usage"
 
     def setData(self, index, value, role=QtCore.Qt.ItemDataRole.DisplayRole):
         if role != QtCore.Qt.ItemDataRole.EditRole or index.column() != 1:
@@ -80,13 +91,17 @@ class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel)
         if index.column() == 0:
             return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         else:
-            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable
+            return (
+                Qt.ItemFlag.ItemIsEnabled
+                | Qt.ItemFlag.ItemIsSelectable
+                | Qt.ItemFlag.ItemIsEditable
+            )
 
     def _get_terms_for_current_key(self):
         terms = (
             self._project.terms[self._current_key]
-            if self._current_key in self._project.terms else
-            []
+            if self._current_key in self._project.terms
+            else []
         )
 
         self._update_terms_from_data(self._current_key, terms)
@@ -97,7 +112,9 @@ class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel)
         terms_fresh = sorted(self._project.pdata.iloc[:, j].unique().tolist())
 
         for t_new in terms_fresh:
-            if t_new not in [term_found for term_found, term_used in current_terms]:
+            if t_new not in [
+                term_found for term_found, term_used in current_terms
+            ]:
                 current_terms.append((t_new, t_new))
 
         for term_found, term_used in current_terms:
@@ -105,8 +122,8 @@ class GSParticipantsTermsModel(QtCore.QAbstractTableModel, AbstractProjectModel)
                 current_terms.remove((term_found, term_used))
 
         check_empty = [term_found for term_found, term_used in current_terms]
-        if '' in check_empty:
-            empty_entry = check_empty.index('')
+        if "" in check_empty:
+            empty_entry = check_empty.index("")
             _, term_used_for_empty = current_terms[empty_entry]
             del current_terms[empty_entry]
-            current_terms.append(('', term_used_for_empty))
+            current_terms.append(("", term_used_for_empty))

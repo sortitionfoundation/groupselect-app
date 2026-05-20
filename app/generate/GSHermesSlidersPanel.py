@@ -1,25 +1,27 @@
-from typing import Final
-
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QSlider, QLabel, QScrollArea
-)
-from PySide6.QtCore import Qt
-from base_app.AppContext import AppContext
-
 from GSAppFieldMode import GSAppFieldMode
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSlider,
+    QLabel,
+    QScrollArea,
+)
+from base_app.AppContext import AppContext
+from typing import Final
 
 _RANGE_MAX_PUBLIC: Final[float] = 0.5
 _RANGE_MAX_INTERNAL: Final[int] = 100
 
 
 class GSHermesSlidersPanel(QWidget):
-
     def __init__(self, ctx: AppContext, parent=None):
         super().__init__(parent)
 
         self._ctx = ctx
 
-        self._rows: dict[int, QWidget] = {}   # field_id -> row widget (currently shown)
+        self._rows: dict[int, QWidget] = {}  # field_id -> row widget
         self._labels: dict[int, QLabel] = {}  # field_id -> slider label
 
         scroll = QScrollArea()
@@ -46,19 +48,21 @@ class GSHermesSlidersPanel(QWidget):
             self._add_row(field_id)
 
         for field_id in self._rows:
-            self._labels[field_id].setText(project.data_handle.column_naming[field_id])
-
-    # ── private ──────────────────────────────────────────────────
+            self._labels[field_id].setText(
+                project.data_handle.column_naming[field_id]
+            )
 
     def _add_row(self, field_id: int) -> None:
         project = self._ctx.project_manager.project
 
-        # Initialise pareto_probs entry only if not already present
-        # (preserves values restored from a saved project file)
+        # Initialise pareto_probs entry only if not already present (preserves
+        # values restored from a saved project file).
         if field_id not in project.settings["pareto_probs"]:
             project.settings["pareto_probs"][field_id] = _RANGE_MAX_PUBLIC
 
-        internal_val = self._to_internal(project.settings["pareto_probs"][field_id])
+        internal_val = self._to_internal(
+            project.settings["pareto_probs"][field_id]
+        )
 
         row = QWidget()
         row_layout = QHBoxLayout(row)
@@ -85,7 +89,8 @@ class GSHermesSlidersPanel(QWidget):
             if slider.value() != snapped:
                 slider.setValue(snapped)
                 return
-            self._ctx.project_manager.project.settings["pareto_probs"][fid] = self._to_public(snapped)
+            settings = self._ctx.project_manager.project.settings
+            settings["pareto_probs"][fid] = self._to_public(snapped)
             lbl.setText(self._fmt(snapped))
 
         slider.valueChanged.connect(on_change)

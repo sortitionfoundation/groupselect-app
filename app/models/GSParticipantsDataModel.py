@@ -6,7 +6,9 @@ from base_app.AbstractProjectModel import AbstractProjectModel
 from GSProject import GSProject
 
 
-class GSParticipantsDataModel(AbstractProjectModel, QtCore.QAbstractTableModel):
+class GSParticipantsDataModel(
+    AbstractProjectModel, QtCore.QAbstractTableModel
+):
     _project: GSProject
     _view_mode: bool
 
@@ -30,7 +32,10 @@ class GSParticipantsDataModel(AbstractProjectModel, QtCore.QAbstractTableModel):
             return None
 
         match role:
-            case QtCore.Qt.ItemDataRole.DisplayRole | QtCore.Qt.ItemDataRole.EditRole:
+            case (
+                QtCore.Qt.ItemDataRole.DisplayRole
+                | QtCore.Qt.ItemDataRole.EditRole
+            ):
                 return self._project.pdata.iloc[index.row(), index.column()]
             case _:
                 return None
@@ -55,8 +60,12 @@ class GSParticipantsDataModel(AbstractProjectModel, QtCore.QAbstractTableModel):
             case QtCore.Qt.ItemDataRole.DisplayRole:
                 match orientation:
                     case QtCore.Qt.Orientation.Horizontal:
-                        col_id = list(self._project.data_handle.column_naming.keys())[index]
-                        return self._project.data_handle.column_naming[col_id] or excel_col_name(col_id)
+                        col_id = list(
+                            self._project.data_handle.column_naming.keys()
+                        )[index]
+                        return self._project.data_handle.column_naming[
+                            col_id
+                        ] or excel_col_name(col_id)
                     case QtCore.Qt.Orientation.Vertical:
                         return f"{index + 1}"
                     case _:
@@ -65,4 +74,7 @@ class GSParticipantsDataModel(AbstractProjectModel, QtCore.QAbstractTableModel):
                 return None
 
     def flags(self, index):
-        return QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsSelectable
+        return (
+            QtCore.Qt.ItemFlag.ItemIsEnabled
+            | QtCore.Qt.ItemFlag.ItemIsSelectable
+        )

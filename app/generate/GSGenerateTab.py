@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 
 
 class GSGenerateTab(QWidget):
-    _ctx: 'AppContext'
+    _ctx: "AppContext"
 
-    def __init__(self, ctx: 'AppContext'):
+    def __init__(self, ctx: "AppContext"):
         super(GSGenerateTab, self).__init__()
         self._ctx = ctx
 

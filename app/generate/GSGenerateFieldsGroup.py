@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 
 class GSGenerateFieldsGroup(QGroupBox):
-    _ctx: 'AppContext'
+    _ctx: "AppContext"
 
-    def __init__(self, ctx: 'AppContext'):
-        super(GSGenerateFieldsGroup, self).__init__('Field Settings')
+    def __init__(self, ctx: "AppContext"):
+        super(GSGenerateFieldsGroup, self).__init__("Field Settings")
         self._ctx = ctx
 
         self._create_ui()
@@ -21,10 +21,12 @@ class GSGenerateFieldsGroup(QGroupBox):
     def _create_ui(self):
         horizontal_layout = QHBoxLayout()
         for usage_mode in GSAppFieldMode:
-            horizontal_layout.addWidget(self._create_list(
-                f"{usage_mode.name} Fields",
-                self._ctx.model_manager[f"fu{usage_mode.name.lower()}"],
-            ))
+            horizontal_layout.addWidget(
+                self._create_list(
+                    f"{usage_mode.name} Fields",
+                    self._ctx.model_manager[f"fu{usage_mode.name.lower()}"],
+                )
+            )
         self.setLayout(horizontal_layout)
 
     def _create_list(self, name: str, model: GSFieldUsageListModel):
@@ -33,9 +35,9 @@ class GSGenerateFieldsGroup(QGroupBox):
         list.setDragEnabled(True)
         list.setAcceptDrops(True)
         list.setDropIndicatorShown(True)
-        #list.setDragDropMode(QAbstractItemView.DragDrop)
-        #list.setDefaultDropAction(Qt.MoveAction)
-        #list.setMovement(QListView.Snap)
+        # list.setDragDropMode(QAbstractItemView.DragDrop)
+        # list.setDefaultDropAction(Qt.MoveAction)
+        # list.setMovement(QListView.Snap)
 
         layout = QVBoxLayout()
         layout.addWidget(list)

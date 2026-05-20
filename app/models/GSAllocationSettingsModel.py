@@ -7,30 +7,44 @@ from base_app.AbstractProjectModel import AbstractProjectModel
 from GSProject import GSProject, settings_lookup, settings_template
 
 
-class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel):
+class GSAllocationSettingsModel(
+    QtCore.QAbstractTableModel, AbstractProjectModel
+):
     _project: GSProject
 
     # project updated
     def updated_project(self, project: GSProject):
         self._project = project
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(0, len(settings_lookup)))
+        self.dataChanged.emit(
+            self.createIndex(0, 0), self.createIndex(0, len(settings_lookup))
+        )
 
-    def data(self, index: QModelIndex | QPersistentModelIndex, role: int = ...):
+    def data(
+        self, index: QModelIndex | QPersistentModelIndex, role: int = ...
+    ):
         if self._project is None:
             return 0
-        if role in [Qt.ItemDataRole.DisplayRole,
-                    Qt.ItemDataRole.EditRole]:
+        if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
             key = settings_lookup[index.column()]
             return self._project.settings[key]
         return None
 
-    def rowCount(self, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
+    def rowCount(
+        self, parent: QModelIndex | QPersistentModelIndex = ...
+    ) -> int:
         return 1
 
-    def columnCount(self, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
+    def columnCount(
+        self, parent: QModelIndex | QPersistentModelIndex = ...
+    ) -> int:
         return len(settings_lookup)
 
-    def setData(self, index: QModelIndex | QPersistentModelIndex, value: Any, role=QtCore.Qt.ItemDataRole.DisplayRole):
+    def setData(
+        self,
+        index: QModelIndex | QPersistentModelIndex,
+        value: Any,
+        role=QtCore.Qt.ItemDataRole.DisplayRole,
+    ):
         # Don't do anything if no project has been defined.
         if self._project is None:
             return False
@@ -60,4 +74,6 @@ class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel
     def set_setting(self, key: str, value: Any):
         self._project.settings[key] = value
         column = settings_lookup.index(key)
-        self.dataChanged.emit(self.createIndex(0, column), self.createIndex(0, column))
+        self.dataChanged.emit(
+            self.createIndex(0, column), self.createIndex(0, column)
+        )

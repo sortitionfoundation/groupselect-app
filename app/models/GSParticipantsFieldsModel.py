@@ -18,12 +18,20 @@ class GSParticipantsFieldsModel(QtCore.QStringListModel, AbstractProjectModel):
         self._project = project
         self.layoutChanged.emit()
 
-    def data(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex, role: int = ...):
+    def data(
+        self,
+        index: QtCore.QModelIndex | QtCore.QPersistentModelIndex,
+        role: int = ...,
+    ):
         if role == Qt.ItemDataRole.DisplayRole:
             col_id = list(self._project.data_handle.column_naming)[index.row()]
-            return self._project.data_handle.column_naming[col_id] or excel_col_name(col_id)
+            return self._project.data_handle.column_naming[
+                col_id
+            ] or excel_col_name(col_id)
 
-    def rowCount(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex = ...):
+    def rowCount(
+        self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex = ...
+    ):
         if self._project is None or self._project.pdata is None:
             return 0
 

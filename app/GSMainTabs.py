@@ -21,9 +21,9 @@ class GSMainTabs(QWidget):
         self._tab_results = GSResultsTab(self._ctx)
 
         self._tabs = QTabWidget()
-        self._tabs.addTab(self._tab_participants, '&Participants')
-        self._tabs.addTab(self._tab_generate, '&Generate')
-        self._tabs.addTab(self._tab_results, '&Results')
+        self._tabs.addTab(self._tab_participants, "&Participants")
+        self._tabs.addTab(self._tab_generate, "&Generate")
+        self._tabs.addTab(self._tab_results, "&Results")
         self._tabs.currentChanged.connect(self._main_tabs_switched)
 
         m = 10

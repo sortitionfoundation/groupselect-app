@@ -1,7 +1,5 @@
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
-from datahandling import excel_col_name
 
 from base_app.AbstractProjectModel import AbstractProjectModel
 
@@ -23,16 +21,22 @@ class GSResultsListModel(QtCore.QStringListModel, AbstractProjectModel):
     def updated_results(self):
         self.layoutChanged.emit()
 
-    def data(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex, role: int = ...):
+    def data(
+        self,
+        index: QtCore.QModelIndex | QtCore.QPersistentModelIndex,
+        role: int = ...,
+    ):
         if role == Qt.ItemDataRole.DisplayRole:
             if not self._project.results:
-                return 'No allocations'
+                return "No allocations"
             return f"Allocation {index.row() + 1}"
         elif role == Qt.ItemDataRole.TextAlignmentRole:
             if not self._project.results:
                 return Qt.AlignmentFlag.AlignCenter
 
-    def rowCount(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex = ...):
+    def rowCount(
+        self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex = ...
+    ):
         if self._project is None:
             return 0
 

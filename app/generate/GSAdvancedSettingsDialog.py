@@ -1,4 +1,13 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QLineEdit, QFormLayout, QLabel, QWidget, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import (
+    QDialog,
+    QPushButton,
+    QLineEdit,
+    QFormLayout,
+    QLabel,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+)
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 
 
@@ -20,14 +29,14 @@ class GSAdvancedSettingsDialog(QDialog):
         self._seed_field.setText(str(seed_default))
 
         form = QFormLayout()
-        form.addRow(QLabel('Number of Attempts:'), self._attempts_field)
-        form.addRow(QLabel('Random Number Seed:'), self._seed_field)
+        form.addRow(QLabel("Number of Attempts:"), self._attempts_field)
+        form.addRow(QLabel("Random Number Seed:"), self._seed_field)
         form_widget = QWidget()
         form_widget.setLayout(form)
 
-        self._btn_ok = QPushButton('Ok')
+        self._btn_ok = QPushButton("Ok")
         self._btn_ok.clicked.connect(self._button_press)
-        self._btn_cancel = QPushButton('Cancel')
+        self._btn_cancel = QPushButton("Cancel")
         self._btn_cancel.clicked.connect(self._button_press)
         self._btn_cancel.move(80, 0)
 
@@ -53,6 +62,10 @@ class GSAdvancedSettingsDialog(QDialog):
         dialog.exec_()
         return (
             dialog._ok,
-            int(dialog._attempts_field.text()) if dialog._attempts_field.text() else attempts_default,
-            float(dialog._seed_field.text()) if dialog._seed_field.text() else seed_default,
+            int(dialog._attempts_field.text())
+            if dialog._attempts_field.text()
+            else attempts_default,
+            float(dialog._seed_field.text())
+            if dialog._seed_field.text()
+            else seed_default,
         )

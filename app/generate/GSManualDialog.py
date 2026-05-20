@@ -1,4 +1,13 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QComboBox, QFormLayout, QLabel, QWidget, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import (
+    QDialog,
+    QPushButton,
+    QComboBox,
+    QFormLayout,
+    QLabel,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+)
 
 
 class GSManualDialog(QDialog):
@@ -14,8 +23,8 @@ class GSManualDialog(QDialog):
         for g_id, g_label in groups.items():
             self._cb2.addItem(g_label, g_id)
 
-        label1 = QLabel('Person:')
-        label2 = QLabel('Group:')
+        label1 = QLabel("Person:")
+        label2 = QLabel("Group:")
 
         form = QFormLayout()
         form.addRow(label1, self._cb1)
@@ -23,9 +32,9 @@ class GSManualDialog(QDialog):
         form_widget = QWidget()
         form_widget.setLayout(form)
 
-        self._btn_ok = QPushButton('Ok')
+        self._btn_ok = QPushButton("Ok")
         self._btn_ok.clicked.connect(self.button_press)
-        self._btn_cancel = QPushButton('Cancel')
+        self._btn_cancel = QPushButton("Cancel")
         self._btn_cancel.clicked.connect(self.button_press)
         self._btn_cancel.move(80, 0)
 

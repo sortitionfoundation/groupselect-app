@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 
 
 class GSParticipantsTab(QTabWidget):
-    _ctx: 'AppContext'
+    _ctx: "AppContext"
 
-    def __init__(self, ctx: 'AppContext'):
+    def __init__(self, ctx: "AppContext"):
         super(GSParticipantsTab, self).__init__()
         self._ctx = ctx
 
@@ -23,5 +23,5 @@ class GSParticipantsTab(QTabWidget):
         subtab_fields = GSParticipantsFieldsSubtab(self._ctx)
 
         self.setTabPosition(QTabWidget.TabPosition.South)
-        self.addTab(subtab_data, 'Data')
-        self.addTab(subtab_fields, 'Fields')
+        self.addTab(subtab_data, "Data")
+        self.addTab(subtab_fields, "Fields")

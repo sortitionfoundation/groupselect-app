@@ -10,23 +10,29 @@ class GSParticipantsDataSubtab(QTableView):
         super(GSParticipantsDataSubtab, self).__init__()
         self._ctx = ctx
 
-        self.setModel(self._ctx.model_manager['pdata'])
+        self.setModel(self._ctx.model_manager["pdata"])
 
-        self.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.horizontalHeader().customContextMenuRequested.connect(self._horizontal_header_menu_popup)
+        self.horizontalHeader().setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.horizontalHeader().customContextMenuRequested.connect(
+            self._horizontal_header_menu_popup
+        )
 
     def _horizontal_header_menu_popup(self, pos):
         # Find the clicked column.
         col_index = self.columnAt(pos.x())
-        col_naming = self._ctx.project_manager.project.data_handle.column_naming
+        col_naming = (
+            self._ctx.project_manager.project.data_handle.column_naming
+        )
         col_id = list(col_naming)[col_index]
         col_name = col_naming[col_id]
 
         # Create the context menu.
         menu = QMenu()
-        action_rename = QAction('Rename', self)
+        action_rename = QAction("Rename", self)
         menu.addAction(action_rename)
-        action_use = QAction('Disable', self)
+        action_use = QAction("Disable", self)
         menu.addAction(action_use)
 
         # Open context menu and read action.
@@ -38,8 +44,8 @@ class GSParticipantsDataSubtab(QTableView):
         if action_clicked == action_rename:
             col_name, ok = QInputDialog.getText(
                 self._ctx.main_window,
-                'Rename column',
-                'Name:',
+                "Rename column",
+                "Name:",
                 text=col_name,
             )
             if ok:
@@ -48,5 +54,7 @@ class GSParticipantsDataSubtab(QTableView):
                 self._ctx.model_manager.updated_participants()
         elif action_clicked == action_use:
             del col_naming[col_id]
-            self._ctx.project_manager.project.data_handle.imported_data.drop(columns=col_id, inplace=True)
+            self._ctx.project_manager.project.data_handle.imported_data.drop(
+                columns=col_id, inplace=True
+            )
             self._ctx.model_manager.updated_participants()
