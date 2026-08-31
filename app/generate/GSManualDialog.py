@@ -1,10 +1,24 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QComboBox, QFormLayout, QLabel, QWidget, QHBoxLayout, QVBoxLayout
+"""Dialog for manually assigning one participant to a group."""
+
+from PySide6.QtWidgets import (
+    QDialog,
+    QPushButton,
+    QComboBox,
+    QFormLayout,
+    QLabel,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+)
 
 
 class GSManualDialog(QDialog):
+    """Modal dialog for picking a participant and a group to assign it to."""
+
     _ok: bool = False
 
     def __init__(self, parent, allocatables: dict, groups: dict):
+        """Initialise the dialog and build the form with combo boxes."""
         super(GSManualDialog, self).__init__(parent)
 
         self._cb1 = QComboBox()
@@ -14,8 +28,8 @@ class GSManualDialog(QDialog):
         for g_id, g_label in groups.items():
             self._cb2.addItem(g_label, g_id)
 
-        label1 = QLabel('Person:')
-        label2 = QLabel('Group:')
+        label1 = QLabel("Person:")
+        label2 = QLabel("Group:")
 
         form = QFormLayout()
         form.addRow(label1, self._cb1)
@@ -23,9 +37,9 @@ class GSManualDialog(QDialog):
         form_widget = QWidget()
         form_widget.setLayout(form)
 
-        self._btn_ok = QPushButton('Ok')
+        self._btn_ok = QPushButton("Ok")
         self._btn_ok.clicked.connect(self.button_press)
-        self._btn_cancel = QPushButton('Cancel')
+        self._btn_cancel = QPushButton("Cancel")
         self._btn_cancel.clicked.connect(self.button_press)
         self._btn_cancel.move(80, 0)
 
@@ -41,12 +55,14 @@ class GSManualDialog(QDialog):
         self.setLayout(layout)
 
     def button_press(self):
+        """Record whether OK or Cancel was pressed, then close the dialog."""
         if self.sender() == self._btn_ok:
             self._ok = True
         self.close()
 
     @classmethod
     def get_input(cls, parent: QWidget, allocatables: dict, groups: dict):
+        """Show the dialog modally and return (ok, participant, group)."""
         dialog = cls(parent, allocatables, groups)
         dialog.exec_()
         return dialog._ok, dialog._cb1.currentData(), dialog._cb2.currentData()

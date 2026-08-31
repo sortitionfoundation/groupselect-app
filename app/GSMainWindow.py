@@ -1,3 +1,5 @@
+"""The main application window, adding the app-specific Data menu."""
+
 from pathlib import Path
 
 from PySide6.QtWidgets import QMessageBox, QFileDialog
@@ -11,38 +13,47 @@ from importing.GSPreviewDialog import GSPreviewDialog
 
 
 class GSMainWindow(AbstractMainWindow):
+    """The application's main window."""
+
     def _define_menu(self) -> dict[str, dict]:
         _super_menu = super(GSMainWindow, self)._define_menu()
         return {
-            'project': _super_menu['project'],
-            'data': {
-                'name': 'Data',
-                'items': {
-                    'load': {
-                        'type': 'action',
-                        'name': '&Import file',
-                        'shortcut': 'Ctrl+I',
-                        'desc': 'Import people data from file saved on current device.',
-                        'show_when_closed': False,
-                        'trigger': self._import_file,
+            "project": _super_menu["project"],
+            "data": {
+                "name": "Data",
+                "items": {
+                    "load": {
+                        "type": "action",
+                        "name": "&Import file",
+                        "shortcut": "Ctrl+I",
+                        "desc": (
+                            "Import people data from file saved on "
+                            "current device."
+                        ),
+                        "show_when_closed": False,
+                        "trigger": self._import_file,
                     },
-                    'update': {
-                        'type': 'action',
-                        'name': '&Update import',
-                        'shortcut': 'Shift+F5',
-                        'desc': 'Update imported data from previously imported source.',
-                        'show_when_closed': False,
-                        'trigger': self._import_update,
+                    "update": {
+                        "type": "action",
+                        "name": "&Update import",
+                        "shortcut": "Shift+F5",
+                        "desc": (
+                            "Update imported data from previously "
+                            "imported source."
+                        ),
+                        "show_when_closed": False,
+                        "trigger": self._import_update,
                     },
                 },
             },
-            'help': _super_menu['help'],
+            "help": _super_menu["help"],
         }
 
     def _create_main_widget(self) -> GSMainTabs:
         return GSMainTabs(self._ctx, self)
 
     def update_project_status(self):
+        """Update the UI to reflect whether a project is currently open."""
         super(GSMainWindow, self).update_project_status()
         if self._ctx.is_open:
             self._main_widget.project_opened()
@@ -51,9 +62,10 @@ class GSMainWindow(AbstractMainWindow):
         try:
             file_path, _ = QFileDialog.getOpenFileName(
                 self._ctx.main_window,
-                'Import file',
+                "Import file",
                 None,
-                'Excel spreadsheets (*.xls, *.xlsx);;Delimiter-separated plain-text files (*.csv, *.tsv, *.ssv)',
+                "Excel spreadsheets (*.xls, *.xlsx);;Delimiter-separated "
+                "plain-text files (*.csv, *.tsv, *.ssv)",
             )
             if not file_path:
                 return
@@ -62,30 +74,36 @@ class GSMainWindow(AbstractMainWindow):
             if not (file_path.exists() and file_path.is_file()):
                 QMessageBox.critical(
                     self._ctx.main_window,
-                    'File not found',
-                    f"File does not exist or could not be opened:\n\n{file_path.absolute()}",
+                    "File not found",
+                    "File does not exist or could not be opened:\n\n"
+                    f"{file_path.absolute()}",
                 )
                 return
 
             # Determined file type from file name suffix.
             match file_path.suffix:
-                case '.xls' | '.xlsx':
+                case ".xls" | ".xlsx":
                     file_type = FILE_TYPE_XLS
-                case '.csv' | '.tsv' | '.ssv':
+                case ".csv" | ".tsv" | ".ssv":
                     file_type = FILE_TYPE_CSV
                 case _:
                     QMessageBox.critical(
                         self._ctx.main_window,
-                        'Unknown file type',
-                        f"File type could not be determined from file ending:\n\n{file_path.absolute()}",
+                        "Unknown file type",
+                        "File type could not be determined from file "
+                        f"ending:\n\n{file_path.absolute()}",
                     )
                     return
 
             # Create DataHandle object from file path and file type.
-            data_handle = DataImportHandle(file_path=file_path, file_type=file_type)
+            data_handle = DataImportHandle(
+                file_path=file_path, file_type=file_type
+            )
 
             # Open dialog to preview data and select columns for importing.
-            ok = GSPreviewDialog.display(parent=self._ctx.main_window, data_handle=data_handle)
+            ok = GSPreviewDialog.display(
+                parent=self._ctx.main_window, data_handle=data_handle
+            )
             if not ok:
                 return
 
@@ -94,7 +112,7 @@ class GSMainWindow(AbstractMainWindow):
         except Exception as ex:
             QMessageBox.critical(
                 self._ctx.main_window,
-                'Error',
+                "Error",
                 f"Unknown error occurred:\n\n{ex}",
             )
         else:
@@ -111,7 +129,7 @@ class GSMainWindow(AbstractMainWindow):
         except Exception as ex:
             QMessageBox.critical(
                 self._ctx.main_window,
-                'Error',
+                "Error",
                 f"Unknown error occurred:\n\n{ex}",
             )
 

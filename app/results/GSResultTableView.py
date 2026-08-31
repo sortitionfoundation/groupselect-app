@@ -1,14 +1,26 @@
+"""Table view and delegate for displaying one allocation result."""
+
 from typing import Optional, Final
 
 from PySide6 import QtCore, QtGui
-from PySide6.QtWidgets import QWidget, QTableView, QAbstractItemView, QItemDelegate, QStyleOptionViewItem, QHeaderView
+from PySide6.QtWidgets import (
+    QWidget,
+    QTableView,
+    QAbstractItemView,
+    QItemDelegate,
+    QStyleOptionViewItem,
+    QHeaderView,
+)
 
 
 CELL_PADDING: Final[int] = 5
 
 
 class GSResultsTableLabelDelegate(QItemDelegate):
+    """Delegate rendering wrapped, variable-height cells for stats rows."""
+
     def sizeHint(self, option, index):
+        """Return a taller size hint for wrapped statistics cells."""
         if not index.isValid():
             return super().sizeHint(option, index)
 
@@ -18,25 +30,33 @@ class GSResultsTableLabelDelegate(QItemDelegate):
         if index.row() <= row_count_participants:
             return QtCore.QSize(option.rect.width(), 25)
         elif index.row() == row_count_participants + 2:
-            data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+            data = index.model().data(
+                index, QtCore.Qt.ItemDataRole.DisplayRole
+            )
             if data:
                 fm = QtGui.QFontMetrics(option.font)
                 rect = fm.boundingRect(
-                    0, 0,
+                    0,
+                    0,
                     option.rect.width() if option.rect.width() > 0 else 200,
                     10000,
                     QtCore.Qt.TextFlag.TextWordWrap,
-                    str(data)
+                    str(data),
                 )
-                return QtCore.QSize(option.rect.width(), rect.height() + 2 * CELL_PADDING)
+                return QtCore.QSize(
+                    option.rect.width(), rect.height() + 2 * CELL_PADDING
+                )
 
         # Fallback rows (default painting).
         return super().sizeHint(option, index)
 
-    def paint(self,
-              painter: Optional[QtGui.QPainter],
-              option: QStyleOptionViewItem,
-              index: QtCore.QModelIndex):
+    def paint(
+        self,
+        painter: Optional[QtGui.QPainter],
+        option: QStyleOptionViewItem,
+        index: QtCore.QModelIndex,
+    ):
+        """Paint participant cells as boxes and stats cells as wrapped text."""
         if not index.isValid():
             return
 
@@ -55,13 +75,22 @@ class GSResultsTableLabelDelegate(QItemDelegate):
         if index.row() >= index.model().row_count_participants():
             option = QStyleOptionViewItem(option)
             option.features &= ~QStyleOptionViewItem.ViewItemFeature.WrapText
-            option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignLeft
+            option.displayAlignment = (
+                QtCore.Qt.AlignmentFlag.AlignVCenter
+                | QtCore.Qt.AlignmentFlag.AlignLeft
+            )
             if index.column() != 0:
-                super(GSResultsTableLabelDelegate, self).paint(painter, option, index)
+                super(GSResultsTableLabelDelegate, self).paint(
+                    painter, option, index
+                )
             else:
-                data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+                data = index.model().data(
+                    index, QtCore.Qt.ItemDataRole.DisplayRole
+                )
                 if data:
-                    painter.drawText(option.rect, option.displayAlignment, str(data))
+                    painter.drawText(
+                        option.rect, option.displayAlignment, str(data)
+                    )
             draw_divider()
             return
 
@@ -91,11 +120,15 @@ class GSResultsTableLabelDelegate(QItemDelegate):
         draw_divider()
 
     def drawCheck(self, painter, option, rect, state):
+        """Do nothing: checkboxes are never drawn in this table."""
         pass
 
 
 class GSResultTableView(QTableView):
+    """Table view for one allocation result, with drag-drop between groups."""
+
     def __init__(self, parent: QWidget | None = ...):
+        """Initialise the view, enabling drag-drop and the label delegate."""
         super(GSResultTableView, self).__init__(parent=parent)
         self.verticalHeader().hide()
         self.setShowGrid(False)
@@ -107,4 +140,6 @@ class GSResultTableView(QTableView):
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setDefaultDropAction(QtCore.Qt.DropAction.MoveAction)
         self.setDragDropOverwriteMode(False)
-        self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.ResizeToContents
+        )

@@ -1,3 +1,5 @@
+"""Table view for the import preview, with a per-column context menu."""
+
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt
@@ -11,15 +13,24 @@ if TYPE_CHECKING:
 
 
 class GSPreviewTableView(QTableView):
-    def __init__(self, model: GSPreviewTableModel, dialogue: 'GSPreviewDialog'):
+    """Table view for the preview data, with a header context menu."""
+
+    def __init__(
+        self, model: GSPreviewTableModel, dialogue: "GSPreviewDialog"
+    ):
+        """Initialise the view and wire up the header context menu."""
         super(GSPreviewTableView, self).__init__()
         self._model = model
         self._dialogue = dialogue
 
         self.setModel(model)
 
-        self.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.horizontalHeader().customContextMenuRequested.connect(self._horizontal_header_menu)
+        self.horizontalHeader().setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.horizontalHeader().customContextMenuRequested.connect(
+            self._horizontal_header_menu
+        )
 
     def _horizontal_header_menu(self, pos):
         # Find the clicked column.
@@ -29,9 +40,9 @@ class GSPreviewTableView(QTableView):
 
         # Create the context menu.
         menu = QMenu()
-        action_rename = QAction('Rename', menu)
+        action_rename = QAction("Rename", menu)
         menu.addAction(action_rename)
-        action_use = QAction('Disable' if col_use else 'Enable')
+        action_use = QAction("Disable" if col_use else "Enable")
         menu.addAction(action_use)
 
         # Open context menu and read action.
@@ -43,8 +54,8 @@ class GSPreviewTableView(QTableView):
         if action_clicked == action_rename:
             col_name, ok = QInputDialog.getText(
                 self._dialogue,
-                'Rename column',
-                'Name:',
+                "Rename column",
+                "Name:",
                 text=col_name,
             )
             if ok:
@@ -53,4 +64,4 @@ class GSPreviewTableView(QTableView):
         elif action_clicked == action_use:
             self._model.set_column_use(col_id, not col_use)
         else:
-            raise Exception('Unknown action.')
+            raise Exception("Unknown action.")

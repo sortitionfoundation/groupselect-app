@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Entry point for launching the GroupSelect app."""
+
 from pathlib import Path
 import sys
 
@@ -16,17 +18,20 @@ else:
 
 
 def main():
+    """Set up the application context and launch the app."""
     app_ctx = AppContext(
-        app_name='GroupSelect',
-        app_version='v2.0.0',
-        project_file_ending='.gspr',
+        app_name="GroupSelect",
+        app_version="v2.0.0",
+        project_file_ending=".gspr",
         main_window_cls=GSMainWindow,
         model_manager_cls=GSModelManager,
         project_cls=GSProject,
-        about_html_template=(RESOURCES_PATH / "about.html").read_text(encoding="utf-8")
+        about_html_template=(RESOURCES_PATH / "about.html").read_text(
+            encoding="utf-8"
+        ),
     )
     app_ctx.launch()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
