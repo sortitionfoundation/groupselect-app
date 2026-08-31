@@ -7,6 +7,7 @@ import pandas as pd
 from groupselect import Algorithm
 
 from GSAppFieldMode import GSAppFieldMode
+from GSExportSettings import GSExportSettings
 from GSSetup import GSSetup, next_unique_name
 from base_app.AbstractProject import AbstractProject
 from importing.DataImportHandle import DataImportHandle
@@ -38,6 +39,7 @@ class GSProject(AbstractProject):
         setups: None | list[GSSetup] = None,
         selected_setup: None | int = None,
         selected_allocation: None | int = None,
+        export_settings: None | GSExportSettings = None,
         pareto_probs: None | dict[int, float] = None,
     ):
         """Initialise the project, defaulting any values not provided."""
@@ -59,6 +61,13 @@ class GSProject(AbstractProject):
         self.setups: list[GSSetup] = setups or []
         self.selected_setup: None | int = selected_setup
         self.selected_allocation: None | int = selected_allocation
+
+        # The last successful "Export as..." configuration, if any -- lets
+        # "Export" repeat it without re-prompting. `_next_id` hands out the
+        # stable `setup_id`/allocation ids used to track "the same setup/
+        # allocation" across separate exports, surviving renames/reorders.
+        self.export_settings: None | GSExportSettings = export_settings
+        self._next_id: int = 1
 
         self._pdata_mapped: None | pd.DataFrame = None
 
@@ -89,6 +98,12 @@ class GSProject(AbstractProject):
     def clear_cache_mapped(self):
         """Invalidate the cached, term-mapped participants' data."""
         self._pdata_mapped = None
+
+    def next_id(self) -> int:
+        """Return a fresh, project-unique ID for a new setup/allocation."""
+        id_ = self._next_id
+        self._next_id += 1
+        return id_
 
     def next_setup_name(self) -> str:
         """Return the next default "Setup #" name, unique in the project."""
