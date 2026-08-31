@@ -250,9 +250,7 @@ class GSMainWindow(AbstractMainWindow):
         self._load_example(lambda: PredefinedExampleDataHandle(csv_path))
 
     def _load_example_synthetic(self, n_participants: int):
-        self._load_example(
-            lambda: SyntheticExampleDataHandle(n_participants)
-        )
+        self._load_example(lambda: SyntheticExampleDataHandle(n_participants))
 
     def _load_example(self, make_data_handle):
         """Build an example data handle and load it into the project.
