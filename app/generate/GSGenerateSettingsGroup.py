@@ -433,7 +433,9 @@ class GSGenerateSettingsGroup(QGroupBox):
             else:
                 people_data = project.pdata_mapped[project.fields_display()]
                 ensemble = allocation_result.ensemble
-                diversity_score = ensemble.calc_diversity_norm_score(people_data)
+                diversity_score = ensemble.calc_diversity_norm_score(
+                    people_data
+                )
                 meeting_score = ensemble.calc_meeting_norm_score()
 
                 # Close progress bar and display message box with results.
