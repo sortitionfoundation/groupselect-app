@@ -73,6 +73,10 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._part_per_group_field.setValidator(
             QtGui.QIntValidator(1, 1000, self)
         )
+        self._part_per_group_field.setToolTip(
+            "Target number of participants per group. The number of groups "
+            "is calculated automatically from the number of participants."
+        )
         self._part_per_group_field.textChanged.connect(
             self.update_groups_estimate
         )
@@ -83,6 +87,11 @@ class GSGenerateSettingsGroup(QGroupBox):
 
         self._algorithm = QComboBox()
         self._algorithm.addItems([a.name for a in Algorithm])
+        self._algorithm.setToolTip(
+            "Algorithm used to compute the allocation. Different "
+            "algorithms trade off diversity, meeting variety, and speed "
+            "differently, and offer different advanced settings below."
+        )
         self._mapper.addMapping(
             self._algorithm, settings_lookup.index("algorithm")
         )
@@ -108,14 +117,29 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._scroll_area.setMinimumHeight(30)
         self._scroll_area.setMinimumWidth(300)
         self._scroll_label = QLabel("Diversity weights")
+        hermes_weights_tooltip = (
+            "Per-field diversity weight: higher values make the algorithm "
+            "prioritise diversifying that field more strongly relative to "
+            "the other Diversify fields."
+        )
+        self._scroll_label.setToolTip(hermes_weights_tooltip)
+        self._scroll_area.setToolTip(hermes_weights_tooltip)
 
         # DREAM's single, scalar counterpart to HERMES's per-field
         # `pareto_probs` sliders above -- same widget, just one of it, and
         # sharing its "Diversity weights" label since only one of the two
         # rows is ever shown at a time (see `_apply_algorithm_state`).
         self._pareto_prob_label = QLabel("Diversity weights")
+        dream_weight_tooltip = (
+            "Overall diversity weight: higher values make the algorithm "
+            "prioritise diversifying across all Diversify fields more "
+            "strongly, potentially at the cost of other objectives."
+        )
+        self._pareto_prob_label.setToolTip(dream_weight_tooltip)
         self._pareto_prob_slider = GSParetoSlider(
-            settings_template["pareto_prob"], self._pareto_prob_changed
+            settings_template["pareto_prob"],
+            self._pareto_prob_changed,
+            tooltip=dream_weight_tooltip,
         )
 
         # Show/hide whichever of the above isn't used by the currently
@@ -142,16 +166,30 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._project_settings_changed()
 
         self._groups_calculated = QLabel()
+        self._groups_calculated.setToolTip(
+            "Number of groups, calculated automatically as the number of "
+            "participants divided by the group size, rounded up."
+        )
 
         self._allocations_field = QLineEdit()
         self._allocations_field.setValidator(
             QtGui.QIntValidator(1, 1000, self)
+        )
+        self._allocations_field.setToolTip(
+            "Number of independent allocations (rounds) to generate in "
+            "this run, e.g. so participants can be reshuffled for a "
+            "second session."
         )
         self._mapper.addMapping(
             self._allocations_field, settings_lookup.index("n_allocations")
         )
 
         self._btn_advanced = QPushButton("Modify")
+        self._btn_advanced.setToolTip(
+            "Open advanced settings for the chosen algorithm: number of "
+            "attempts, random seed, and other algorithm-specific "
+            "parameters."
+        )
         self._btn_advanced.clicked.connect(self._button_clicked)
 
         # Lets the user choose whether "Generate" creates a new setup
@@ -159,6 +197,11 @@ class GSGenerateSettingsGroup(QGroupBox):
         # Disabled (so it can't even be opened) while no setup exists yet,
         # since "Create new setup" is then the only possible choice anyway.
         self._setup_target = QComboBox()
+        self._setup_target.setToolTip(
+            "Choose whether to file the newly generated round(s) under a "
+            "new setup, or append them to an existing setup in the "
+            "Results tab."
+        )
         self._refresh_setup_target()
         self._ctx.model_manager["results_tree"].layoutChanged.connect(
             self._refresh_setup_target
@@ -180,6 +223,10 @@ class GSGenerateSettingsGroup(QGroupBox):
         form_widget.setLayout(form_layout)
 
         self._btn_run = QPushButton("Generate Groups!")
+        self._btn_run.setToolTip(
+            "Run the selected algorithm to generate group allocation(s), "
+            "using the current field settings and manual assignments."
+        )
         self._btn_run.clicked.connect(self._button_clicked)
 
         settings_layout = QGridLayout()

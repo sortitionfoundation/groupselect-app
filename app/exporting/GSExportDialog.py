@@ -86,7 +86,14 @@ class GSExportDialog(QDialog):
 
         format_group = QGroupBox("Format")
         self._radio_xlsx = QRadioButton("Excel workbook (.xlsx)")
+        self._radio_xlsx.setToolTip(
+            "Export any combination of components, each as its own "
+            "sheet in one workbook."
+        )
         self._radio_csv = QRadioButton("CSV file (.csv)")
+        self._radio_csv.setToolTip(
+            "Export a single selected component as a plain-text CSV file."
+        )
         (
             self._radio_xlsx if initial_format == "xlsx" else self._radio_csv
         ).setChecked(True)
@@ -98,9 +105,14 @@ class GSExportDialog(QDialog):
 
         self._csv_group = QGroupBox("CSV options")
         self._csv_sep = QComboBox()
+        self._csv_sep.setToolTip("Character to separate columns with.")
         for sep, label in FILE_SEP_OPTIONS.items():
             self._csv_sep.addItem(label, sep)
         self._csv_quote = QComboBox()
+        self._csv_quote.setToolTip(
+            "Character used to quote values containing the separator or "
+            "other special characters."
+        )
         for quote, label in FILE_QUOTE_OPTIONS.items():
             self._csv_quote.addItem(label, quote)
         csv_form = QFormLayout()
@@ -112,6 +124,11 @@ class GSExportDialog(QDialog):
         layout.addWidget(QLabel("Components to export:"))
         self._tree = QTreeWidget()
         self._tree.setHeaderHidden(True)
+        self._tree.setToolTip(
+            "Choose which participant data and results to export. In "
+            "Excel mode, checking a setup exports its summary and every "
+            "one of its rounds as separate sheets."
+        )
 
         self._buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok

@@ -9,6 +9,10 @@ class GSSetupSummaryTableView(QTableView):
     def __init__(self, parent: QWidget | None = None):
         """Initialise the view with word-wrapped, auto-sized cells."""
         super(GSSetupSummaryTableView, self).__init__(parent=parent)
+        self.setToolTip(
+            "Summary across all rounds of the selected setup: population "
+            "and diversity/meeting statistics."
+        )
         self.setWordWrap(True)
         self.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
         self.horizontalHeader().setSectionResizeMode(

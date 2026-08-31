@@ -22,6 +22,7 @@ class GSParetoSlider(QWidget):
         initial_value: float,
         on_change: Callable[[float], None],
         parent=None,
+        tooltip: str | None = None,
     ):
         """Initialise the slider at `initial_value`, calling back on change."""
         super().__init__(parent)
@@ -31,6 +32,9 @@ class GSParetoSlider(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self._slider = QSlider(Qt.Horizontal)
+        if tooltip is not None:
+            self.setToolTip(tooltip)
+            self._slider.setToolTip(tooltip)
         self._slider.setMinimum(0)
         self._slider.setMaximum(RANGE_MAX_INTERNAL)
         self._slider.setTickInterval(5)
@@ -41,6 +45,8 @@ class GSParetoSlider(QWidget):
 
         self._value_label = QLabel(self._fmt(self._slider.value()))
         self._value_label.setFixedWidth(28)
+        if tooltip is not None:
+            self._value_label.setToolTip(tooltip)
 
         self._slider.valueChanged.connect(self._value_changed)
 

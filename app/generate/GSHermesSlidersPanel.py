@@ -71,8 +71,15 @@ class GSHermesSlidersPanel(QWidget):
         row_layout = QHBoxLayout(row)
         row_layout.setContentsMargins(0, 0, 0, 0)
 
+        tooltip = (
+            "Diversity weight for this field: higher values make the "
+            "algorithm prioritise diversifying it more strongly relative "
+            "to the other Diversify fields."
+        )
+
         name_label = QLabel()
         name_label.setFixedWidth(70)
+        name_label.setToolTip(tooltip)
 
         def on_change(value: float, fid=field_id) -> None:
             self._ctx.project_manager.project.settings["pareto_probs"][fid] = (
@@ -80,7 +87,9 @@ class GSHermesSlidersPanel(QWidget):
             )
 
         slider = GSParetoSlider(
-            project.settings["pareto_probs"][field_id], on_change
+            project.settings["pareto_probs"][field_id],
+            on_change,
+            tooltip=tooltip,
         )
 
         row_layout.addWidget(name_label)

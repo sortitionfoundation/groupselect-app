@@ -95,6 +95,25 @@ class GSMainWindow(AbstractMainWindow):
     def _create_menu(self):
         super(GSMainWindow, self)._create_menu()
         self._create_load_example_menu()
+        self._apply_menu_tooltips()
+
+    def _apply_menu_tooltips(self):
+        """Surface each action's status-bar description as a tooltip too.
+
+        `base_app` only wires a menu item's `'desc'` up to
+        `QAction.setStatusTip()`, but this app never calls `statusBar()`,
+        so that description would otherwise never actually be shown to the
+        user -- mirror it onto `setToolTip()` for every menu (this repo's
+        "Data" menu included) so hovering the item shows it instead.
+        """
+        for menu in self._menus.values():
+            menu.setToolTipsVisible(True)
+        for menu_id, menu_specs in self._define_menu().items():
+            for item_id, item_specs in menu_specs["items"].items():
+                if item_specs["type"] == "action" and "desc" in item_specs:
+                    self._menu_items[f"{menu_id}:{item_id}"].setToolTip(
+                        item_specs["desc"]
+                    )
 
     def _create_load_example_menu(self):
         """Insert the hierarchical "Load example" submenu into "Data".
@@ -109,24 +128,34 @@ class GSMainWindow(AbstractMainWindow):
         export_as_action = self._menu_items["data:export_as"]
 
         menu = QMenu("Load &example", self)
+        menu.setToolTipsVisible(True)
+        menu.menuAction().setToolTip(
+            "Load a ready-made or synthetically generated example "
+            "dataset, useful for trying out the app without your own data."
+        )
         data_menu.insertMenu(export_as_action, menu)
         data_menu.insertSeparator(export_as_action)
 
         action = menu.addAction("&Default example")
-        action.setStatusTip(
-            "Load the default example dataset bundled with groupselect."
-        )
+        desc = "Load the default example dataset bundled with groupselect."
+        action.setStatusTip(desc)
+        action.setToolTip(desc)
         action.triggered.connect(self._load_example_default)
 
         menu.addSeparator()
 
         predefined_menu = menu.addMenu("&Predefined datasets")
+        predefined_menu.setToolTipsVisible(True)
         for csv_path in sorted(DATA_DIR.glob("*.csv")):
             if csv_path.stem == "default":
                 continue
             n_participants = len(pd.read_csv(csv_path))
             action = predefined_menu.addAction(
                 f"{csv_path.stem} ({n_participants} participants)"
+            )
+            action.setToolTip(
+                f"Load the '{csv_path.stem}' example dataset, with "
+                f"{n_participants} participants."
             )
             action.triggered.connect(
                 lambda checked=False, path=csv_path: (
@@ -135,8 +164,13 @@ class GSMainWindow(AbstractMainWindow):
             )
 
         synthetic_menu = menu.addMenu("&Synthetic dataset")
+        synthetic_menu.setToolTipsVisible(True)
         for n_participants in SYNTHETIC_DATASET_SIZES:
             action = synthetic_menu.addAction(f"{n_participants} participants")
+            action.setToolTip(
+                f"Generate a random synthetic example dataset with "
+                f"{n_participants} participants."
+            )
             action.triggered.connect(
                 lambda checked=False, n=n_participants: (
                     self._load_example_synthetic(n)

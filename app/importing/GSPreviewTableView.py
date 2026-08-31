@@ -24,6 +24,10 @@ class GSPreviewTableView(QTableView):
         self._dialogue = dialogue
 
         self.setModel(model)
+        self.setToolTip(
+            "Preview of the rows/columns that will be imported. "
+            "Right-click a column header to rename or disable it."
+        )
 
         self.horizontalHeader().setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu

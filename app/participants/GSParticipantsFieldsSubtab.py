@@ -24,12 +24,21 @@ class GSParticipantsFieldsSubtab(QWidget):
     def _create_ui(self):
         self.fields_list = QListView()
         self.fields_list.setModel(self._ctx.model_manager["pfields"])
+        self.fields_list.setToolTip(
+            "Imported data columns. Select a field to view and edit its "
+            "term mapping on the right."
+        )
         self.fields_list.selectionModel().currentChanged.connect(
             self.fieldlist_select
         )
 
         self.terms_table = QTableView()
         self.terms_table.setModel(self._ctx.model_manager["pterms"])
+        self.terms_table.setToolTip(
+            "Normalise the raw values found in the selected field by "
+            'mapping them to a common term, e.g. mapping both "M" and '
+            '"Male" to "Male".'
+        )
         self.terms_table.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
         )

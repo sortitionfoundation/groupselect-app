@@ -40,6 +40,11 @@ class GSResultsTab(QWidget):
         self._tree = QTreeView(parent=self)
         self._tree.setModel(self._ctx.model_manager["results_tree"])
         self._tree.setHeaderHidden(True)
+        self._tree.setToolTip(
+            "Setups (allocation runs) and their rounds. Select a setup to "
+            "see its summary, or a round to see its group table. "
+            "Right-click to rename or delete."
+        )
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._tree_context_menu)
         self._tree.selectionModel().currentChanged.connect(
@@ -47,8 +52,15 @@ class GSResultsTab(QWidget):
         )
 
         self._btn_rename = QPushButton("Rename")
+        self._btn_rename.setToolTip(
+            "Rename the currently selected setup or round."
+        )
         self._btn_rename.clicked.connect(self._rename_current)
         self._btn_delete = QPushButton("Delete")
+        self._btn_delete.setToolTip(
+            "Delete the currently selected setup (and all its rounds) or "
+            "just the selected round."
+        )
         self._btn_delete.clicked.connect(self._delete_current)
 
         tree_layout = QVBoxLayout()
