@@ -28,11 +28,17 @@ from PySide6 import QtCore, QtGui
 from groupselect import allocate_pandas, AllocatorResult, FieldMode, Algorithm
 
 from GSAppFieldMode import map_field_modes, GSAppFieldMode
-from GSProject import settings_lookup, GSProject
+from GSProject import (
+    ALGORITHM_SETTINGS,
+    settings_lookup,
+    settings_template,
+    GSProject,
+)
 from GSSetup import GSSetup
 from generate.GSAdvancedSettingsDialog import GSAdvancedSettingsDialog
 from generate.GSManualDialog import GSManualDialog
 from generate.GSHermesSlidersPanel import GSHermesSlidersPanel
+from generate.GSParetoSlider import GSParetoSlider
 
 if TYPE_CHECKING:
     from base_app.AppContext import AppContext
@@ -107,23 +113,21 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._mapper.addMapping(
             self._algorithm, settings_lookup.index("algorithm")
         )
-        self._algorithm.currentIndexChanged.connect(self._algorithm_changed)
-
-        # self._cluster_val = QLineEdit()
-        # self._mapper.addMapping(
-        #     self._cluster_val, settings_lookup.index('cluster_val')
-        # )
-        # self._cluster_val.hide()
 
         self._slider_widget = GSHermesSlidersPanel(self._ctx)
         model = self._ctx.model_manager["fudiversify"]
 
-        def on_model_changed():
+        def on_model_changed(*args):
             QTimer.singleShot(0, lambda: self._slider_widget.update_fields())
 
-        model.rowsInserted.connect(lambda *args: on_model_changed())
-        model.rowsRemoved.connect(lambda *args: on_model_changed())
-        model.dataChanged.connect(lambda *args: on_model_changed())
+        model.rowsInserted.connect(on_model_changed)
+        model.rowsRemoved.connect(on_model_changed)
+        model.dataChanged.connect(on_model_changed)
+        # `updated_project()` (called on project open/new/close) only emits
+        # `layoutChanged`, not the row/data signals above -- without this,
+        # the panel would keep showing the previous project's sliders until
+        # a field was next dragged in/out of the Diversify list.
+        model.layoutChanged.connect(on_model_changed)
 
         self._scroll_area = QScrollArea()
         self._scroll_area.setWidgetResizable(True)
@@ -132,12 +136,37 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._scroll_area.setMinimumWidth(300)
         self._scroll_label = QLabel("Diversity weights")
 
-        # Set visibility status based of sliders panel.
-        is_hermes = (
-            Algorithm[self._algorithm.currentText()] == Algorithm.HERMES
+        # DREAM's single, scalar counterpart to HERMES's per-field
+        # `pareto_probs` sliders above -- same widget, just one of it, and
+        # sharing its "Diversity weights" label since only one of the two
+        # rows is ever shown at a time (see `_apply_algorithm_state`).
+        self._pareto_prob_label = QLabel("Diversity weights")
+        self._pareto_prob_slider = GSParetoSlider(
+            settings_template["pareto_prob"], self._pareto_prob_changed
         )
-        self._scroll_area.setVisible(is_hermes)
-        self._scroll_label.setVisible(is_hermes)
+
+        # Show/hide whichever of the above isn't used by the currently
+        # chosen algorithm. Two separate triggers, deliberately reading the
+        # algorithm from two different places:
+        #  - picking a new algorithm in the combo box needs to update this
+        #    right away, but `QDataWidgetMapper` only writes a mapped
+        #    widget's value back into the model on focus-out -- reading
+        #    `project.settings["algorithm"]` at this point could still see
+        #    the *previous* algorithm, so this one reads the combo box
+        #    itself instead, same as it did before it was mapped in here;
+        #  - opening a different project updates `project.settings`
+        #    directly and reliably, but may leave the combo box showing the
+        #    same algorithm name as before (`currentIndexChanged` then
+        #    never fires) even though e.g. `pareto_prob` still needs
+        #    resyncing -- `alsettings`'s `dataChanged` fires on every
+        #    `updated_project()` regardless, so that one reads the project.
+        self._algorithm.currentIndexChanged.connect(
+            self._algorithm_combo_changed
+        )
+        self._ctx.model_manager["alsettings"].dataChanged.connect(
+            self._project_settings_changed
+        )
+        self._project_settings_changed()
 
         self._groups_calculated = QLabel()
 
@@ -158,6 +187,7 @@ class GSGenerateSettingsGroup(QGroupBox):
         form_layout.addRow(QLabel("Group size"), self._part_per_group_field)
         form_layout.addRow(QLabel("Algorithm"), self._algorithm)
         form_layout.addRow(self._scroll_label, self._scroll_area)
+        form_layout.addRow(self._pareto_prob_label, self._pareto_prob_slider)
         form_layout.addRow(QLabel("Number of groups"), self._groups_calculated)
         form_layout.addRow(
             QLabel("Number of allocations"), self._allocations_field
@@ -225,16 +255,37 @@ class GSGenerateSettingsGroup(QGroupBox):
             n_groups = ceil(len(pdata) / n_part_per_group)
             self._groups_calculated.setText(str(n_groups))
 
-    def _algorithm_changed(self):
-        project: GSProject = self._ctx.project_manager.project
-        if project is None:
-            return
-        else:
-            is_hermes = (
-                Algorithm[self._algorithm.currentText()] == Algorithm.HERMES
+    def _pareto_prob_changed(self, value: float) -> None:
+        project = self._ctx.project_manager.project
+        if project is not None:
+            project.settings["pareto_prob"] = value
+
+    def _algorithm_combo_changed(self, *args):
+        """React to the user picking a different algorithm in the combo box."""
+        if self._ctx.project_manager.project is not None:
+            self._apply_algorithm_state(
+                Algorithm[self._algorithm.currentText()]
             )
-            self._scroll_area.setVisible(is_hermes)
-            self._scroll_label.setVisible(is_hermes)
+
+    def _project_settings_changed(self, *args):
+        """React to `alsettings` changing (in particular, a project switch)."""
+        project: GSProject = self._ctx.project_manager.project
+        if project is not None:
+            self._apply_algorithm_state(
+                Algorithm[project.settings["algorithm"]]
+            )
+
+    def _apply_algorithm_state(self, algorithm: "Algorithm") -> None:
+        """Show/hide the diversity-weights row(s) unused by `algorithm`."""
+        project: GSProject = self._ctx.project_manager.project
+        used = ALGORITHM_SETTINGS[algorithm]
+        is_hermes = "pareto_probs" in used
+        is_dream = "pareto_prob" in used
+        self._scroll_area.setVisible(is_hermes)
+        self._scroll_label.setVisible(is_hermes)
+        self._pareto_prob_label.setVisible(is_dream)
+        self._pareto_prob_slider.setVisible(is_dream)
+        self._pareto_prob_slider.set_value(project.settings["pareto_prob"])
 
     def _button_clicked(self):
         sender = self.sender()
@@ -262,17 +313,46 @@ class GSGenerateSettingsGroup(QGroupBox):
             model.remove_manual(self._manuals_list.currentIndex().row())
         elif sender == self._btn_advanced:
             try:
+                # QDataWidgetMapper only writes a mapped widget's edited
+                # value back into the model on focus-out; force that now so
+                # a just-picked algorithm (or edited group size/allocation
+                # count) is reflected below even without an intervening
+                # focus change.
+                self._mapper.submit()
+                project: GSProject = self._ctx.project_manager.project
+                algorithm = Algorithm[project.settings["algorithm"]]
                 attempts_default = self._mapper.model().get_setting(
                     "n_attempts"
                 )
                 seed_default = self._mapper.model().get_setting("seed")
-                status, attempts, seed = GSAdvancedSettingsDialog.get_input(
-                    self, attempts_default, seed_default
+                swap_rounds_default = self._mapper.model().get_setting(
+                    "swap_rounds"
+                )
+                cluster_tables_default = self._mapper.model().get_setting(
+                    "cluster_tables"
+                )
+                (
+                    status,
+                    attempts,
+                    seed,
+                    swap_rounds,
+                    cluster_tables,
+                ) = GSAdvancedSettingsDialog.get_input(
+                    self,
+                    algorithm,
+                    attempts_default,
+                    seed_default,
+                    swap_rounds_default,
+                    cluster_tables_default,
                 )
                 if not status:
                     return
                 self._mapper.model().set_setting("n_attempts", attempts)
                 self._mapper.model().set_setting("seed", seed)
+                self._mapper.model().set_setting("swap_rounds", swap_rounds)
+                self._mapper.model().set_setting(
+                    "cluster_tables", cluster_tables
+                )
             except Exception as ex:
                 QMessageBox.critical(
                     self,
@@ -280,6 +360,10 @@ class GSGenerateSettingsGroup(QGroupBox):
                     f"Error occurred while processing your entry: {ex}",
                 )
         elif sender == self._btn_run:
+            # See the comment in the "_btn_advanced" branch above -- forces
+            # any just-edited group size/allocation count/algorithm to be
+            # reflected in `project.settings` before it's read below.
+            self._mapper.submit()
             project: GSProject = self._ctx.project_manager.project
             algorithm = Algorithm[project.settings["algorithm"]]
 
