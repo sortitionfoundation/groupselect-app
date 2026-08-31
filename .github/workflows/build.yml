@@ -1,10 +1,9 @@
 name: Build
 
 on:
-  push:
-    branches: ["**"]
-    tags: ["v*"]
-  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -116,3 +115,32 @@ jobs:
         with:
           name: groupselect2-msix
           path: groupselect2.msix
+
+  ### ATTACH BUILDS TO THE GITHUB RELEASE AS DOWNLOADABLE ASSETS
+  publish-release-assets:
+    name: Attach builds to release
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Zip per-platform builds
+        run: |
+          cd dist
+          for d in groupselect2-dist-*; do
+            zip -r "../${d}.zip" "$d"
+          done
+
+      - name: Upload assets to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.zip
+            dist/groupselect2-msix/groupselect2.msix

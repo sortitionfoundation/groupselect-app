@@ -1,3 +1,5 @@
+"""Table model exposing the project's allocation settings as a single row."""
+
 from typing import Any
 
 from PySide6 import QtCore
@@ -7,30 +9,51 @@ from base_app.AbstractProjectModel import AbstractProjectModel
 from GSProject import GSProject, settings_lookup, settings_template
 
 
-class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel):
+class GSAllocationSettingsModel(
+    QtCore.QAbstractTableModel, AbstractProjectModel
+):
+    """Single-row table model with one column per allocation setting."""
+
     _project: GSProject
 
     # project updated
     def updated_project(self, project: GSProject):
+        """Bind the model to a (newly opened) project."""
         self._project = project
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(0, len(settings_lookup)))
+        self.dataChanged.emit(
+            self.createIndex(0, 0), self.createIndex(0, len(settings_lookup))
+        )
 
-    def data(self, index: QModelIndex | QPersistentModelIndex, role: int = ...):
+    def data(
+        self, index: QModelIndex | QPersistentModelIndex, role: int = ...
+    ):
+        """Return the setting value for the given column."""
         if self._project is None:
             return 0
-        if role in [Qt.ItemDataRole.DisplayRole,
-                    Qt.ItemDataRole.EditRole]:
+        if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
             key = settings_lookup[index.column()]
             return self._project.settings[key]
         return None
 
-    def rowCount(self, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
+    def rowCount(
+        self, parent: QModelIndex | QPersistentModelIndex = ...
+    ) -> int:
+        """Return 1, as all settings live in a single row."""
         return 1
 
-    def columnCount(self, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
+    def columnCount(
+        self, parent: QModelIndex | QPersistentModelIndex = ...
+    ) -> int:
+        """Return the number of allocation settings."""
         return len(settings_lookup)
 
-    def setData(self, index: QModelIndex | QPersistentModelIndex, value: Any, role=QtCore.Qt.ItemDataRole.DisplayRole):
+    def setData(
+        self,
+        index: QModelIndex | QPersistentModelIndex,
+        value: Any,
+        role=QtCore.Qt.ItemDataRole.DisplayRole,
+    ):
+        """Store an edited setting value, coercing to its template type."""
         # Don't do anything if no project has been defined.
         if self._project is None:
             return False
@@ -55,9 +78,13 @@ class GSAllocationSettingsModel(QtCore.QAbstractTableModel, AbstractProjectModel
         return False
 
     def get_setting(self, key: str) -> Any:
+        """Return the value of a single setting by key."""
         return self._project.settings.get(key, __default=None)
 
     def set_setting(self, key: str, value: Any):
+        """Set the value of a single setting by key and notify the view."""
         self._project.settings[key] = value
         column = settings_lookup.index(key)
-        self.dataChanged.emit(self.createIndex(0, column), self.createIndex(0, column))
+        self.dataChanged.emit(
+            self.createIndex(0, column), self.createIndex(0, column)
+        )

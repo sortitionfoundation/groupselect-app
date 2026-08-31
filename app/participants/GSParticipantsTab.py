@@ -1,3 +1,5 @@
+"""The Participants tab, with Data and Fields subtabs."""
+
 from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QTabWidget
@@ -10,9 +12,12 @@ if TYPE_CHECKING:
 
 
 class GSParticipantsTab(QTabWidget):
-    _ctx: 'AppContext'
+    """Tab holding the Data and Fields subtabs for participants' data."""
 
-    def __init__(self, ctx: 'AppContext'):
+    _ctx: "AppContext"
+
+    def __init__(self, ctx: "AppContext"):
+        """Initialise the tab and build its Data and Fields subtabs."""
         super(GSParticipantsTab, self).__init__()
         self._ctx = ctx
 
@@ -23,5 +28,5 @@ class GSParticipantsTab(QTabWidget):
         subtab_fields = GSParticipantsFieldsSubtab(self._ctx)
 
         self.setTabPosition(QTabWidget.TabPosition.South)
-        self.addTab(subtab_data, 'Data')
-        self.addTab(subtab_fields, 'Fields')
+        self.addTab(subtab_data, "Data")
+        self.addTab(subtab_fields, "Fields")

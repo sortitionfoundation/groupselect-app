@@ -1,3 +1,5 @@
+"""The Results tab, listing allocations and showing the selected one."""
+
 from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QWidget, QListView, QGridLayout
@@ -9,9 +11,12 @@ if TYPE_CHECKING:
 
 
 class GSResultsTab(QWidget):
-    _ctx: 'AppContext'
+    """Tab with a list of allocation results and a view of the selected one."""
 
-    def __init__(self, ctx: 'AppContext'):
+    _ctx: "AppContext"
+
+    def __init__(self, ctx: "AppContext"):
+        """Initialise the tab and build the results list and table."""
         super(GSResultsTab, self).__init__()
         self._ctx = ctx
 
@@ -20,12 +25,14 @@ class GSResultsTab(QWidget):
     def _create_ui(self):
         # List of results (individual allocations) to select from.
         results_list = QListView(parent=self)
-        results_list.setModel(self._ctx.model_manager['results_list'])
-        results_list.selectionModel().currentChanged.connect(self._ctx.model_manager['results_table'].update_current)
+        results_list.setModel(self._ctx.model_manager["results_list"])
+        results_list.selectionModel().currentChanged.connect(
+            self._ctx.model_manager["results_table"].update_current
+        )
 
         # Table showing one single allocation.
         results_table = GSResultTableView(parent=self)
-        results_table.setModel(self._ctx.model_manager['results_table'])
+        results_table.setModel(self._ctx.model_manager["results_table"])
 
         layout = QGridLayout()
         layout.addWidget(results_list, 0, 0)

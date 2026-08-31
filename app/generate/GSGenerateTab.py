@@ -1,3 +1,5 @@
+"""The Generate tab, combining field settings and allocation settings."""
+
 from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QWidget, QGridLayout
@@ -10,9 +12,12 @@ if TYPE_CHECKING:
 
 
 class GSGenerateTab(QWidget):
-    _ctx: 'AppContext'
+    """Tab for configuring fields and settings, then running an allocation."""
 
-    def __init__(self, ctx: 'AppContext'):
+    _ctx: "AppContext"
+
+    def __init__(self, ctx: "AppContext"):
+        """Initialise the tab and build the field and settings groups."""
         super(GSGenerateTab, self).__init__()
         self._ctx = ctx
 
@@ -29,4 +34,5 @@ class GSGenerateTab(QWidget):
         self.setLayout(layout)
 
     def update_groups_estimate(self):
+        """Forward the request to refresh the estimated number of groups."""
         self._group_settings.update_groups_estimate()

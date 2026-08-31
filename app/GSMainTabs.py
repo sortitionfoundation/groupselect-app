@@ -1,3 +1,5 @@
+"""The main tab widget hosting the participants, generate, and results tabs."""
+
 from PySide6.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
 from base_app.AbstractMainWindow import AbstractMainWindow
@@ -9,7 +11,10 @@ from results.GSResultsTab import GSResultsTab
 
 
 class GSMainTabs(QWidget):
+    """The central widget holding the participants, generate & results tabs."""
+
     def __init__(self, ctx: AppContext, main_window: AbstractMainWindow):
+        """Initialise the tab widget and build the child tabs."""
         super(GSMainTabs, self).__init__(parent=main_window)
         self._ctx = ctx
 
@@ -21,9 +26,9 @@ class GSMainTabs(QWidget):
         self._tab_results = GSResultsTab(self._ctx)
 
         self._tabs = QTabWidget()
-        self._tabs.addTab(self._tab_participants, '&Participants')
-        self._tabs.addTab(self._tab_generate, '&Generate')
-        self._tabs.addTab(self._tab_results, '&Results')
+        self._tabs.addTab(self._tab_participants, "&Participants")
+        self._tabs.addTab(self._tab_generate, "&Generate")
+        self._tabs.addTab(self._tab_results, "&Results")
         self._tabs.currentChanged.connect(self._main_tabs_switched)
 
         m = 10
@@ -33,6 +38,7 @@ class GSMainTabs(QWidget):
         self.setLayout(layout)
 
     def project_opened(self):
+        """Reset the tab selection to the Participants tab."""
         self._tabs.setCurrentIndex(0)
 
     def _main_tabs_switched(self, index):
