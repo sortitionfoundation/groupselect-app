@@ -25,11 +25,11 @@ class GSManualsListModel(QtCore.QAbstractListModel, AbstractProjectModel):
             p_id = list(self._project.manuals)[index.row()]
             g_id = self._project.manuals[p_id]
 
-            print_fields = self._project.fields_usage[GSAppFieldMode.Label]
+            label_fields = self._project.fields_usage[GSAppFieldMode.Label]
             p_label = (
-                ' '.join(self._project.pdata.loc[p_id, print_fields])
-                if print_fields else
-                p_id
+                ' '.join(self._project.pdata.loc[p_id, label_fields]) + f" ({p_id})"
+                if label_fields else
+                str(p_id)
             )
 
             return f"{p_label}: Group {g_id+1}"
@@ -42,15 +42,13 @@ class GSManualsListModel(QtCore.QAbstractListModel, AbstractProjectModel):
         return len(self._project.manuals)
 
     def get_allocatables(self) -> dict[int, str]:
-        print_fields = self._project.fields_usage[GSAppFieldMode.Label]
+        label_fields = self._project.fields_usage[GSAppFieldMode.Label]
         allocatables = self._project.pdata.loc[~self._project.pdata.index.isin(self._project.manuals)]
-        return (
-            allocatables.filter(print_fields)
-                .apply(' '.join, axis=1)
-                .to_dict()
-            if print_fields else
-            allocatables.filter(print_fields)
-        )
+        if label_fields:
+            labels = allocatables.filter(label_fields).apply(' '.join, axis=1)
+            return {p_id: f"{p_label} ({p_id})" for p_id, p_label in labels.items()}
+        else:
+            return {p_id: str(p_id) for p_id in allocatables.index}
 
     def get_groups(self) -> dict[int, str]:
         n_groups = ceil(len(self._project.pdata) / self._project.settings['n_part_per_group'])
