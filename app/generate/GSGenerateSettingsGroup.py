@@ -1,4 +1,4 @@
-"""Group box for allocation settings, manual allocations, and running."""
+"""Group box for the allocation settings form and running the allocation."""
 
 from typing import TYPE_CHECKING
 
@@ -9,7 +9,6 @@ from PySide6.QtWidgets import (
     QWidget,
     QPushButton,
     QVBoxLayout,
-    QHBoxLayout,
     QLabel,
     QMessageBox,
     QLineEdit,
@@ -18,7 +17,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QGridLayout,
     QFormLayout,
-    QListView,
     QDataWidgetMapper,
     QProgressDialog,
     QSlider,
@@ -36,7 +34,6 @@ from GSProject import (
 )
 from GSSetup import GSSetup
 from generate.GSAdvancedSettingsDialog import GSAdvancedSettingsDialog
-from generate.GSManualDialog import GSManualDialog
 from generate.GSHermesSlidersPanel import GSHermesSlidersPanel
 from generate.GSParetoSlider import GSParetoSlider
 
@@ -56,7 +53,7 @@ class GSGenerateSettingsGroup(QGroupBox):
 
     def __init__(self, ctx: "AppContext"):
         """Initialise the group box and build the settings UI."""
-        super(GSGenerateSettingsGroup, self).__init__("Allocation Settings")
+        super(GSGenerateSettingsGroup, self).__init__("Allocation settings")
         self._ctx = ctx
 
         self._mapper = QDataWidgetMapper(self)
@@ -67,33 +64,9 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._mapper.toFirst()
 
     def _create_ui(self):
-        layout = QHBoxLayout()
-        layout.addWidget(self._create_manual_group(), 3)
-        layout.addWidget(self._create_settings_group(), 2)
+        layout = QVBoxLayout()
+        layout.addWidget(self._create_settings_group())
         self.setLayout(layout)
-
-    def _create_manual_group(self):
-        self._manuals_list = QListView()
-        self._manuals_list.setModel(self._ctx.model_manager["almanuals"])
-
-        self._btn_add_manual = QPushButton("Add")
-        self._btn_add_manual.clicked.connect(self._button_clicked)
-        self._btn_del_manual = QPushButton("Delete")
-        self._btn_del_manual.clicked.connect(self._button_clicked)
-
-        manual_btns_list = QHBoxLayout()
-        manual_btns_list.addWidget(self._btn_add_manual)
-        manual_btns_list.addWidget(self._btn_del_manual)
-        manual_btns_list_widget = QWidget()
-        manual_btns_list_widget.setLayout(manual_btns_list)
-
-        manual_layout = QVBoxLayout()
-        manual_layout.addWidget(self._manuals_list)
-        manual_layout.addWidget(manual_btns_list_widget)
-        manual_group = QGroupBox("Manual Allocations")
-        manual_group.setLayout(manual_layout)
-
-        return manual_group
 
     def _create_settings_group(self):
         self._part_per_group_field = QLineEdit()
@@ -181,19 +154,6 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._btn_advanced = QPushButton("Modify")
         self._btn_advanced.clicked.connect(self._button_clicked)
 
-        m = 50
-        form_layout = QFormLayout()
-        form_layout.setContentsMargins(m, 0, m, 0)
-        form_layout.addRow(QLabel("Group size"), self._part_per_group_field)
-        form_layout.addRow(QLabel("Algorithm"), self._algorithm)
-        form_layout.addRow(self._scroll_label, self._scroll_area)
-        form_layout.addRow(self._pareto_prob_label, self._pareto_prob_slider)
-        form_layout.addRow(QLabel("Number of groups"), self._groups_calculated)
-        form_layout.addRow(
-            QLabel("Number of allocations"), self._allocations_field
-        )
-        form_layout.addRow(QLabel("Advanced Settings"), self._btn_advanced)
-
         # Lets the user choose whether "Generate" creates a new setup
         # (ensemble) or appends the new allocations to an existing one.
         # Disabled (so it can't even be opened) while no setup exists yet,
@@ -203,7 +163,18 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._ctx.model_manager["results_tree"].layoutChanged.connect(
             self._refresh_setup_target
         )
+
+        m = 50
+        form_layout = QFormLayout()
+        form_layout.setContentsMargins(m, 0, m, 0)
+        form_layout.addRow(QLabel("Group size"), self._part_per_group_field)
+        form_layout.addRow(QLabel("Number of groups"), self._groups_calculated)
+        form_layout.addRow(QLabel("Number of rounds"), self._allocations_field)
         form_layout.addRow(QLabel("Target Setup"), self._setup_target)
+        form_layout.addRow(QLabel("Algorithm"), self._algorithm)
+        form_layout.addRow(self._scroll_label, self._scroll_area)
+        form_layout.addRow(self._pareto_prob_label, self._pareto_prob_slider)
+        form_layout.addRow(QLabel("Advanced Settings"), self._btn_advanced)
 
         form_widget = QWidget()
         form_widget.setLayout(form_layout)
@@ -289,29 +260,7 @@ class GSGenerateSettingsGroup(QGroupBox):
 
     def _button_clicked(self):
         sender = self.sender()
-        if sender == self._btn_add_manual:
-            try:
-                allocatables = self._ctx.model_manager[
-                    "almanuals"
-                ].get_allocatables()
-                groups = self._ctx.model_manager["almanuals"].get_groups()
-            except Exception as ex:
-                QMessageBox.critical(
-                    self._ctx.main_window, "Error", f"Error: {ex}"
-                )
-                return
-            ok, participant, group = GSManualDialog.get_input(
-                self, allocatables, groups
-            )
-            if not ok:
-                return
-            self._ctx.model_manager["almanuals"].add_manual(participant, group)
-        elif sender == self._btn_del_manual:
-            model = self._ctx.model_manager["almanuals"]
-            if not self._manuals_list.selectedIndexes():
-                return
-            model.remove_manual(self._manuals_list.currentIndex().row())
-        elif sender == self._btn_advanced:
+        if sender == self._btn_advanced:
             try:
                 # QDataWidgetMapper only writes a mapped widget's edited
                 # value back into the model on focus-out; force that now so
@@ -372,7 +321,7 @@ class GSGenerateSettingsGroup(QGroupBox):
             # needs an integer range, so scale that fraction up to
             # PROGRESS_STEPS steps of resolution.
             progress_bar = QProgressDialog(
-                "Generating table allocations...",
+                "Generating table rounds...",
                 "",
                 0,
                 PROGRESS_STEPS,
@@ -445,7 +394,7 @@ class GSGenerateSettingsGroup(QGroupBox):
                 QMessageBox.information(
                     self,
                     "Success!",
-                    "The allocations were computed successfully.\n\n"
+                    "The rounds were computed successfully.\n\n"
                     f"Diversity score: {diversity_score:.1f}\n"
                     f"Meeting score: {meeting_score:.1%}",
                 )

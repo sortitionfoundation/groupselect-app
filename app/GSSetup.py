@@ -33,8 +33,8 @@ class GSSetup:
         )
 
     def next_allocation_name(self) -> str:
-        """Return the next default "Allocation #" name, unique in the setup."""
-        return next_unique_name("Allocation", self.allocation_names)
+        """Return the next default "Round #" name, unique in the setup."""
+        return next_unique_name("Round", self.allocation_names)
 
     def add_allocations(self, new_allocations: AllocationEnsemble, next_id):
         """Append allocations to the ensemble, each given a default name.

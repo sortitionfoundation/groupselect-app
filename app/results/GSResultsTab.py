@@ -189,10 +189,10 @@ class GSResultsTab(QWidget):
         project = self._ctx.project_manager.project
 
         if allocation_row is None:
-            question = f'Delete setup "{setup.name}" and all its allocations?'
+            question = f'Delete setup "{setup.name}" and all its rounds?'
         else:
             allocation_name = setup.allocation_names[allocation_row]
-            question = f'Delete allocation "{allocation_name}"?'
+            question = f'Delete round "{allocation_name}"?'
         reply = QMessageBox.question(
             self._ctx.main_window,
             "Confirm delete",

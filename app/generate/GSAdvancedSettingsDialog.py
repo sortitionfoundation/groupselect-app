@@ -58,22 +58,22 @@ class GSAdvancedSettingsDialog(QDialog):
         self._attempts_field = QLineEdit()
         self._attempts_field.setValidator(QIntValidator(1, 1000, self))
         self._attempts_field.setText(str(attempts_default))
-        self._attempts_label = QLabel("Number of Attempts:")
+        self._attempts_label = QLabel("Number of attempts:")
 
         self._seed_field = QLineEdit()
         self._seed_field.setValidator(QDoubleValidator())
         self._seed_field.setText(str(seed_default))
-        self._seed_label = QLabel("Random Number Seed:")
+        self._seed_label = QLabel("Random number seed:")
 
         self._swap_rounds_field = QLineEdit()
         self._swap_rounds_field.setValidator(QIntValidator(1, 1000, self))
         self._swap_rounds_field.setText(str(swap_rounds_default))
-        self._swap_rounds_label = QLabel("Swap Rounds:")
+        self._swap_rounds_label = QLabel("Swap rounds:")
 
         self._cluster_tables_field = QLineEdit()
         self._cluster_tables_field.setValidator(QIntValidator(0, 1000, self))
         self._cluster_tables_field.setText(str(cluster_tables_default))
-        self._cluster_tables_label = QLabel("Cluster Tables:")
+        self._cluster_tables_label = QLabel("Cluster tables:")
 
         form = QFormLayout()
         form.addRow(self._attempts_label, self._attempts_field)
