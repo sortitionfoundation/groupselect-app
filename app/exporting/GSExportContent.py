@@ -144,11 +144,11 @@ def build_allocation_dataframe(
     # Diversity score of this one allocation (no meeting score -- that's an
     # ensemble-wide metric, not meaningful for a single allocation).
     people_data = pdata_mapped[project.fields_display()]
-    diversity_score = AllocationEnsemble([allocation]).calc_diversity_score(
-        people_data
-    )
+    diversity_score = AllocationEnsemble(
+        [allocation]
+    ).calc_diversity_norm_score(people_data)
     data["Overall"][n_participant_rows + 1] = (
-        f"Diversity:\n{diversity_score:.1f}"
+        f"Diversity:\n{diversity_score:.1%}"
     )
 
     return pd.DataFrame(data)
@@ -177,13 +177,13 @@ def build_setup_summary_dataframe(
     )
 
     people_data = pdata_mapped[project.fields_display()]
-    pop_diversity = setup.ensemble.calc_diversity_score(people_data)
+    pop_diversity = setup.ensemble.calc_diversity_norm_score(people_data)
     pop_meeting = setup.ensemble.calc_meeting_norm_score()
 
     stats_row = {"All Participants": "\n\n".join(pop_lines)}
     metrics_row = {
         "All Participants": (
-            f"Diversity:\n{pop_diversity:.1f}\n\nMeetings:\n{pop_meeting:.1%}"
+            f"Diversity:\n{pop_diversity:.1%}\n\nMeetings:\n{pop_meeting:.1%}"
         )
     }
 
@@ -202,10 +202,10 @@ def build_setup_summary_dataframe(
             a_total,
         )
         stats_row[name] = "\n\n".join(lines)
-        a_diversity = AllocationEnsemble([allocation]).calc_diversity_score(
-            people_data
-        )
-        metrics_row[name] = f"Diversity:\n{a_diversity:.1f}"
+        a_diversity = AllocationEnsemble(
+            [allocation]
+        ).calc_diversity_norm_score(people_data)
+        metrics_row[name] = f"Diversity:\n{a_diversity:.1%}"
 
     columns = ["All Participants"] + list(setup.allocation_names)
     return pd.DataFrame(

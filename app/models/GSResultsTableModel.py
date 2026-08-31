@@ -103,9 +103,9 @@ class GSResultsTableModel(AbstractProjectModel, QtCore.QAbstractTableModel):
                 ]
                 diversity_score = AllocationEnsemble(
                     [self._allocation]
-                ).calc_diversity_score(people_data)
+                ).calc_diversity_norm_score(people_data)
 
-                return f"\n\nDiversity:\n{diversity_score:.1f}"
+                return f"\n\nDiversity:\n{diversity_score:.1%}"
         elif index.column() > 0:
             group = self._allocation[index.column() - 1]
             if index.row() < len(group):
