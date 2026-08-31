@@ -69,10 +69,8 @@ deployment = [
     { name = "zstandard" },
 ]
 dev = [
-    { name = "ruff" },
-]
-tests = [
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -94,8 +92,10 @@ deployment = [
     { name = "wheel", specifier = ">=0.46.3" },
     { name = "zstandard", specifier = ">=0.25.0" },
 ]
-dev = [{ name = "ruff", specifier = ">=0.16.5" }]
-tests = [{ name = "pytest", specifier = ">=8.4.0" }]
+dev = [
+    { name = "pytest", specifier = ">=8.4.0" },
+    { name = "ruff", specifier = ">=0.16.5" },
+]
 
 [[package]]
 name = "iniconfig"

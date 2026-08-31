@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QGroupBox, QListView
 
-from GSAppFieldMode import GSAppFieldMode
+from GSAppFieldMode import GSAppFieldMode, FIELD_MODE_LABELS
 from models.GSFieldUsageListModel import GSFieldUsageListModel
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ class GSGenerateFieldsGroup(QGroupBox):
         for usage_mode in GSAppFieldMode:
             horizontal_layout.addWidget(
                 self._create_list(
-                    f"{usage_mode.name} Fields",
+                    FIELD_MODE_LABELS[usage_mode],
                     self._ctx.model_manager[f"fu{usage_mode.name.lower()}"],
                 )
             )
