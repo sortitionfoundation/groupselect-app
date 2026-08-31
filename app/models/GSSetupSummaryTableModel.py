@@ -144,20 +144,20 @@ class GSSetupSummaryTableModel(
             # own diversity score.
             people_data = pdata_mapped[self._project.fields_display()]
             if index.column() == 0:
-                diversity_score = setup.ensemble.calc_diversity_score(
+                diversity_score = setup.ensemble.calc_diversity_norm_score(
                     people_data
                 )
                 meeting_score = setup.ensemble.calc_meeting_norm_score()
                 return (
-                    f"Diversity:\n{diversity_score:.1f}\n\n"
+                    f"Diversity:\n{diversity_score:.1%}\n\n"
                     f"Meetings:\n{meeting_score:.1%}"
                 )
             else:
                 allocation = setup.ensemble[index.column() - 1]
                 diversity_score = AllocationEnsemble(
                     [allocation]
-                ).calc_diversity_score(people_data)
-                return f"Diversity:\n{diversity_score:.1f}"
+                ).calc_diversity_norm_score(people_data)
+                return f"Diversity:\n{diversity_score:.1%}"
 
     def rowCount(self, index=...) -> int:
         """Return the fixed number of rows: statistics and metrics."""
