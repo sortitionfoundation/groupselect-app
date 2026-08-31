@@ -345,7 +345,6 @@ class GSGenerateSettingsGroup(QGroupBox):
                     algorithm=algorithm,
                 )
             except Exception as ex:
-                raise ex
                 progress_bar.close()
                 QMessageBox.critical(
                     self, "Error", f"An error occurred during allocation: {ex}"
