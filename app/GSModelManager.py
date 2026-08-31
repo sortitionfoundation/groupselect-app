@@ -10,8 +10,9 @@ from models.GSManualsListModel import GSManualsListModel
 from models.GSParticipantsFieldsModel import GSParticipantsFieldsModel
 from models.GSParticipantsDataModel import GSParticipantsDataModel
 from models.GSParticipantsTermsModel import GSParticipantsTermsModel
-from models.GSResultsListModel import GSResultsListModel
+from models.GSResultsTreeModel import GSResultsTreeModel
 from models.GSResultsTableModel import GSResultsTableModel
+from models.GSSetupSummaryTableModel import GSSetupSummaryTableModel
 
 
 class GSModelManager(AbstractModelManager):
@@ -24,8 +25,9 @@ class GSModelManager(AbstractModelManager):
             "pterms": GSParticipantsTermsModel(),
             "almanuals": GSManualsListModel(),
             "alsettings": GSAllocationSettingsModel(),
-            "results_list": GSResultsListModel(),
+            "results_tree": GSResultsTreeModel(),
             "results_table": GSResultsTableModel(),
+            "results_summary": GSSetupSummaryTableModel(),
         } | {
             f"fu{usage_mode.name.lower()}": GSFieldUsageListModel(usage_mode)
             for usage_mode in GSAppFieldMode
@@ -55,5 +57,6 @@ class GSModelManager(AbstractModelManager):
 
     def updated_results(self):
         """Refresh the models that display the allocation results."""
-        self._models["results_list"].updated_results()
+        self._models["results_tree"].updated_results()
         self._models["results_table"].updated_results()
+        self._models["results_summary"].updated_results()

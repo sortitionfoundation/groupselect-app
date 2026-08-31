@@ -29,6 +29,7 @@ from groupselect import allocate_pandas, AllocatorResult, FieldMode, Algorithm
 
 from GSAppFieldMode import map_field_modes, GSAppFieldMode
 from GSProject import settings_lookup, GSProject
+from GSSetup import GSSetup
 from generate.GSAdvancedSettingsDialog import GSAdvancedSettingsDialog
 from generate.GSManualDialog import GSManualDialog
 from generate.GSHermesSlidersPanel import GSHermesSlidersPanel
@@ -162,6 +163,18 @@ class GSGenerateSettingsGroup(QGroupBox):
             QLabel("Number of allocations"), self._allocations_field
         )
         form_layout.addRow(QLabel("Advanced Settings"), self._btn_advanced)
+
+        # Lets the user choose whether "Generate" creates a new setup
+        # (ensemble) or appends the new allocations to an existing one.
+        # Disabled (so it can't even be opened) while no setup exists yet,
+        # since "Create new setup" is then the only possible choice anyway.
+        self._setup_target = QComboBox()
+        self._refresh_setup_target()
+        self._ctx.model_manager["results_tree"].layoutChanged.connect(
+            self._refresh_setup_target
+        )
+        form_layout.addRow(QLabel("Target Setup"), self._setup_target)
+
         form_widget = QWidget()
         form_widget.setLayout(form_layout)
 
@@ -175,6 +188,22 @@ class GSGenerateSettingsGroup(QGroupBox):
         settings_widget.setLayout(settings_layout)
 
         return settings_widget
+
+    def _refresh_setup_target(self):
+        """Repopulate the "target setup" drop-down from the project."""
+        project = self._ctx.project_manager.project
+        setups = project.setups if project is not None else []
+
+        previous_selection = self._setup_target.currentData()
+        self._setup_target.blockSignals(True)
+        self._setup_target.clear()
+        self._setup_target.addItem("Create new setup", None)
+        for i, setup in enumerate(setups):
+            self._setup_target.addItem(setup.name, i)
+        restore_index = self._setup_target.findData(previous_selection)
+        self._setup_target.setCurrentIndex(max(restore_index, 0))
+        self._setup_target.setEnabled(bool(setups))
+        self._setup_target.blockSignals(False)
 
     def update_groups_estimate(self, n_part_per_group: None | str = None):
         """Recompute and display the estimated number of groups."""
@@ -338,10 +367,19 @@ class GSGenerateSettingsGroup(QGroupBox):
                     f"Meeting score: {meeting_score:.1%}",
                 )
 
-                # Save new allocations to results.
-                self._ctx.project_manager.project.results.extend(
-                    allocation_result.ensemble
-                )
+                # Save the new allocations to the chosen setup, creating a
+                # new one by default (see _refresh_setup_target).
+                target_setup_idx = self._setup_target.currentData()
+                if target_setup_idx is None:
+                    setup = GSSetup(project.next_setup_name())
+                    project.setups.append(setup)
+                    target_setup_idx = len(project.setups) - 1
+                else:
+                    setup = project.setups[target_setup_idx]
+                setup.add_allocations(allocation_result.ensemble)
+
+                project.selected_setup = target_setup_idx
+                project.selected_allocation = None
                 self._ctx.model_manager.updated_results()
 
                 # Set project status to unsaved.
