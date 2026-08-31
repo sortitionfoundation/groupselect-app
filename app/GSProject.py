@@ -48,6 +48,32 @@ ALGORITHM_SETTINGS: dict[Algorithm, set[str]] = {
 class GSProject(AbstractProject):
     """The state of a GroupSelect project: participants, settings, results."""
 
+    # Bump this whenever a change to this class's data shape needs a
+    # migration to stay readable in an older `.gspr` file -- a field renamed,
+    # restructured, or removed with no safe default (a field merely *added*
+    # usually doesn't need one; see the `settings.setdefault()` loop below,
+    # which already backfills newly-added `settings` keys for old files).
+    # Register the corresponding step in `migrations()` in the same change
+    # that bumps this. See `base_app.AbstractProject.migrations` for how a
+    # migration function is written and what it receives.
+    SCHEMA_VERSION = 1
+
+    @classmethod
+    def migrations(cls) -> dict:
+        """Map `{from_version: migrate}` upgrading old `.gspr` file data.
+
+        Empty for now -- no released version of GroupSelect has needed one
+        yet. Add an entry each time `SCHEMA_VERSION` above is bumped, e.g.::
+
+            @classmethod
+            def migrations(cls):
+                def _v1_to_v2(data):
+                    data["new_field"] = data.pop("old_field")
+                    return data
+                return {1: _v1_to_v2}
+        """
+        return {}
+
     def __init__(
         self,
         output_dir: None | Path = None,
