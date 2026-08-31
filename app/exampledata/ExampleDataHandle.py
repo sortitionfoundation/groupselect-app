@@ -56,6 +56,11 @@ class ExampleDataHandle:
         df = self._build().astype(str)
         names = list(df.columns)
         df.columns = range(len(names))
+        # Match `datahandling.DataHandle.read()`, whose rows are numbered
+        # from 1 -- this is also what's shown as the participant's row ID
+        # placeholder (manuals dialogue, results table) when no Label
+        # field is set, so it must agree with a real file import's index.
+        df.index += 1
         self._imported = df
         self._column_naming = dict(enumerate(names))
 
