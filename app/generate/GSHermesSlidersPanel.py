@@ -43,7 +43,17 @@ class GSHermesSlidersPanel(QWidget):
     def update_fields(self) -> None:
         """Sync the shown sliders with the current diversify fields."""
         project = self._ctx.project_manager.project
-        wanted = set(project.fields_usage[GSAppFieldMode.Diversify])
+        # `project` can be `None` here: this runs via a
+        # `QTimer.singleShot(0, ...)` queued from a model signal (see
+        # `GSGenerateSettingsGroup`), so the project may have been closed
+        # in between that signal firing and this call actually running.
+        # Treat that as "no diversify fields", clearing any sliders left
+        # over from the just-closed project.
+        wanted = (
+            set(project.fields_usage[GSAppFieldMode.Diversify])
+            if project is not None
+            else set()
+        )
         current = set(self._rows.keys())
 
         for field_id in current - wanted:
