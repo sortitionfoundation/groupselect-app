@@ -4,9 +4,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from groupselect import Algorithm, AllocationEnsemble
+from groupselect import Algorithm
 
 from GSAppFieldMode import GSAppFieldMode
+from GSSetup import GSSetup, next_unique_name
 from base_app.AbstractProject import AbstractProject
 from importing.DataImportHandle import DataImportHandle
 
@@ -34,8 +35,9 @@ class GSProject(AbstractProject):
         fields_usage: None | dict[GSAppFieldMode, list[int]] = None,
         manuals: None | dict[int, int] = None,
         settings: None | dict = None,
-        results: None | AllocationEnsemble = None,
-        result_current: None | int = None,
+        setups: None | list[GSSetup] = None,
+        selected_setup: None | int = None,
+        selected_allocation: None | int = None,
         pareto_probs: None | dict[int, float] = None,
     ):
         """Initialise the project, defaulting any values not provided."""
@@ -47,8 +49,16 @@ class GSProject(AbstractProject):
         }
         self.manuals: dict[int, int] = manuals or {}
         self.settings: dict = settings or settings_template.copy()
-        self.results: AllocationEnsemble = results or AllocationEnsemble()
-        self.result_current: None | int = result_current
+
+        # Computed results: a list of named "Setups" (ensembles), each
+        # holding a list of named allocations ("rounds"). `selected_setup`/
+        # `selected_allocation` track which node is currently shown in the
+        # Results tab -- `selected_allocation is None` (with `selected_setup`
+        # set) means the whole setup's summary is selected, rather than one
+        # specific allocation within it.
+        self.setups: list[GSSetup] = setups or []
+        self.selected_setup: None | int = selected_setup
+        self.selected_allocation: None | int = selected_allocation
 
         self._pdata_mapped: None | pd.DataFrame = None
 
@@ -79,6 +89,10 @@ class GSProject(AbstractProject):
     def clear_cache_mapped(self):
         """Invalidate the cached, term-mapped participants' data."""
         self._pdata_mapped = None
+
+    def next_setup_name(self) -> str:
+        """Return the next default "Setup #" name, unique in the project."""
+        return next_unique_name("Setup", [setup.name for setup in self.setups])
 
     def fields_display(self) -> list[str]:
         """Return field IDs to display, in diversify/cluster/keep modes."""

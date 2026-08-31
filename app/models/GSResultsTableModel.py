@@ -12,6 +12,8 @@ from PySide6.QtCore import (
     QByteArray,
 )
 
+from groupselect import AllocationEnsemble
+
 from GSAppFieldMode import GSAppFieldMode
 from base_app.AbstractProjectModel import AbstractProjectModel
 
@@ -41,19 +43,22 @@ class GSResultsTableModel(AbstractProjectModel, QtCore.QAbstractTableModel):
         """Notify the view that the project's results changed."""
         self.layoutChanged.emit()
 
-    def update_current(self, index: QModelIndex):
-        """Switch to displaying the allocation result at the given row."""
-        self._project.result_current = index.row()
+    def update_current(
+        self, setup_index: None | int, allocation_index: None | int
+    ):
+        """Switch to displaying the given setup's given allocation."""
+        self._project.selected_setup = setup_index
+        self._project.selected_allocation = allocation_index
         self.layoutChanged.emit()
 
     @property
     def _allocation(self) -> list[list]:
         """The currently selected allocation, or None if none is selected."""
-        return (
-            None
-            if self._project.result_current is None
-            else self._project.results[self._project.result_current]
-        )
+        setup_index = self._project.selected_setup
+        allocation_index = self._project.selected_allocation
+        if setup_index is None or allocation_index is None:
+            return None
+        return self._project.setups[setup_index].ensemble[allocation_index]
 
     # abstract method implementations
     def data(self, index, role):
@@ -88,19 +93,19 @@ class GSResultsTableModel(AbstractProjectModel, QtCore.QAbstractTableModel):
                     )
                 return "\n\n".join(ret)
             elif index.row() == row_count_parts + 2:
+                # Only this one allocation's diversity score is shown here
+                # -- the meeting score is an ensemble-wide metric (how well
+                # *multiple* allocations complement each other) and isn't
+                # meaningful for a single one; see the setup summary table
+                # for that.
                 people_data = self._project.pdata_mapped[
                     self._project.fields_display()
                 ]
-                diversity_score = self._project.results.calc_diversity_score(
-                    people_data
-                )
-                meeting_score = self._project.results.calc_meeting_norm_score()
+                diversity_score = AllocationEnsemble(
+                    [self._allocation]
+                ).calc_diversity_score(people_data)
 
-                return (
-                    "\n\n"
-                    f"Diversity:\n{diversity_score:.1f}\n"
-                    f"Meetings:\n{meeting_score:.1%}"
-                )
+                return f"\n\nDiversity:\n{diversity_score:.1f}"
         elif index.column() > 0:
             group = self._allocation[index.column() - 1]
             if index.row() < len(group):

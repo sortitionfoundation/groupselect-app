@@ -44,3 +44,5 @@ class GSMainTabs(QWidget):
     def _main_tabs_switched(self, index):
         if index == 1:
             self._tab_generate.update_groups_estimate()
+        elif index == 2:
+            self._tab_results.refresh_selection()
