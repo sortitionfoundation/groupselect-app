@@ -1,10 +1,11 @@
+from math import ceil
+
 from PySide6 import QtCore
 from PySide6.QtCore import Qt, QModelIndex, QPersistentModelIndex
 
 from base_app.AbstractProjectModel import AbstractProjectModel
 
-from groupselect import FieldMode
-
+from GSAppFieldMode import GSAppFieldMode
 from GSProject import GSProject
 
 
@@ -24,7 +25,7 @@ class GSManualsListModel(QtCore.QAbstractListModel, AbstractProjectModel):
             p_id = list(self._project.manuals)[index.row()]
             g_id = self._project.manuals[p_id]
 
-            print_fields = self._project.fields_usage[FieldMode.Print]
+            print_fields = self._project.fields_usage[GSAppFieldMode.Label]
             p_label = (
                 ' '.join(self._project.pdata.loc[p_id, print_fields])
                 if print_fields else
@@ -41,7 +42,7 @@ class GSManualsListModel(QtCore.QAbstractListModel, AbstractProjectModel):
         return len(self._project.manuals)
 
     def get_allocatables(self) -> dict[int, str]:
-        print_fields = self._project.fields_usage[FieldMode.Print]
+        print_fields = self._project.fields_usage[GSAppFieldMode.Label]
         allocatables = self._project.pdata.loc[~self._project.pdata.index.isin(self._project.manuals)]
         return (
             allocatables.filter(print_fields)
@@ -52,9 +53,10 @@ class GSManualsListModel(QtCore.QAbstractListModel, AbstractProjectModel):
         )
 
     def get_groups(self) -> dict[int, str]:
+        n_groups = ceil(len(self._project.pdata) / self._project.settings['n_part_per_group'])
         return {
             g_id: f"Group {g_id+1}"
-            for g_id in range(self._project.settings['n_groups'])
+            for g_id in range(n_groups)
         }
 
     def add_manual(self, p_id: int | str, g_id: int):
