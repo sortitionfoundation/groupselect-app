@@ -37,6 +37,11 @@ if TYPE_CHECKING:
     from base_app.AppContext import AppContext
 
 
+# Resolution the [0.0, 1.0] progress fraction reported by groupselect is
+# scaled to, since QProgressDialog needs an integer range.
+PROGRESS_STEPS = 1000
+
+
 class GSGenerateSettingsGroup(QGroupBox):
     """Group box for configuring and triggering an allocation run."""
 
@@ -247,12 +252,17 @@ class GSGenerateSettingsGroup(QGroupBox):
                 )
         elif sender == self._btn_run:
             project: GSProject = self._ctx.project_manager.project
+            algorithm = Algorithm[project.settings["algorithm"]]
 
+            # groupselect's progress_func reports a float fraction complete
+            # in [0.0, 1.0], the same for every algorithm; QProgressDialog
+            # needs an integer range, so scale that fraction up to
+            # PROGRESS_STEPS steps of resolution.
             progress_bar = QProgressDialog(
                 "Generating table allocations...",
                 "",
                 0,
-                project.settings["n_attempts"],
+                PROGRESS_STEPS,
                 self._ctx.main_window,
             )
             progress_bar.setWindowTitle("Generating...")
@@ -267,7 +277,6 @@ class GSGenerateSettingsGroup(QGroupBox):
             progress_bar.show()
 
             try:
-                algorithm = Algorithm[project.settings["algorithm"]]
                 n_part_per_group = project.settings["n_allocations"] * [
                     project.settings["n_part_per_group"]
                 ]
@@ -299,7 +308,9 @@ class GSGenerateSettingsGroup(QGroupBox):
                     fields=fields,
                     n_part_per_group=n_part_per_group,
                     manuals=project.manuals,
-                    progress_func=lambda steps: progress_bar.setValue(steps),
+                    progress_func=lambda fraction: progress_bar.setValue(
+                        round(fraction * PROGRESS_STEPS)
+                    ),
                     settings=settings,
                     return_full=True,
                     algorithm=algorithm,
