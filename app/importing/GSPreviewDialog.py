@@ -103,12 +103,20 @@ class GSPreviewDialog(QDialog):
         self._field_first.setRange(1, len(self._data))
         self._field_first.setSingleStep(1)
         self._field_first.setValue(self._file_config["first"])
+        self._field_first.setToolTip(
+            "First row of the file to import as data (rows before it, "
+            "e.g. a heading row, are skipped)."
+        )
         self._field_first.valueChanged.connect(self._update_first_final)
         l.addWidget(self._field_first)
         self._field_last = QSpinBox()
         self._field_last.setRange(1, len(self._data))
         self._field_last.setSingleStep(1)
         self._field_last.setValue(self._file_config["last"])
+        self._field_last.setToolTip(
+            "Last row of the file to import as data (rows after it are "
+            "ignored)."
+        )
         self._field_last.valueChanged.connect(self._update_first_final)
         l.addWidget(self._field_last)
 
@@ -121,6 +129,9 @@ class GSPreviewDialog(QDialog):
             field_sheet.setCurrentIndex(
                 self._data_handle.file_config["sheet_name"]
             )
+            field_sheet.setToolTip(
+                "Sheet of the Excel workbook to import data from."
+            )
             field_sheet.currentIndexChanged.connect(self._update_sheet)
             l.addWidget(field_sheet)
         elif self._data_handle.file_type == FILE_TYPE_CSV:
@@ -131,6 +142,9 @@ class GSPreviewDialog(QDialog):
                     self._data_handle.file_config["sep"]
                 )
             )
+            field_sep.setToolTip(
+                "Character separating columns in the file."
+            )
             field_sep.currentIndexChanged.connect(self._update_sep)
             l.addWidget(field_sep)
             field_quote = QComboBox()
@@ -139,6 +153,10 @@ class GSPreviewDialog(QDialog):
                 list(FILE_QUOTE_OPTIONS.keys()).index(
                     self._data_handle.file_config["quotechar"]
                 )
+            )
+            field_quote.setToolTip(
+                "Character used to quote values containing the "
+                "separator or other special characters."
             )
             field_quote.currentIndexChanged.connect(self._update_quote)
             l.addWidget(field_quote)
@@ -151,6 +169,10 @@ class GSPreviewDialog(QDialog):
 
         # set dialog buttons
         self._btn_auto = QPushButton("&Auto-detect headings")
+        self._btn_auto.setToolTip(
+            "Read column names from the row just above the chosen first "
+            "data row."
+        )
         self._btn_auto.clicked.connect(self._button_clicked)
         self._btn_ok = QPushButton("&Ok")
         self._btn_ok.clicked.connect(self._button_clicked)

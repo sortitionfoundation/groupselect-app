@@ -16,6 +16,10 @@ class GSParticipantsDataSubtab(QTableView):
         self._ctx = ctx
 
         self.setModel(self._ctx.model_manager["pdata"])
+        self.setToolTip(
+            "Imported participants' data. Right-click a column header to "
+            "rename or disable that column."
+        )
 
         self.horizontalHeader().setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu

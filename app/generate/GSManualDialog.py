@@ -22,9 +22,14 @@ class GSManualDialog(QDialog):
         super(GSManualDialog, self).__init__(parent)
 
         self._cb1 = QComboBox()
+        self._cb1.setToolTip(
+            "Participant to pre-assign to the chosen group. Only "
+            "participants not already manually assigned are listed."
+        )
         for p_id, p_label in allocatables.items():
             self._cb1.addItem(p_label, p_id)
         self._cb2 = QComboBox()
+        self._cb2.setToolTip("Group the chosen participant will be assigned to.")
         for g_id, g_label in groups.items():
             self._cb2.addItem(g_label, g_id)
 

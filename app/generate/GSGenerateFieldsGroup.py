@@ -13,7 +13,11 @@ from PySide6.QtWidgets import (
     QListView,
 )
 
-from GSAppFieldMode import GSAppFieldMode, FIELD_MODE_LABELS
+from GSAppFieldMode import (
+    GSAppFieldMode,
+    FIELD_MODE_LABELS,
+    FIELD_MODE_TOOLTIPS,
+)
 from models.GSFieldUsageListModel import GSFieldUsageListModel
 
 if TYPE_CHECKING:
@@ -65,28 +69,39 @@ class GSGenerateFieldsGroup(QGroupBox):
         self._create_ui()
 
     def _create_ui(self):
+        self.setToolTip(
+            "Drag and drop participant-data columns between these lists to "
+            "choose how each is used by the allocation algorithm."
+        )
         horizontal_layout = QHBoxLayout()
         for usage_mode in GSAppFieldMode:
             horizontal_layout.addWidget(
                 self._create_list(
                     FIELD_MODE_LABELS[usage_mode],
+                    FIELD_MODE_TOOLTIPS[usage_mode],
                     self._ctx.model_manager[f"fu{usage_mode.name.lower()}"],
                 )
             )
         self.setLayout(horizontal_layout)
 
-    def _create_list(self, name: str, model: GSFieldUsageListModel):
+    def _create_list(
+        self, name: str, tooltip: str, model: GSFieldUsageListModel
+    ):
         list = _FieldListView()
         list.setModel(model)
         list.setDragEnabled(True)
         list.setAcceptDrops(True)
         list.setDropIndicatorShown(True)
+        list.setToolTip(tooltip)
         # list.setDragDropMode(QAbstractItemView.DragDrop)
         # list.setDefaultDropAction(Qt.MoveAction)
         # list.setMovement(QListView.Snap)
 
+        label = QLabel(name)
+        label.setToolTip(tooltip)
+
         layout = QVBoxLayout()
-        layout.addWidget(QLabel(name))
+        layout.addWidget(label)
         layout.addWidget(list)
         widget = QWidget()
         widget.setLayout(layout)

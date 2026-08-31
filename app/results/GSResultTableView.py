@@ -130,6 +130,10 @@ class GSResultTableView(QTableView):
     def __init__(self, parent: QWidget | None = ...):
         """Initialise the view, enabling drag-drop and the label delegate."""
         super(GSResultTableView, self).__init__(parent=parent)
+        self.setToolTip(
+            "One generated round. Drag and drop a participant onto "
+            "another group to move it there."
+        )
         self.verticalHeader().hide()
         self.setShowGrid(False)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)

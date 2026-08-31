@@ -27,16 +27,32 @@ class GSManualAllocationsGroup(QGroupBox):
         """Initialise the group box and build the manual-allocations UI."""
         super(GSManualAllocationsGroup, self).__init__("Manual assignments")
         self._ctx = ctx
+        self.setToolTip(
+            "Pre-assign specific participants to specific groups before "
+            "generating; these placements are never changed by the "
+            "algorithm."
+        )
 
         self._create_ui()
 
     def _create_ui(self):
         self._manuals_list = QListView()
         self._manuals_list.setModel(self._ctx.model_manager["almanuals"])
+        self._manuals_list.setToolTip(
+            "Participants pre-assigned to a specific group. These "
+            "assignments are honored by the algorithm and never moved."
+        )
 
         self._btn_add_manual = QPushButton("Add")
+        self._btn_add_manual.setToolTip(
+            "Pre-assign a participant to a specific group before running "
+            "the algorithm."
+        )
         self._btn_add_manual.clicked.connect(self._button_clicked)
         self._btn_del_manual = QPushButton("Delete")
+        self._btn_del_manual.setToolTip(
+            "Remove the selected manual assignment above."
+        )
         self._btn_del_manual.clicked.connect(self._button_clicked)
 
         manual_btns_list = QHBoxLayout()

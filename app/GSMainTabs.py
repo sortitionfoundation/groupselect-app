@@ -27,8 +27,15 @@ class GSMainTabs(QWidget):
 
         self._tabs = QTabWidget()
         self._tabs.addTab(self._tab_participants, "&Participants")
+        self._tabs.setTabToolTip(0, "Import and inspect participants' data.")
         self._tabs.addTab(self._tab_generate, "&Generate")
+        self._tabs.setTabToolTip(
+            1, "Configure fields and settings, then generate allocations."
+        )
         self._tabs.addTab(self._tab_results, "&Results")
+        self._tabs.setTabToolTip(
+            2, "Inspect, edit, rename, and delete generated allocations."
+        )
         self._tabs.currentChanged.connect(self._main_tabs_switched)
 
         m = 10

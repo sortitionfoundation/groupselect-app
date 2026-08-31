@@ -29,6 +29,31 @@ FIELD_MODE_LABELS: dict[GSAppFieldMode, str] = {
     GSAppFieldMode.Cluster: "Cluster:",
 }
 
+# Field Settings panel tooltips, keyed by usage mode, explaining what each
+# mode does to the field's column both in the algorithm and in the UI.
+FIELD_MODE_TOOLTIPS: dict[GSAppFieldMode, str] = {
+    GSAppFieldMode.Ignore: (
+        "This field is not used by the algorithm and is hidden from the "
+        "participants table."
+    ),
+    GSAppFieldMode.Keep: (
+        "This field is not used by the algorithm, but is still shown in "
+        "the participants table and included in exports."
+    ),
+    GSAppFieldMode.Label: (
+        "This field is only used as a display label for participants "
+        "(e.g. a name). It has no effect on the allocation."
+    ),
+    GSAppFieldMode.Diversify: (
+        "The algorithm tries to spread this field's distinct values as "
+        "evenly as possible across every group."
+    ),
+    GSAppFieldMode.Cluster: (
+        "Participants sharing the same value of this field are kept "
+        "together in the same group (e.g. seated at the same table)."
+    ),
+}
+
 
 def map_field_modes(field_mode: GSAppFieldMode):
     """Map an app-level field usage mode to a groupselect FieldMode."""

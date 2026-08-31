@@ -59,21 +59,48 @@ class GSAdvancedSettingsDialog(QDialog):
         self._attempts_field.setValidator(QIntValidator(1, 1000, self))
         self._attempts_field.setText(str(attempts_default))
         self._attempts_label = QLabel("Number of attempts:")
+        attempts_tooltip = (
+            "How many independent attempts the algorithm makes, keeping "
+            "the best result. More attempts can improve the outcome at "
+            "the cost of longer runtime."
+        )
+        self._attempts_field.setToolTip(attempts_tooltip)
+        self._attempts_label.setToolTip(attempts_tooltip)
 
         self._seed_field = QLineEdit()
         self._seed_field.setValidator(QDoubleValidator())
         self._seed_field.setText(str(seed_default))
         self._seed_label = QLabel("Random number seed:")
+        seed_tooltip = (
+            "Seed for the random number generator. Using the same seed "
+            "with the same inputs reproduces the same result."
+        )
+        self._seed_field.setToolTip(seed_tooltip)
+        self._seed_label.setToolTip(seed_tooltip)
 
         self._swap_rounds_field = QLineEdit()
         self._swap_rounds_field.setValidator(QIntValidator(1, 1000, self))
         self._swap_rounds_field.setText(str(swap_rounds_default))
         self._swap_rounds_label = QLabel("Swap rounds:")
+        swap_rounds_tooltip = (
+            "Number of local-search rounds spent swapping participants "
+            "between groups to improve the result. Higher values can "
+            "improve quality at the cost of longer runtime."
+        )
+        self._swap_rounds_field.setToolTip(swap_rounds_tooltip)
+        self._swap_rounds_label.setToolTip(swap_rounds_tooltip)
 
         self._cluster_tables_field = QLineEdit()
         self._cluster_tables_field.setValidator(QIntValidator(0, 1000, self))
         self._cluster_tables_field.setText(str(cluster_tables_default))
         self._cluster_tables_label = QLabel("Cluster tables:")
+        cluster_tables_tooltip = (
+            "How many extra groups, beyond the minimum required to seat "
+            "them, participants sharing a Cluster value may be spread "
+            "across. Lower values keep them more concentrated."
+        )
+        self._cluster_tables_field.setToolTip(cluster_tables_tooltip)
+        self._cluster_tables_label.setToolTip(cluster_tables_tooltip)
 
         form = QFormLayout()
         form.addRow(self._attempts_label, self._attempts_field)

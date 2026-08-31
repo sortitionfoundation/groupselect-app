@@ -29,4 +29,8 @@ class GSParticipantsTab(QTabWidget):
 
         self.setTabPosition(QTabWidget.TabPosition.South)
         self.addTab(subtab_data, "Data")
+        self.setTabToolTip(0, "The raw imported participants' data.")
         self.addTab(subtab_fields, "Fields")
+        self.setTabToolTip(
+            1, "Rename fields and normalise their values (terms)."
+        )
