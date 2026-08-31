@@ -81,7 +81,7 @@ class GSProject(AbstractProject):
         self._pdata_mapped = None
 
     def fields_display(self) -> list[str]:
-        """Return field IDs to display, in diversify/cluster/display modes."""
+        """Return field IDs to display, in diversify/cluster/keep modes."""
         return [
             field_id
             for field_usage, field_ids in self.fields_usage.items()
@@ -90,6 +90,6 @@ class GSProject(AbstractProject):
             in [
                 GSAppFieldMode.Diversify,
                 GSAppFieldMode.Cluster,
-                GSAppFieldMode.Display,
+                GSAppFieldMode.Keep,
             ]
         ]
