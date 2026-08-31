@@ -248,11 +248,25 @@ class GSGenerateSettingsGroup(QGroupBox):
         elif sender == self._btn_run:
             project: GSProject = self._ctx.project_manager.project
 
+            # The Legacy algorithm reports progress per attempt (one full
+            # allocation generated per step, `n_attempts` of them, with the
+            # best one picked at the end), while DREAM/HERMES report
+            # progress per allocation actually returned (one step per
+            # `n_allocations`, with no separate attempts concept) -- so the
+            # progress bar's maximum has to be picked per algorithm or it
+            # never gets anywhere near full for DREAM/HERMES.
+            algorithm = Algorithm[project.settings["algorithm"]]
+            progress_max = (
+                project.settings["n_attempts"]
+                if algorithm == Algorithm.Legacy
+                else project.settings["n_allocations"]
+            )
+
             progress_bar = QProgressDialog(
                 "Generating table allocations...",
                 "",
                 0,
-                project.settings["n_attempts"],
+                progress_max,
                 self._ctx.main_window,
             )
             progress_bar.setWindowTitle("Generating...")
@@ -267,7 +281,6 @@ class GSGenerateSettingsGroup(QGroupBox):
             progress_bar.show()
 
             try:
-                algorithm = Algorithm[project.settings["algorithm"]]
                 n_part_per_group = project.settings["n_allocations"] * [
                     project.settings["n_part_per_group"]
                 ]
