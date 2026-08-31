@@ -4,8 +4,8 @@ requires-python = "==3.11.*"
 
 [[package]]
 name = "base-app"
-version = "0.1.0"
-source = { git = "https://github.com/sortitionfoundation/base-app/?tag=v0.1.0#1bb503ef531295c8882eb059fd29f18aedf54d81" }
+version = "0.2.0"
+source = { git = "https://github.com/sortitionfoundation/base-app/?tag=v0.2.0#7cf7885b2b2f7a6a6744539d699428d073903bf5" }
 dependencies = [
     { name = "jsonpickle" },
     { name = "pyside6" },
@@ -75,7 +75,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "base-app", git = "https://github.com/sortitionfoundation/base-app/?tag=v0.1.0" },
+    { name = "base-app", git = "https://github.com/sortitionfoundation/base-app/?tag=v0.2.0" },
     { name = "datahandling", git = "https://github.com/sortitionfoundation/datahandling/?tag=v0.1.0" },
     { name = "groupselect", git = "https://github.com/sortitionfoundation/groupselect-lib?branch=main" },
     { name = "pandas", specifier = ">=2.3.3,<3.0.0" },
