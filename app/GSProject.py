@@ -1,5 +1,6 @@
 """The app's project model, holding participants' data and allocation state."""
 
+import copy
 from pathlib import Path
 
 import pandas as pd
@@ -20,9 +21,28 @@ settings_template = {
     "seed": 0,
     "algorithm": Algorithm.HERMES.name,
     "pareto_probs": {},
-    "cluster_val": 0,
+    "pareto_prob": 0.5,
+    "swap_rounds": 1,
+    "cluster_tables": 2,
 }
 settings_lookup = list(settings_template)
+
+# Which allocation settings each algorithm actually reads (derived from the
+# keyword arguments each `groupselect.algorithms.algorithm_*` function
+# accepts, beyond the participants/fields/groups/manuals/progress_func that
+# every algorithm takes regardless). Used to grey out settings that have no
+# effect on the currently chosen algorithm, in both the advanced-settings
+# dialog and the main allocation settings form.
+ALGORITHM_SETTINGS: dict[Algorithm, set[str]] = {
+    Algorithm.Legacy: {"n_attempts", "seed"},
+    Algorithm.DREAM: {"seed", "pareto_prob", "swap_rounds", "cluster_tables"},
+    Algorithm.HERMES: {
+        "seed",
+        "pareto_probs",
+        "swap_rounds",
+        "cluster_tables",
+    },
+}
 
 
 class GSProject(AbstractProject):
@@ -50,7 +70,17 @@ class GSProject(AbstractProject):
             usage_mode: [] for usage_mode in GSAppFieldMode
         }
         self.manuals: dict[int, int] = manuals or {}
-        self.settings: dict = settings or settings_template.copy()
+        # `settings_template` holds nested mutable defaults (e.g.
+        # `pareto_probs`), so a plain `.copy()` would shallow-copy those and
+        # let mutations on one project's settings leak into the template
+        # (and thus into every other project created afterwards) -- use a
+        # deep copy instead. Likewise, a project loaded from an older save
+        # file may predate settings added since (e.g. `swap_rounds`); fill
+        # those in from the template rather than letting lookups of them
+        # raise `KeyError`.
+        self.settings: dict = settings or copy.deepcopy(settings_template)
+        for key, default in settings_template.items():
+            self.settings.setdefault(key, copy.deepcopy(default))
 
         # Computed results: a list of named "Setups" (ensembles), each
         # holding a list of named allocations ("rounds"). `selected_setup`/

@@ -79,7 +79,7 @@ class GSAllocationSettingsModel(
 
     def get_setting(self, key: str) -> Any:
         """Return the value of a single setting by key."""
-        return self._project.settings.get(key, __default=None)
+        return self._project.settings.get(key, None)
 
     def set_setting(self, key: str, value: Any):
         """Set the value of a single setting by key and notify the view."""
