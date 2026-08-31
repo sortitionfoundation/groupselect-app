@@ -31,8 +31,8 @@ wheels = [
 
 [[package]]
 name = "groupselect"
-version = "0.1.0"
-source = { git = "https://github.com/sortitionfoundation/groupselect-lib?tag=v0.1.0#282fe9ea36e60b15722a71bf46bceb0885983c05" }
+version = "0.2.0"
+source = { git = "https://github.com/sortitionfoundation/groupselect-lib?tag=v0.2.0#066eb751c6b4155f2351436645ff591b61524d75" }
 dependencies = [
     { name = "numpy" },
 ]
@@ -64,7 +64,7 @@ deployment = [
 requires-dist = [
     { name = "base-app", git = "https://github.com/sortitionfoundation/base-app/?tag=v0.1.0" },
     { name = "datahandling", git = "https://github.com/sortitionfoundation/datahandling/?tag=v0.1.0" },
-    { name = "groupselect", git = "https://github.com/sortitionfoundation/groupselect-lib?tag=v0.1.0" },
+    { name = "groupselect", git = "https://github.com/sortitionfoundation/groupselect-lib?tag=v0.2.0" },
     { name = "pandas", specifier = ">=2.3.3,<3.0.0" },
 ]
 

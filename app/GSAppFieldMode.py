@@ -7,8 +7,8 @@ class GSAppFieldMode(Enum):
     Ignore = 0
     Diversify = 1
     Cluster = 2
-    Display = 4
-    Label = 5
+    Display = 3
+    Label = 4
 
 
 def map_field_modes(field_mode: GSAppFieldMode):

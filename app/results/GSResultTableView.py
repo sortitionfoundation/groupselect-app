@@ -8,6 +8,31 @@ CELL_PADDING: Final[int] = 5
 
 
 class GSResultsTableLabelDelegate(QItemDelegate):
+    def sizeHint(self, option, index):
+        if not index.isValid():
+            return super().sizeHint(option, index)
+
+        data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+
+        row_count_participants = index.model().row_count_participants()
+        if index.row() <= row_count_participants:
+            return QtCore.QSize(option.rect.width(), 25)
+        elif index.row() == row_count_participants + 2:
+            data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+            if data:
+                fm = QtGui.QFontMetrics(option.font)
+                rect = fm.boundingRect(
+                    0, 0,
+                    option.rect.width() if option.rect.width() > 0 else 200,
+                    10000,
+                    QtCore.Qt.TextFlag.TextWordWrap,
+                    str(data)
+                )
+                return QtCore.QSize(option.rect.width(), rect.height() + 2 * CELL_PADDING)
+
+        # Fallback rows (default painting).
+        return super().sizeHint(option, index)
+
     def paint(self,
               painter: Optional[QtGui.QPainter],
               option: QStyleOptionViewItem,
@@ -15,48 +40,58 @@ class GSResultsTableLabelDelegate(QItemDelegate):
         if not index.isValid():
             return
 
+        # Draw the vertical divider line first, it will be painted over
+        # by subsequent painting, but we restore it at the end.
+        def draw_divider():
+            if index.column() == 0:
+                painter.save()
+                pen = option.palette.mid().color()
+                painter.setPen(pen)
+                x = option.rect.right()
+                painter.drawLine(x, option.rect.top(), x, option.rect.bottom())
+                painter.restore()
+
         # Normal painting if not a participant row.
         if index.row() >= index.model().row_count_participants():
-            return super(GSResultsTableLabelDelegate, self).paint(painter, option, index)
+            option = QStyleOptionViewItem(option)
+            option.features &= ~QStyleOptionViewItem.ViewItemFeature.WrapText
+            option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignVCenter | QtCore.Qt.AlignmentFlag.AlignLeft
+            if index.column() != 0:
+                super(GSResultsTableLabelDelegate, self).paint(painter, option, index)
+            else:
+                data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+                if data:
+                    painter.drawText(option.rect, option.displayAlignment, str(data))
+            draw_divider()
+            return
 
         # data is our preview object
         data = index.model().data(index, QtCore.Qt.ItemDataRole.DisplayRole)
         if data is None:
+            draw_divider()
             return
 
         TEXT_HEIGHT = 20
-
         width = option.rect.width() - 2 * CELL_PADDING
-        height = option.rect.height() - 2* CELL_PADDING
+        height = option.rect.height() - 2 * CELL_PADDING
 
-        # # option.rect holds the area we are painting on the widget (our table cell)
-        # # scale our pixmap to fit
-        # scaled = data.image.scaled(
-        #     width,
-        #     height,
-        #     aspectRatioMode=QtCore.Qt.AspectRatioMode.KeepAspectRatio,
-        # )
-        # # Position in the middle of the area.
-        # x = CELL_PADDING + (width - scaled.width()) / 2
-        # y = CELL_PADDING + (height - scaled.height() - TEXT_HEIGHT) / 2
-        #
-        # painter.drawImage(int(option.rect.x() + x), int(option.rect.y() + y), scaled)
-
-        # Draw the title below the image, looking like a line edit
         txt_rect = QtCore.QRect(
             option.rect.x() + CELL_PADDING,
             option.rect.y() + CELL_PADDING,
             width,
             height,
         )
-        painter.drawRect(
-            txt_rect,
-        )
+        painter.drawRect(txt_rect)
         painter.drawText(
             txt_rect,
             QtCore.Qt.AlignmentFlag.AlignCenter,
             str(data),
         )
+
+        draw_divider()
+
+    def drawCheck(self, painter, option, rect, state):
+        pass
 
 
 class GSResultTableView(QTableView):

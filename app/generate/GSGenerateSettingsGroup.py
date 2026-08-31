@@ -1,18 +1,19 @@
-import pandas as pd
 from typing import TYPE_CHECKING
 
 from math import ceil
 
-from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit,
-                               QGroupBox, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog)
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import (QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QLineEdit, QComboBox,
+                               QGroupBox, QScrollArea, QGridLayout, QFormLayout, QListView, QDataWidgetMapper, QProgressDialog, QSlider)
 from PySide6 import QtCore, QtGui
 
-from groupselect import allocate_pandas, AllocatorResult, FieldMode
+from groupselect import allocate_pandas, AllocatorResult, FieldMode, Algorithm
 
-from GSAppFieldMode import map_field_modes
+from GSAppFieldMode import map_field_modes, GSAppFieldMode
 from GSProject import settings_lookup, GSProject
 from generate.GSAdvancedSettingsDialog import GSAdvancedSettingsDialog
 from generate.GSManualDialog import GSManualDialog
+from generate.GSHermesSlidersPanel import GSHermesSlidersPanel
 
 if TYPE_CHECKING:
     from base_app.AppContext import AppContext
@@ -67,6 +68,37 @@ class GSGenerateSettingsGroup(QGroupBox):
         self._part_per_group_field.textChanged.connect(self.update_groups_estimate)
         self._mapper.addMapping(self._part_per_group_field, settings_lookup.index('n_part_per_group'))
 
+        self._algorithm = QComboBox()
+        self._algorithm.addItems([a.name for a in Algorithm])
+        self._mapper.addMapping(self._algorithm, settings_lookup.index('algorithm'))
+        self._algorithm.currentIndexChanged.connect(self._algorithm_changed)
+
+        # self._cluster_val = QLineEdit()
+        # self._mapper.addMapping(self._cluster_val, settings_lookup.index('cluster_val'))
+        # self._cluster_val.hide()
+
+        self._slider_widget = GSHermesSlidersPanel(self._ctx)
+        model = self._ctx.model_manager["fudiversify"]
+
+        def on_model_changed():
+            QTimer.singleShot(0, lambda: self._slider_widget.update_fields())
+
+        model.rowsInserted.connect(lambda *args: on_model_changed())
+        model.rowsRemoved.connect(lambda *args: on_model_changed())
+        model.dataChanged.connect(lambda *args: on_model_changed())
+
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setWidget(self._slider_widget)
+        self._scroll_area.setMinimumHeight(30)
+        self._scroll_area.setMinimumWidth(300)
+        self._scroll_label = QLabel("Diversity weights")
+
+        # Set visibility status based of sliders panel.
+        is_hermes = Algorithm[self._algorithm.currentText()] == Algorithm.HERMES
+        self._scroll_area.setVisible(is_hermes)
+        self._scroll_label.setVisible(is_hermes)
+
         self._groups_calculated = QLabel()
 
         self._allocations_field = QLineEdit()
@@ -79,9 +111,11 @@ class GSGenerateSettingsGroup(QGroupBox):
         m = 50
         form_layout = QFormLayout()
         form_layout.setContentsMargins(m, 0, m, 0)
-        form_layout.addRow(QLabel('# Participants p. Group'), self._part_per_group_field)
-        form_layout.addRow(QLabel('# Groups'), self._groups_calculated)
-        form_layout.addRow(QLabel('# Allocations'), self._allocations_field)
+        form_layout.addRow(QLabel('Group size'), self._part_per_group_field)
+        form_layout.addRow(QLabel('Algorithm'), self._algorithm)
+        form_layout.addRow(self._scroll_label, self._scroll_area)
+        form_layout.addRow(QLabel('Number of groups'), self._groups_calculated)
+        form_layout.addRow(QLabel('Number of allocations'), self._allocations_field)
         form_layout.addRow(QLabel('Advanced Settings'), self._btn_advanced)
         form_widget = QWidget()
         form_widget.setLayout(form_layout)
@@ -113,6 +147,15 @@ class GSGenerateSettingsGroup(QGroupBox):
             )
             n_groups = ceil(len(pdata) / n_part_per_group)
             self._groups_calculated.setText(str(n_groups))
+
+    def _algorithm_changed(self):
+        project: GSProject = self._ctx.project_manager.project
+        if project is None:
+            return
+        else:
+            is_hermes = Algorithm[self._algorithm.currentText()] == Algorithm.HERMES
+            self._scroll_area.setVisible(is_hermes)
+            self._scroll_label.setVisible(is_hermes)
 
     def _button_clicked(self):
         sender = self.sender()
@@ -162,6 +205,7 @@ class GSGenerateSettingsGroup(QGroupBox):
             progress_bar.show()
 
             try:
+                algorithm = Algorithm[project.settings['algorithm']]
                 n_part_per_group = (
                     project.settings['n_allocations']
                     * [project.settings['n_part_per_group']]
@@ -177,10 +221,18 @@ class GSGenerateSettingsGroup(QGroupBox):
                     if key not in ['n_part_per_group', 'n_allocations']
                 }
 
-                groups: pd.DataFrame
+                # Add pareto probabilities if algorithm is HERMES. Drop probabilities for which the field is not set to
+                # mode diversify.
+                if algorithm == Algorithm.HERMES:
+                    settings["pareto_probs"] = {
+                        k: v
+                        for k, v in settings["pareto_probs"].items()
+                        if k in project.fields_usage[GSAppFieldMode.Diversify]
+                    }
+
                 allocation_result: AllocatorResult
 
-                _, groups, allocation_result = allocate_pandas(
+                _, _, allocation_result = allocate_pandas(
                     participants=project.pdata_mapped,
                     fields=fields,
                     n_part_per_group=n_part_per_group,
@@ -188,27 +240,30 @@ class GSGenerateSettingsGroup(QGroupBox):
                     progress_func=lambda steps: progress_bar.setValue(steps),
                     settings=settings,
                     return_full=True,
+                    algorithm=algorithm,
                 )
             except Exception as ex:
+                raise ex
                 progress_bar.close()
                 QMessageBox.critical(self, 'Error', f"An error occurred during allocation: {ex}")
                 return
             else:
-                meetings = allocation_result.ensemble.calc_n_meetings_alo()
+                people_data = project.pdata_mapped[project.fields_display()]
+                diversity_score = allocation_result.ensemble.calc_diversity_score(people_data)
+                meeting_score = allocation_result.ensemble.calc_meeting_norm_score()
 
                 # Close progress bar and display message box with results.
                 progress_bar.close()
                 QMessageBox.information(
                     self,
                     'Success!',
-                    'The allocations were successfully computed. Average'
-                    f"number of meetings is {meetings:d} ({0.999:.2%} of max).",
+                    'The allocations were computed successfully.\n\n'
+                    f"Diversity score: {diversity_score:.1f}\n"
+                    f"Meeting score: {meeting_score:.1%}",
                 )
 
                 # Save new allocations to results.
-                self._ctx.project_manager.project.results.extend(
-                    groups.groupby('allocation')['participant'].apply(lambda x: x.to_list()).to_list()
-                )
+                self._ctx.project_manager.project.results.extend(allocation_result.ensemble)
                 self._ctx.model_manager.updated_results()
 
                 # Set project status to unsaved.
