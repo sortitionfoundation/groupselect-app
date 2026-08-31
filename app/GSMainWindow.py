@@ -1,24 +1,36 @@
-"""The main application window, adding the app-specific Data menu."""
+"""The main application window, adding the app-specific menus."""
 
 from pathlib import Path
 
+import pandas as pd
 from PySide6 import QtCore
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
+    QMenu,
     QMessageBox,
     QProgressDialog,
 )
 
 from datahandling import FILE_TYPE_XLS, FILE_TYPE_CSV
+from groupselect.examples import DATA_DIR
 from base_app.AbstractMainWindow import AbstractMainWindow
 
 from GSExportSettings import GSExportSettings
 from GSMainTabs import GSMainTabs
+from exampledata.ExampleDataHandle import (
+    ExampleDataHandle,
+    PredefinedExampleDataHandle,
+    SyntheticExampleDataHandle,
+)
 from exporting.GSExportContent import export_to_file
 from exporting.GSExportDialog import GSExportDialog
 from importing.DataImportHandle import DataImportHandle
 from importing.GSPreviewDialog import GSPreviewDialog
+
+
+# Participant counts offered in the "Synthetic dataset" submenu.
+SYNTHETIC_DATASET_SIZES = [20, 40, 60, 80, 100]
 
 
 class GSMainWindow(AbstractMainWindow):
@@ -29,7 +41,7 @@ class GSMainWindow(AbstractMainWindow):
         return {
             "project": _super_menu["project"],
             "data": {
-                "name": "Data",
+                "name": "&Data",
                 "items": {
                     "load": {
                         "type": "action",
@@ -79,6 +91,57 @@ class GSMainWindow(AbstractMainWindow):
             },
             "help": _super_menu["help"],
         }
+
+    def _create_menu(self):
+        super(GSMainWindow, self)._create_menu()
+        self._create_load_example_menu()
+
+    def _create_load_example_menu(self):
+        """Insert the hierarchical "Load example" submenu into "Data".
+
+        `base_app`'s menu system only knows flat actions/separators (see
+        `AbstractMainWindow._create_menu`), so this submenu tree is built
+        directly with Qt and spliced into the already-built "Data" menu,
+        as its own section below "Import file"/"Update import" and above
+        "Export as..."/"Export".
+        """
+        data_menu = self._menus["data"]
+        export_as_action = self._menu_items["data:export_as"]
+
+        menu = QMenu("Load &example", self)
+        data_menu.insertMenu(export_as_action, menu)
+        data_menu.insertSeparator(export_as_action)
+
+        action = menu.addAction("&Default example")
+        action.setStatusTip(
+            "Load the default example dataset bundled with groupselect."
+        )
+        action.triggered.connect(self._load_example_default)
+
+        menu.addSeparator()
+
+        predefined_menu = menu.addMenu("&Predefined datasets")
+        for csv_path in sorted(DATA_DIR.glob("*.csv")):
+            if csv_path.stem == "default":
+                continue
+            n_participants = len(pd.read_csv(csv_path))
+            action = predefined_menu.addAction(
+                f"{csv_path.stem} ({n_participants} participants)"
+            )
+            action.triggered.connect(
+                lambda checked=False, path=csv_path: (
+                    self._load_example_predefined(path)
+                )
+            )
+
+        synthetic_menu = menu.addMenu("&Synthetic dataset")
+        for n_participants in SYNTHETIC_DATASET_SIZES:
+            action = synthetic_menu.addAction(f"{n_participants} participants")
+            action.triggered.connect(
+                lambda checked=False, n=n_participants: (
+                    self._load_example_synthetic(n)
+                )
+            )
 
     def _create_main_widget(self) -> GSMainTabs:
         return GSMainTabs(self._ctx, self)
@@ -174,6 +237,39 @@ class GSMainWindow(AbstractMainWindow):
                 "Error",
                 f"Unknown error occurred:\n\n{ex}",
             )
+
+        # Update models and displays.
+        self._ctx.model_manager.updated_participants()
+
+    def _load_example_default(self):
+        self._load_example(
+            lambda: PredefinedExampleDataHandle(DATA_DIR / "default.csv")
+        )
+
+    def _load_example_predefined(self, csv_path: Path):
+        self._load_example(lambda: PredefinedExampleDataHandle(csv_path))
+
+    def _load_example_synthetic(self, n_participants: int):
+        self._load_example(lambda: SyntheticExampleDataHandle(n_participants))
+
+    def _load_example(self, make_data_handle):
+        """Build an example data handle and load it into the project.
+
+        The data is generated/read already ready to use, so -- unlike a
+        real import -- there is no preview dialogue to go through first.
+        """
+        try:
+            data_handle: ExampleDataHandle = make_data_handle()
+        except Exception as ex:
+            QMessageBox.critical(
+                self._ctx.main_window,
+                "Error",
+                f"Unknown error occurred:\n\n{ex}",
+            )
+            return
+
+        # Add DataHandle to project.
+        self._ctx.project_manager.project.data_handle = data_handle
 
         # Update models and displays.
         self._ctx.model_manager.updated_participants()
