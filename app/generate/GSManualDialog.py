@@ -29,7 +29,9 @@ class GSManualDialog(QDialog):
         for p_id, p_label in allocatables.items():
             self._cb1.addItem(p_label, p_id)
         self._cb2 = QComboBox()
-        self._cb2.setToolTip("Group the chosen participant will be assigned to.")
+        self._cb2.setToolTip(
+            "Group the chosen participant will be assigned to."
+        )
         for g_id, g_label in groups.items():
             self._cb2.addItem(g_label, g_id)
 

@@ -142,9 +142,7 @@ class GSPreviewDialog(QDialog):
                     self._data_handle.file_config["sep"]
                 )
             )
-            field_sep.setToolTip(
-                "Character separating columns in the file."
-            )
+            field_sep.setToolTip("Character separating columns in the file.")
             field_sep.currentIndexChanged.connect(self._update_sep)
             l.addWidget(field_sep)
             field_quote = QComboBox()

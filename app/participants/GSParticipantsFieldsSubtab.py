@@ -36,8 +36,8 @@ class GSParticipantsFieldsSubtab(QWidget):
         self.terms_table.setModel(self._ctx.model_manager["pterms"])
         self.terms_table.setToolTip(
             "Normalise the raw values found in the selected field by "
-            "mapping them to a common term, e.g. mapping both \"M\" and "
-            "\"Male\" to \"Male\"."
+            'mapping them to a common term, e.g. mapping both "M" and '
+            '"Male" to "Male".'
         )
         self.terms_table.horizontalHeader().setSectionResizeMode(
             0, QHeaderView.ResizeMode.Stretch
