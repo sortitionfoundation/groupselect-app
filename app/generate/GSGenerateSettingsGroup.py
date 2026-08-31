@@ -370,12 +370,16 @@ class GSGenerateSettingsGroup(QGroupBox):
                 # new one by default (see _refresh_setup_target).
                 target_setup_idx = self._setup_target.currentData()
                 if target_setup_idx is None:
-                    setup = GSSetup(project.next_setup_name())
+                    setup = GSSetup(
+                        project.next_setup_name(), project.next_id()
+                    )
                     project.setups.append(setup)
                     target_setup_idx = len(project.setups) - 1
                 else:
                     setup = project.setups[target_setup_idx]
-                setup.add_allocations(allocation_result.ensemble)
+                setup.add_allocations(
+                    allocation_result.ensemble, project.next_id
+                )
 
                 project.selected_setup = target_setup_idx
                 project.selected_allocation = None
