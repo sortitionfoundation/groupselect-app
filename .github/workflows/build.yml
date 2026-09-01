@@ -95,10 +95,21 @@ jobs:
         shell: bash
         run: |
           uv run pyside6-deploy --init --name groupselect2 app/main.py
+          # groupselect-lib's groupselect.algorithms.__init__ resolves its algorithm
+          # implementations (DREAM, HERMES, ...) via a runtime-constructed
+          # importlib.import_module() call, not a static "from ... import" -- Nuitka's
+          # standalone mode only bundles modules it can find via static import analysis,
+          # so those submodules were silently left out of the build (ModuleNotFoundError
+          # at runtime, e.g. "No module named groupselect.algorithms.algorithm_dream").
+          # --include-package forces the whole groupselect package in regardless of how
+          # it's imported. groupselect-lib is tiny, so we deliberately go one level wider
+          # than strictly necessary (the whole package, not just .algorithms) to guard
+          # against the same pattern showing up elsewhere in it later.
+          include_args="--include-package=groupselect"
           if [ "${{ runner.os }}" = "Windows" ]; then
-            extra_args="--msvc=latest --noinclude-qt-translations"
+            extra_args="--msvc=latest --noinclude-qt-translations $include_args"
           else
-            extra_args="--noinclude-qt-translations"
+            extra_args="--noinclude-qt-translations $include_args"
           fi
           sed -i.bak "s/^extra_args = .*/extra_args = $extra_args/" app/pysidedeploy.spec
           rm -f app/pysidedeploy.spec.bak
