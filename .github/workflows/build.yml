@@ -86,18 +86,22 @@ jobs:
           echo "--- generated app/pysidedeploy.spec ---"
           cat app/pysidedeploy.spec
 
-      ### REMOVE PRE-INSTALLED MINGW64 FROM PATH ON WINDOWS
-      # windows-latest runners ship their own MinGW64 gcc at C:\mingw64\bin, already on PATH.
-      # Nuitka detects this pre-existing, non-Nuitka-managed gcc.exe first, refuses it because
-      # it isn't the exact pinned winlibs build it requires, and hits a rough edge in its own
-      # Scons version-probe logic that turns this into a hard FATAL/crash instead of cleanly
-      # falling through to downloading its own copy (see nuitka/Nuitka#3309). Hiding it from
-      # PATH avoids the conflict entirely, letting Nuitka download and use its own pinned gcc.
-      - name: Remove pre-installed MinGW64 from PATH (Windows)
+      ### REMOVE ANY PRE-INSTALLED GCC FROM PATH ON WINDOWS
+      # windows-latest runners ship several unrelated MinGW/gcc toolchains pre-installed and on
+      # PATH (e.g. C:\mingw64, and Strawberry Perl's C:\Strawberry\c\bin -- there may be others).
+      # Nuitka detects whichever pre-existing, non-Nuitka-managed gcc.exe it finds on PATH first,
+      # refuses it because it isn't the exact pinned winlibs build it requires, and hits a rough
+      # edge in its own Scons version-probe logic that turns this into a hard FATAL/crash instead
+      # of cleanly falling through to downloading its own copy (see nuitka/Nuitka#3309). Rather
+      # than hardcode one offending path (which just surfaces the next one), strip every PATH
+      # directory that actually contains a gcc.exe, so Nuitka only ever finds its own cached copy.
+      - name: Remove pre-installed gcc from PATH (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $newPath = ($env:PATH -split ';' | Where-Object { $_ -notlike 'C:\mingw64*' }) -join ';'
+          $newPath = ($env:PATH -split ';' | Where-Object {
+            $_ -and -not (Test-Path (Join-Path $_ 'gcc.exe'))
+          }) -join ';'
           echo "PATH=$newPath" >> $env:GITHUB_ENV
 
       ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
