@@ -175,6 +175,7 @@ jobs:
         with:
           name: groupselect2-dist-${{ matrix.os }}
           path: ${{ runner.os == 'macOS' && 'app/groupselect2.app' || 'app/groupselect2.dist' }}
+          retention-days: 15
 
       ### BUILD MSIX FOR WINDOWS
       - name: Set version in manifest
@@ -258,6 +259,7 @@ jobs:
         with:
           name: groupselect2-msix
           path: groupselect2.msix
+          retention-days: 15
 
   ### ATTACH BUILDS TO THE GITHUB RELEASE AS DOWNLOADABLE ASSETS
   publish-release-assets:
