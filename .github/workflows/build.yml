@@ -13,8 +13,25 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      # Nuitka needs to download a pinned MinGW64 gcc on Windows (and may need
+      # other helper tools like ccache on other platforms). It normally asks for
+      # interactive confirmation before doing so, which hangs/fails on CI's
+      # non-interactive stdin. This makes it assume "yes" everywhere instead of
+      # only passing --assume-yes-for-downloads for one platform.
+      NUITKA_ASSUME_YES_FOR_DOWNLOADS: "1"
+
     steps:
       - uses: actions/checkout@v4
+
+      ### DEBUG: SHOW CHECKED-OUT SOURCE TREE
+      - name: "Debug: list checked-out repo contents"
+        shell: bash
+        run: |
+          echo "--- repo root (top 2 levels) ---"
+          find . -maxdepth 2 -not -path '*/.git*' | sort
+          echo "--- app/ (full) ---"
+          find app -not -path '*/.git*' | sort
 
       ### INSTALL UV
       - name: Install uv (Unix)
@@ -52,18 +69,98 @@ jobs:
             -OutFile "$dest\depends.zip"
           Expand-Archive -Path "$dest\depends.zip" -DestinationPath $dest -Force
 
+      ### GENERATE A FRESH pysidedeploy.spec, WITHOUT NUITKA'S --quiet FLAG
+      # pysidedeploy.spec is intentionally not committed (see AGENTS.md), so pyside6-deploy
+      # would otherwise regenerate one from its own template on every run, which bakes in
+      # "extra_args = --quiet --noinclude-qt-translations". --quiet hides Nuitka's own
+      # compiler/Scons output -- which is exactly the output that revealed the Windows build's
+      # real failure (an unanswerable interactive MinGW64-download prompt) after "Build app"
+      # below had already reported success. --init only writes the config file, it does not
+      # invoke Nuitka, so this is safe/fast to run separately first.
+      - name: Generate deployment spec (verbose Nuitka output)
+        shell: bash
+        run: |
+          uv run pyside6-deploy --init --name groupselect2 app/main.py
+          sed -i.bak 's/^extra_args = .*/extra_args = --noinclude-qt-translations/' app/pysidedeploy.spec
+          rm -f app/pysidedeploy.spec.bak
+          echo "--- generated app/pysidedeploy.spec ---"
+          cat app/pysidedeploy.spec
+
       ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
 
+      ### DEBUG: SHOW WHAT pyside6-deploy ACTUALLY PRODUCED
+      - name: "Debug: list build output"
+        shell: bash
+        run: |
+          echo "--- app/ (top level) ---"
+          ls -la app
+          for d in app/groupselect2.dist app/groupselect2.app app/deployment; do
+            if [ -e "$d" ]; then
+              echo "--- $d exists: $(find "$d" -type f | wc -l) files, $(du -sh "$d" | cut -f1) ---"
+              find "$d" -maxdepth 2 | sort
+            else
+              echo "--- $d does not exist ---"
+            fi
+          done
+
+      ### HARD FAILURE GATE: pyside6-deploy can exit 0 even when the Nuitka compile it wraps
+      # failed (it catches the exception, logs it, and still reports "Executed file created"
+      # -- this is exactly how the Windows build silently shipped an empty package to the
+      # Store before). Fail the job loudly here instead of packaging whatever partial output
+      # (if any) exists.
+      - name: Verify build output exists
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            dir="app/groupselect2.app/Contents/MacOS"
+            if [ ! -d "$dir" ] || [ -z "$(ls -A "$dir" 2>/dev/null)" ]; then
+              echo "::error::app/groupselect2.app/Contents/MacOS is missing or empty -- pyside6-deploy did not produce a real app bundle. Check the 'Build app' step's log above for a Nuitka error."
+              exit 1
+            fi
+            echo "Found app bundle contents: $(ls "$dir")"
+          else
+            if [ "${{ runner.os }}" = "Windows" ]; then
+              exe="app/groupselect2.dist/main.exe"
+            else
+              exe="app/groupselect2.dist/main.bin"
+            fi
+            if [ ! -f "$exe" ]; then
+              echo "::error::Expected built executable not found at $exe -- pyside6-deploy did not produce a real build. Check the 'Build app' step's log above for a Nuitka error (e.g. an unanswered interactive download prompt)."
+              exit 1
+            fi
+            echo "Found built executable: $exe ($(du -h "$exe" | cut -f1))"
+          fi
+
       - name: Copy resources
-        run: python -c "import shutil; shutil.copytree('app/resources', 'app/groupselect2.dist/resources')"
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            dest="app/groupselect2.app/Contents/Resources/resources"
+          else
+            dest="app/groupselect2.dist/resources"
+          fi
+          python -c "import shutil,sys; shutil.copytree(sys.argv[1], sys.argv[2])" app/resources "$dest"
+          echo "Copied app/resources into $dest"
+
+      ### DEBUG: SHOW FINAL DIST/BUNDLE CONTENTS BEFORE UPLOAD
+      - name: "Debug: list final dist contents before upload"
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            root="app/groupselect2.app"
+          else
+            root="app/groupselect2.dist"
+          fi
+          echo "--- $root: $(find "$root" -type f | wc -l) files, $(du -sh "$root" | cut -f1) ---"
+          find "$root" -maxdepth 2 | sort
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: groupselect2-dist-${{ matrix.os }}
-          path: app/groupselect2.dist
+          path: ${{ runner.os == 'macOS' && 'app/groupselect2.app' || 'app/groupselect2.dist' }}
 
       ### BUILD MSIX FOR WINDOWS
       - name: Set version in manifest
@@ -98,6 +195,32 @@ jobs:
           Copy-Item "packaging\licenses\PYSIDE6_LICENSES.txt" "$pkg\"
           Copy-Item "packaging\licenses\QT_LIBRARY_REPLACEMENT.txt" "$pkg\"
 
+      ### DEBUG: SHOW WHAT ENDED UP IN THE MSIX STAGING FOLDER
+      - name: "Debug: list MSIX staging contents"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "--- msix_staging contents ---"
+          Get-ChildItem -Recurse msix_staging |
+            Select-Object FullName, Length | Format-Table -AutoSize
+          $totalSize = (Get-ChildItem -Recurse -File msix_staging |
+            Measure-Object -Property Length -Sum).Sum
+          Write-Host "Total size: $totalSize bytes"
+
+      ### HARD FAILURE GATE: this is exactly the folder that got zipped into the .msix that
+      # shipped to the Store without the app in it -- re-check right here, closest to the
+      # actual packaging step, in addition to the "Verify build output exists" check above.
+      - name: Verify MSIX staging contains executable
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $exe = "msix_staging\main.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Error "$exe not found in msix_staging -- the MSIX would ship without the app executable (this is exactly the bug that broke the Store submission). Check the 'Build app' and 'Verify build output exists' steps' logs above."
+            exit 1
+          }
+          Write-Host "Found $exe ($((Get-Item $exe).Length) bytes)"
+
       - name: Build MSIX with makeappx
         if: runner.os == 'Windows'
         shell: pwsh
@@ -108,6 +231,12 @@ jobs:
             Select-Object -Last 1 -ExpandProperty FullName
 
           & $makeappx pack /d msix_staging /p groupselect2.msix /nv
+
+      ### DEBUG: SHOW FINAL MSIX FILE SIZE
+      - name: "Debug: show final MSIX size"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Get-Item groupselect2.msix | Select-Object FullName, Length
 
       - name: Upload MSIX artifact
         if: runner.os == 'Windows'
