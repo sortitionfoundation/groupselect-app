@@ -21,7 +21,7 @@ def main():
     """Set up the application context and launch the app."""
     app_ctx = AppContext(
         app_name="GroupSelect",
-        app_version="v2.1.0",
+        app_version="v2.1.1",
         project_file_ending=".gspr",
         main_window_cls=GSMainWindow,
         model_manager_cls=GSModelManager,
