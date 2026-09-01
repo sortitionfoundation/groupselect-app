@@ -14,11 +14,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      # Nuitka needs to download a pinned MinGW64 gcc on Windows (and may need
-      # other helper tools like ccache on other platforms). It normally asks for
-      # interactive confirmation before doing so, which hangs/fails on CI's
-      # non-interactive stdin. This makes it assume "yes" everywhere instead of
-      # only passing --assume-yes-for-downloads for one platform.
+      # Nuitka may need to download small helper tools on some platforms (e.g. ccache).
+      # It normally asks for interactive confirmation before doing so, which hangs/fails
+      # on CI's non-interactive stdin. This makes it assume "yes" everywhere. Windows no
+      # longer needs this for its compiler specifically -- it's forced onto the pre-
+      # installed MSVC via --msvc=latest below, since Nuitka's own MinGW64 auto-download
+      # is currently broken on Windows CI (see the "Generate deployment spec" step).
       NUITKA_ASSUME_YES_FOR_DOWNLOADS: "1"
 
     steps:
@@ -74,35 +75,29 @@ jobs:
       # would otherwise regenerate one from its own template on every run, which bakes in
       # "extra_args = --quiet --noinclude-qt-translations". --quiet hides Nuitka's own
       # compiler/Scons output -- which is exactly the output that revealed the Windows build's
-      # real failure (an unanswerable interactive MinGW64-download prompt) after "Build app"
-      # below had already reported success. --init only writes the config file, it does not
-      # invoke Nuitka, so this is safe/fast to run separately first.
+      # real failure after "Build app" below had already reported success. --init only writes
+      # the config file, it does not invoke Nuitka, so this is safe/fast to run separately first.
+      #
+      # On Windows we also force --msvc=latest. Nuitka's default Windows backend auto-downloads
+      # a pinned MinGW64 gcc, but that download/retry flow is currently broken on Windows CI
+      # (confirmed independently of any PATH conflict -- fails with "FATAL: Only this specific
+      # gcc is supported with Nuitka" / "Failed unexpectedly in Scons C backend compilation" even
+      # with zero gcc anywhere on PATH; matches the open regression nuitka/Nuitka#3309). windows-
+      # latest runners ship Visual Studio Build Tools already, so --msvc=latest sidesteps the
+      # whole MinGW64 download path and uses the compiler that's already there.
       - name: Generate deployment spec (verbose Nuitka output)
         shell: bash
         run: |
           uv run pyside6-deploy --init --name groupselect2 app/main.py
-          sed -i.bak 's/^extra_args = .*/extra_args = --noinclude-qt-translations/' app/pysidedeploy.spec
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            extra_args="--msvc=latest --noinclude-qt-translations"
+          else
+            extra_args="--noinclude-qt-translations"
+          fi
+          sed -i.bak "s/^extra_args = .*/extra_args = $extra_args/" app/pysidedeploy.spec
           rm -f app/pysidedeploy.spec.bak
           echo "--- generated app/pysidedeploy.spec ---"
           cat app/pysidedeploy.spec
-
-      ### REMOVE ANY PRE-INSTALLED GCC FROM PATH ON WINDOWS
-      # windows-latest runners ship several unrelated MinGW/gcc toolchains pre-installed and on
-      # PATH (e.g. C:\mingw64, and Strawberry Perl's C:\Strawberry\c\bin -- there may be others).
-      # Nuitka detects whichever pre-existing, non-Nuitka-managed gcc.exe it finds on PATH first,
-      # refuses it because it isn't the exact pinned winlibs build it requires, and hits a rough
-      # edge in its own Scons version-probe logic that turns this into a hard FATAL/crash instead
-      # of cleanly falling through to downloading its own copy (see nuitka/Nuitka#3309). Rather
-      # than hardcode one offending path (which just surfaces the next one), strip every PATH
-      # directory that actually contains a gcc.exe, so Nuitka only ever finds its own cached copy.
-      - name: Remove pre-installed gcc from PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $newPath = ($env:PATH -split ';' | Where-Object {
-            $_ -and -not (Test-Path (Join-Path $_ 'gcc.exe'))
-          }) -join ';'
-          echo "PATH=$newPath" >> $env:GITHUB_ENV
 
       ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
       - name: Build app
