@@ -86,6 +86,20 @@ jobs:
           echo "--- generated app/pysidedeploy.spec ---"
           cat app/pysidedeploy.spec
 
+      ### REMOVE PRE-INSTALLED MINGW64 FROM PATH ON WINDOWS
+      # windows-latest runners ship their own MinGW64 gcc at C:\mingw64\bin, already on PATH.
+      # Nuitka detects this pre-existing, non-Nuitka-managed gcc.exe first, refuses it because
+      # it isn't the exact pinned winlibs build it requires, and hits a rough edge in its own
+      # Scons version-probe logic that turns this into a hard FATAL/crash instead of cleanly
+      # falling through to downloading its own copy (see nuitka/Nuitka#3309). Hiding it from
+      # PATH avoids the conflict entirely, letting Nuitka download and use its own pinned gcc.
+      - name: Remove pre-installed MinGW64 from PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $newPath = ($env:PATH -split ';' | Where-Object { $_ -notlike 'C:\mingw64*' }) -join ';'
+          echo "PATH=$newPath" >> $env:GITHUB_ENV
+
       ### BUILD APP WITH PYSIDE6-DEPLOY AND UPLOAD AS ARTIFACT
       - name: Build app
         run: uv run pyside6-deploy --mode standalone --name groupselect2 app/main.py
