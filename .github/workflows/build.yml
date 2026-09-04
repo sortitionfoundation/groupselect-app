@@ -193,6 +193,44 @@ jobs:
           path: ${{ runner.os == 'macOS' && 'app/groupselect2.app' || 'app/groupselect2.dist' }}
           retention-days: 15
 
+      ### BUILD DMG FOR MACOS
+      # A raw .app bundle isn't something you can hand a customer directly: it has to be a
+      # *directory* named "<something>.app" for macOS to recognize it as a launchable bundle,
+      # which the zip uploaded above doesn't guarantee once someone else re-zips/renames it
+      # (see the "groupselect2-dist-macos-latest.zip" mixup this was written to fix). A .dmg
+      # sidesteps that entirely: it's a single file, and mounting it gives the customer a
+      # Finder window with the app plus an /Applications shortcut to drag it onto -- the
+      # standard way third-party Mac software is distributed outside the App Store.
+      - name: Build DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          staging="dmg_staging"
+          mkdir "$staging"
+          cp -R app/groupselect2.app "$staging/"
+          ln -s /Applications "$staging/Applications"
+          hdiutil create -volname "GroupSelect" -srcfolder "$staging" -fs HFS+ -format UDZO -ov groupselect2.dmg
+
+      ### HARD FAILURE GATE: same reasoning as the MSIX check below -- fail loudly here rather
+      # than uploading a missing/empty DMG if hdiutil errored out silently.
+      - name: Verify DMG was created
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          if [ ! -f groupselect2.dmg ]; then
+            echo "::error::groupselect2.dmg was not created -- check the 'Build DMG' step's log above for an hdiutil error."
+            exit 1
+          fi
+          echo "Found DMG: $(du -h groupselect2.dmg | cut -f1)"
+
+      - name: Upload DMG artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: groupselect2-dmg
+          path: groupselect2.dmg
+          retention-days: 15
+
       ### BUILD MSIX FOR WINDOWS
       - name: Set version in manifest
         if: runner.os == 'Windows'
@@ -305,3 +343,4 @@ jobs:
           files: |
             *.zip
             dist/groupselect2-msix/groupselect2.msix
+            dist/groupselect2-dmg/groupselect2.dmg
