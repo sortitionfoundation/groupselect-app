@@ -1,6 +1,6 @@
 [project]
 name = "groupselect-app"
-version = "2.1.2"
+version = "2.1.3"
 description = "The GroupSelect App developed by the Sortition Foundation."
 authors = [
     { name = "Philipp C. Verpoort", email = "pcv@sortitionfoundation.org" }
